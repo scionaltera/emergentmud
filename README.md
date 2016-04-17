@@ -24,4 +24,3 @@ For the best chance of success getting your pull request approved, please try to
 
 ## License
 EmergentMUD is licensed under the (GNU AFFERO GENERAL PUBLIC LICENSE)[http://www.gnu.org/licenses/agpl.txt]. This license ensures that EmergentMUD and all derivative works will always be free open source for everyone to enjoy, distribute and customize. The Affero license stipulates that you must be able to provide a copy of your source code to **anyone who plays your game**.
-
