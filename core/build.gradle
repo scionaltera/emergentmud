@@ -1,22 +1,22 @@
 /*
-    EmergentMUD - A modern MUD with a procedurally generated world.
-    Copyright (C) 2016 BoneVM, LLC
-
-    This file is part of EmergentMUD.
-
-    EmergentMUD is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    EmergentMUD is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * EmergentMUD - A modern MUD with a procedurally generated world.
+ * Copyright (C) 2016 BoneVM, LLC
+ *
+ * This file is part of EmergentMUD.
+ *
+ * EmergentMUD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * EmergentMUD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 group 'com.emergentmud'
 version '0.1.0'
@@ -46,8 +46,28 @@ repositories {
     mavenCentral()
 }
 
+configurations.compile {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+}
+
 dependencies {
+    compile 'javax.inject:javax.inject:1'
+
+    compile 'org.webjars:webjars-locator:0.30'
+    compile 'org.webjars:jquery:2.1.1'
+    compile 'org.webjars:bootstrap:3.2.0'
+    compile 'org.webjars:font-awesome:4.5.0'
+
     compile 'org.springframework.boot:spring-boot-starter:1.3.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web:1.3.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-jetty:1.3.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-freemarker:1.3.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-websocket:1.3.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-security:1.3.3.RELEASE'
+
+    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.9.RELEASE'
+
+    compile 'org.springframework.session:spring-session-data-redis:1.1.1.RELEASE'
 
     testCompile 'junit:junit:4.12'
 }
@@ -68,14 +88,14 @@ cobertura {
     coverageCheckTotalLineRate = 70
     coverageCheckTotalBranchRate = 70
     coverageExcludes = [
-            ".*com.emergentmud.core.Application",
+            ".*com.emergentmud.core.EmergentMUD",
             ".*com.emergentmud.core.config.*"
     ]
 }
 
 pitest {
     excludedClasses = [
-            "com.emergentmud.core.Application",
+            "com.emergentmud.core.EmergentMUD",
             "com.emergentmud.core.config.*"
     ]
     coverageThreshold = 70

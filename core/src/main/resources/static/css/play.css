@@ -1,0 +1,60 @@
+/*
+ * EmergentMUD - A modern MUD with a procedurally generated world.
+ * Copyright (C) 2016 BoneVM, LLC
+ *
+ * This file is part of EmergentMUD.
+ *
+ * EmergentMUD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * EmergentMUD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+body {
+    background-color: black;
+    color: #ccc;
+    font-family: 'Inconsolata', monospace;
+    font-weight: 400;
+}
+
+#output-box {
+    font-family: 'Inconsolata', monospace;
+    font-size: small;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 0;
+    bottom: 36px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#output-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#input-box {
+    color: black;
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+}
+
+#user-input {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    display: block;
+}
