@@ -1,2 +1,3 @@
-core/
+.idea/
+.gradle/
 *.env
