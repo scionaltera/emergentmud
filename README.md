@@ -7,7 +7,7 @@ The code is built using the Gradle wrapper. The project structure follows the ty
 1. Java 8 or later.
 1. Docker and Docker Compose.
 
-The configurable settings for the components are stored in [component]-env.properties.sample files which you will need to rename to [component]-env.properties and fill out the information for your integration. The settings are generally for OAuth identification, database configuration, etc. and are required for the software to run.
+The configurable settings for the components are stored in [component].env.sample files which you will need to rename to [component].env and fill out the information for your integration. The settings are generally for OAuth identification, database configuration, etc. and are required for the software to run.
 
 To start up the site after you set up the properties files, you just need to run the build.sh script from the command line. It will build the projects, the Docker images, and start up the containers.
 
@@ -23,5 +23,5 @@ For the best chance of success getting your pull request approved, please try to
 1. Be open to feedback and criticism. It's not personal.
 
 ## License
-EmergentMUD is licensed under the (Apache License, Version 2.0)[http://www.apache.org/licenses/LICENSE-2.0].
+EmergentMUD is licensed under the (GNU AFFERO GENERAL PUBLIC LICENSE)[http://www.gnu.org/licenses/agpl.txt]. This license ensures that EmergentMUD and all derivative works will always be free open source for everyone to enjoy, distribute and customize. The Affero license stipulates that you must be able to provide a copy of your source code to **anyone who plays your game**.
 
