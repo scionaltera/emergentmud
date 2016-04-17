@@ -23,5 +23,4 @@ For the best chance of success getting your pull request approved, please try to
 1. Be open to feedback and criticism. It's not personal.
 
 ## License
-EmergentMUD is licensed under the (Apache License, Version 2.0)[http://www.apache.org/licenses/LICENSE-2.0].
-
+EmergentMUD is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
