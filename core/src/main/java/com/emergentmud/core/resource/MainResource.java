@@ -19,7 +19,9 @@
  */
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.SocialNetwork;
+import com.emergentmud.core.repository.AccountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -43,12 +45,15 @@ public class MainResource {
 
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
+    private AccountRepository accountRepository;
 
     @Inject
     public MainResource(List<SocialNetwork> networks,
-                        SecurityContextLogoutHandler securityContextLogoutHandler) {
+                        SecurityContextLogoutHandler securityContextLogoutHandler,
+                        AccountRepository accountRepository) {
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
+        this.accountRepository = accountRepository;
     }
 
     @RequestMapping("/")
@@ -58,6 +63,22 @@ public class MainResource {
         if (principal == null) {
             return "index";
         }
+
+        String network = (String)httpSession.getAttribute("social");
+        String networkId = principal.getName();
+        Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
+
+        if (account == null) {
+            account = new Account();
+            account.setSocialNetwork(network);
+            account.setSocialNetworkId(networkId);
+            account = accountRepository.save(account);
+
+            LOGGER.info("Created new account {}:{} -> {}", network, networkId, account.getId());
+        }
+
+        LOGGER.info("Successful login for: {}:{}", network, networkId);
+        model.addAttribute("account", account);
 
         return "characters";
     }
