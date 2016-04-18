@@ -21,7 +21,7 @@
 set -x
 
 cd core
-./gradlew clean buildDocker
+./gradlew clean buildDocker -x test
 cd ..
 
 docker-compose stop core
