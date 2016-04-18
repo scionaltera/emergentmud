@@ -98,8 +98,16 @@ public class MainResource {
     }
 
     @RequestMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response,
+                         HttpSession httpSession,
+                         Principal principal) {
+
+        String network = (String)httpSession.getAttribute("social");
+        String networkId = principal.getName();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        LOGGER.info("Logged out: {}:{}", network, networkId);
 
         securityContextLogoutHandler.logout(request, response, authentication);
 

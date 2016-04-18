@@ -154,12 +154,20 @@ public class MainResourceTest {
 
     @Test
     public void testLogout() throws Exception {
+        String network = "alteranet";
+        String networkId = "123456789";
+
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession httpSession = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
 
-        String view = mainResource.logout(request, response);
+        when(httpSession.getAttribute(eq("session"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
 
-        assertEquals("redirect:/", view);
+        String view = mainResource.logout(request, response, httpSession, principal);
+
         verify(securityContextLogoutHandler).logout(eq(request), eq(response), any(Authentication.class));
+        assertEquals("redirect:/", view);
     }
 }
