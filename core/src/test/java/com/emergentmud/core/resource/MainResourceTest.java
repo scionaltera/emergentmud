@@ -20,9 +20,12 @@
 
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +53,9 @@ public class MainResourceTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private EssenceRepository essenceRepository;
+
     private List<SocialNetwork> networks = new ArrayList<>();
     private MainResource mainResource;
 
@@ -63,7 +69,8 @@ public class MainResourceTest {
         mainResource = new MainResource(
                 networks,
                 securityContextLogoutHandler,
-                accountRepository
+                accountRepository,
+                essenceRepository
         );
     }
 
@@ -85,7 +92,15 @@ public class MainResourceTest {
     public void testIndexExistingAccount() throws Exception {
         String network = "alteranet";
         String networkId = "123456789";
+        String accountId = "accountId";
         Account account = mock(Account.class);
+        List<Essence> essences = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            Essence essence = mock(Essence.class);
+
+            essences.add(essence);
+        }
 
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
@@ -93,13 +108,16 @@ public class MainResourceTest {
 
         when(session.getAttribute(eq("social"))).thenReturn(network);
         when(principal.getName()).thenReturn(networkId);
+        when(account.getId()).thenReturn(accountId);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
 
         String view = mainResource.index(session, principal, model);
 
-        assertEquals("characters", view);
+        assertEquals("essence", view);
         verify(model).addAttribute(eq("networks"), eq(networks));
         verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essences"), eq(essences));
         verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
         verify(accountRepository, never()).save(any(Account.class));
     }
@@ -110,6 +128,13 @@ public class MainResourceTest {
         String network = "alteranet";
         String networkId = "123456789";
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        List<Essence> essences = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            Essence essence = mock(Essence.class);
+
+            essences.add(essence);
+        }
 
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
@@ -125,12 +150,14 @@ public class MainResourceTest {
 
             return account;
         });
+        when(essenceRepository.findByAccountId(anyString())).thenReturn(essences);
 
         String view = mainResource.index(session, principal, model);
 
-        assertEquals("characters", view);
+        assertEquals("essence", view);
         verify(model).addAttribute(eq("networks"), eq(networks));
         verify(model).addAttribute(eq("account"), accountCaptor.capture());
+        verify(model).addAttribute(eq("essences"), eq(essences));
         verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
         verify(accountRepository).save(any(Account.class));
 
@@ -150,6 +177,70 @@ public class MainResourceTest {
 
         assertEquals("redirect:/login/alteranet", view);
         verify(session).setAttribute(eq("social"), eq(network));
+    }
+
+    @Test
+    public void testNewEssence() throws Exception {
+        String view = mainResource.newEssence();
+
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveEssenceExistingAccount() throws Exception {
+        String accountId = "accountId";
+        String network = "alteranet";
+        String networkId = "123456789";
+
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Essence essence = mock(Essence.class);
+        Account account = mock(Account.class);
+
+        when(essence.getName()).thenReturn("Testy");
+        when(essence.getId()).thenReturn("essenceId");
+        when(account.getId()).thenReturn(accountId);
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(essenceRepository.save(any(Essence.class))).thenReturn(essence);
+
+        String view = mainResource.saveNewEssence(session, principal, essence);
+
+        verify(essence).setAccountId(eq(accountId));
+        verify(essenceRepository).save(eq(essence));
+        assertEquals("redirect:/", view);
+    }
+
+    @Test(expected = NoAccountException.class)
+    public void testSaveEssenceWithoutAccount() throws Exception {
+        String network = "alteranet";
+        String networkId = "123456789";
+
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Essence essence = mock(Essence.class);
+
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+        when(essence.getName()).thenReturn("Testy");
+        when(essence.getId()).thenReturn("essenceId");
+
+        mainResource.saveNewEssence(session, principal, essence);
+
+        verify(essenceRepository, never()).save(any(Essence.class));
+    }
+
+    @Test
+    public void testPlay() throws Exception {
+        String id = "id";
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Model model = mock(Model.class);
+
+        String view = mainResource.play(id, session, principal, model);
+
+        assertEquals("play", view);
     }
 
     @Test

@@ -19,6 +19,7 @@
  */
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
@@ -103,7 +104,7 @@ public class MainResource {
     }
 
     @RequestMapping("/new-essence")
-    public String newEssence(Model model) {
+    public String newEssence() {
         return "new-essence";
     }
 
@@ -113,11 +114,13 @@ public class MainResource {
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
 
-        if (account != null) {
-            essence.setAccountId(account.getId());
-            essence = essenceRepository.save(essence);
-            LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
+        if (account == null) {
+            throw new NoAccountException(network, networkId);
         }
+
+        essence.setAccountId(account.getId());
+        essence = essenceRepository.save(essence);
+        LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
 
         return "redirect:/";
     }
