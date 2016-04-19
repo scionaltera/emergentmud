@@ -19,9 +19,12 @@
  */
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.EssenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -46,14 +50,17 @@ public class MainResource {
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private AccountRepository accountRepository;
+    private EssenceRepository essenceRepository;
 
     @Inject
     public MainResource(List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
-                        AccountRepository accountRepository) {
+                        AccountRepository accountRepository,
+                        EssenceRepository essenceRepository) {
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
+        this.essenceRepository = essenceRepository;
     }
 
     @RequestMapping("/")
@@ -78,9 +85,13 @@ public class MainResource {
         }
 
         LOGGER.info("Successful login for: {}:{}", network, networkId);
-        model.addAttribute("account", account);
 
-        return "characters";
+        List<Essence> essences = essenceRepository.findByAccountId(account.getId());
+
+        model.addAttribute("account", account);
+        model.addAttribute("essences", essences);
+
+        return "essence";
     }
 
     @RequestMapping("/social/{network}")
@@ -90,6 +101,28 @@ public class MainResource {
         LOGGER.info("Logging in via social network: {}", network);
 
         return "redirect:/login/" + network;
+    }
+
+    @RequestMapping("/new-essence")
+    public String newEssence() {
+        return "new-essence";
+    }
+
+    @RequestMapping(method=RequestMethod.POST, value="/new-essence")
+    public String saveNewEssence(HttpSession session, Principal principal, Essence essence) {
+        String network = (String)session.getAttribute("social");
+        String networkId = principal.getName();
+        Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
+
+        if (account == null) {
+            throw new NoAccountException(network, networkId);
+        }
+
+        essence.setAccountId(account.getId());
+        essence = essenceRepository.save(essence);
+        LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
+
+        return "redirect:/";
     }
 
     @RequestMapping("/play/{id}")

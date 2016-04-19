@@ -43,12 +43,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </div>
 
     <div class="row">
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        <#list essences as essence>
+            <tr>
+                <td>${essence.name}</td>
+                <td>
+                    <a class="btn btn-success" role="button" href="<@spring.url '/play/${essence.id}'/>">
+                        <i class="fa fa-play"></i> Play
+                    </a>
+                </td>
+            </tr>
+        </#list>
+        </table>
+    </div>
+
+    <div class="row">
         <div class="col-md-12 text-center">
             <a class="btn btn-danger" role="button" href="<@spring.url '/logout'/>">
                 <i class="fa fa-power-off"></i> Log Out
             </a>
-            <a class="btn btn-primary" role="button" href="<@spring.url '/new-character'/>">
-                <i class="fa fa-heart"></i> New Character
+            <a class="btn btn-primary" role="button" href="<@spring.url '/new-essence'/>">
+                <i class="fa fa-heart"></i> Create Essence
             </a>
         </div>
     </div>
