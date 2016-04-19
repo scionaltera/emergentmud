@@ -32,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class MainResource {
@@ -127,6 +129,35 @@ public class MainResource {
 
     @RequestMapping("/play/{id}")
     public String play(@PathVariable("id") String id, HttpSession session, Principal principal, Model model) {
+        if (StringUtils.isEmpty(id)) {
+            LOGGER.info("No ID provided.");
+            return "redirect:/";
+        }
+
+        String network = (String)session.getAttribute("social");
+        String networkId = principal.getName();
+        Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
+
+        if (account == null) {
+            LOGGER.info("No such account: {}:{}", network, networkId);
+            return "redirect:/";
+        }
+
+        List<Essence> essences = essenceRepository.findByAccountId(account.getId());
+        Optional<Essence> eOptional = essences.stream()
+                .filter(e -> id.equals(e.getId()))
+                .findFirst();
+
+        if (!eOptional.isPresent()) {
+            LOGGER.info("No such character: {}", id);
+            return "redirect:/";
+        }
+
+        Essence essence = eOptional.get();
+
+        model.addAttribute("account", account);
+        model.addAttribute("essence", essence);
+
         return "play";
     }
 
