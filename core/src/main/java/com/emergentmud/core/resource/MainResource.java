@@ -23,10 +23,16 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
+import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -63,6 +69,42 @@ public class MainResource {
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
+    }
+
+    @SubscribeMapping("/user/queue/output")
+    @SendToUser("/queue/output")
+    public GameOutput onSubscribe() {
+        GameOutput output = new GameOutput("[green]Connected to server.");
+
+        output.append("[dcyan]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
+        output.append("[dcyan] | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \\/  | | | |   \\ ".replace(" ", "&nbsp;"));
+        output.append("[dcyan] | _|| '  \\/ -_) '_/ _` / -_) ' \\  _| |\\/| | |_| | |) |".replace(" ", "&nbsp;"));
+        output.append("[cyan] |___|_|_|_\\___|_| \\__, \\___|_||_\\__|_|  |_|\\___/|___/ ".replace(" ", "&nbsp;"));
+        output.append("[cyan]                   |___/                               ".replace(" ", "&nbsp;"));
+        output.append(String.format("[white]Copyright &copy; %d BoneVM, LLC.", DateTime.now().getYear()));
+        output.append("[white]EmergentMUD is licensed under the <a target=\"_blank\" " +
+                "href=\"http://www.gnu.org/licenses/agpl-3.0.en.html\">GNU Affero General Public License</a>.");
+        output.append("[white]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
+        output.append("[white]EmergentMUD is <a target=\"_blank\" " +
+                "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
+                "[green]you [white]can contribute to, modify and distribute as you wish.");
+        output.append("[yellow]Welcome to the world!");
+        output.append("");
+        output.append("> ");
+
+        return output;
+    }
+
+    @MessageMapping("/input")
+    @SendToUser("/queue/output")
+    public GameOutput onInput(UserInput input) {
+        GameOutput output = new GameOutput();
+
+        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
+        output.append("");
+        output.append("> ");
+
+        return output;
     }
 
     @RequestMapping("/")
@@ -176,5 +218,15 @@ public class MainResource {
         securityContextLogoutHandler.logout(request, response, authentication);
 
         return "redirect:/";
+    }
+
+    private String htmlEscape(String input) {
+        return input
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\\", "&#x2F;");
     }
 }

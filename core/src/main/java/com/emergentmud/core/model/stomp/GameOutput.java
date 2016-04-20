@@ -18,20 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.config;
+package com.emergentmud.core.model.stomp;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import java.util.ArrayList;
+import java.util.List;
 
-@EnableWebSocketMessageBroker
-@Configuration
-public class WebSocketConfiguration extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> {
-    @Override
-    public void configureStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
-        stompEndpointRegistry.addEndpoint("/input").withSockJS();
+public class GameOutput {
+    private List<String> output = new ArrayList<>();
+
+    public GameOutput() {}
+
+    public GameOutput(String... messages) {
+        for (String message : messages) {
+            append(message);
+        }
+    }
+
+    public void append(String message) {
+        output.add(message);
+    }
+
+    public List<String> getOutput() {
+        return output;
     }
 }

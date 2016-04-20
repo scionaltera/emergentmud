@@ -62,10 +62,6 @@ $(document).keyup(function(event) {
 });
 
 function setConnected(newConnected) {
-    if (connected == false && newConnected == true) {
-        stompClient.send("/greeting", {}, JSON.stringify({}));
-    }
-
     connected = newConnected;
 }
 
@@ -80,7 +76,6 @@ function connect() {
                 var msg = JSON.parse(message.body);
 
                 showOutput(msg.output);
-                processCommands(msg.commands);
             });
 
             setConnected(true);
@@ -126,16 +121,6 @@ function showOutput(message) {
 
     if (scrollBackOverflow > 0) {
         outputList.find("li").slice(0, scrollBackOverflow).remove();
-    }
-}
-
-function processCommands(commands) {
-    for (var i = 0; i < commands.length; i++) {
-        if ("quit" == commands[i]) {
-            stompClient.disconnect();
-            socket.close();
-            window.location = "/";
-        }
     }
 }
 
