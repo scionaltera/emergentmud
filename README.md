@@ -1,6 +1,6 @@
 [![AGPL License](https://img.shields.io/badge/license-AGPL-green.svg "AGPL License")](http://www.gnu.org/licenses/agpl.txt)
 ![Project Version](https://img.shields.io/badge/version-0.1.0-brightgreen.svg "Project Version")
-[![Build Status](https://drone.io/bitbucket.org/scionaltera/emergentmud/status.png)](https://drone.io/bitbucket.org/scionaltera/emergentmud/latest)
+[ ![Codeship Status for scionaltera/emergentmud](https://codeship.com/projects/14384cd0-e8c6-0133-1109-0a601490f276/status?branch=master)](https://codeship.com/projects/147332)
 
 # Description
 EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It's a modern game with an old school feel. Just like most other MUDs back in the 90s, you play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You can get immersed in this world in ways that you never could on traditional MUDs.
