@@ -24,6 +24,8 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
+import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
@@ -72,6 +74,32 @@ public class MainResourceTest {
                 accountRepository,
                 essenceRepository
         );
+    }
+
+    @Test
+    public void testOnSubscribe() throws Exception {
+        GameOutput greeting = mainResource.onSubscribe();
+
+        List<String> lines = greeting.getOutput();
+
+        assertEquals(13, lines.size());
+    }
+
+    @Test
+    public void testOnInput() throws Exception {
+        String text = "I'm a banana!";
+        UserInput input = new UserInput();
+
+        input.setInput(text);
+
+        GameOutput output = mainResource.onInput(input);
+
+        List<String> lines = output.getOutput();
+
+        assertEquals("[cyan]You say 'I&#39;m a banana![cyan]'", lines.get(0));
+        assertEquals("", lines.get(1));
+        assertEquals("> ", lines.get(2));
+        assertEquals(3, lines.size());
     }
 
     @Test
