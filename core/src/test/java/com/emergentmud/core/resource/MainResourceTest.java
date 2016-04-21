@@ -82,7 +82,7 @@ public class MainResourceTest {
 
         List<String> lines = greeting.getOutput();
 
-        assertEquals(13, lines.size());
+        assertEquals(16, lines.size());
     }
 
     @Test

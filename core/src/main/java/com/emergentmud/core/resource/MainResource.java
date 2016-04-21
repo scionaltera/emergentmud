@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +55,12 @@ import java.util.Optional;
 @Controller
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
+
+    @Resource(name="applicationVersion")
+    private String applicationVersion;
+
+    @Resource(name="applicationBootDate")
+    private long applicationBootDate;
 
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
@@ -76,18 +83,21 @@ public class MainResource {
     public GameOutput onSubscribe() {
         GameOutput output = new GameOutput("[green]Connected to server.");
 
-        output.append("[dcyan]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
-        output.append("[dcyan] | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \\/  | | | |   \\ ".replace(" ", "&nbsp;"));
-        output.append("[dcyan] | _|| '  \\/ -_) '_/ _` / -_) ' \\  _| |\\/| | |_| | |) |".replace(" ", "&nbsp;"));
-        output.append("[cyan] |___|_|_|_\\___|_| \\__, \\___|_||_\\__|_|  |_|\\___/|___/ ".replace(" ", "&nbsp;"));
-        output.append("[cyan]                   |___/                               ".replace(" ", "&nbsp;"));
-        output.append(String.format("[white]Copyright &copy; %d BoneVM, LLC.", DateTime.now().getYear()));
-        output.append("[white]EmergentMUD is licensed under the <a target=\"_blank\" " +
+        output.append("[black]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
+        output.append("[dwhite] | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \\/  | | | |   \\ ".replace(" ", "&nbsp;"));
+        output.append("[dwhite] | _|| '  \\/ -_) '_/ _` / -_) ' \\  _| |\\/| | |_| | |) |".replace(" ", "&nbsp;"));
+        output.append("[white] |___|_|_|_\\___|_| \\__, \\___|_||_\\__|_|  |_|\\___/|___/ ".replace(" ", "&nbsp;"));
+        output.append("[white]                   |___/                               ".replace(" ", "&nbsp;"));
+        output.append("[white]Copyright &copy; 2016 BoneVM, LLC.");
+        output.append("[dwhite]EmergentMUD is licensed under the <a class=\"green\" target=\"_blank\" " +
                 "href=\"http://www.gnu.org/licenses/agpl-3.0.en.html\">GNU Affero General Public License</a>.");
-        output.append("[white]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
-        output.append("[white]EmergentMUD is <a target=\"_blank\" " +
+        output.append("[dwhite]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
+        output.append("[dwhite]EmergentMUD is <a class=\"green\" target=\"_blank\" " +
                 "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
-                "[green]you [white]can contribute to, modify and distribute as you wish.");
+                "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
+        output.append("[dwhite]EmergentMUD server status:");
+        output.append("[dwhite]&nbsp;&nbsp;Version: [white]" + applicationVersion);
+        output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
         output.append("[yellow]Welcome to the world!");
         output.append("");
         output.append("> ");

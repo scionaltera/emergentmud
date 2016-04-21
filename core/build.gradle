@@ -19,7 +19,6 @@
  */
 
 group 'com.emergentmud'
-version '0.1.0'
 
 apply plugin: 'java'
 apply plugin: 'spring-boot'
