@@ -24,6 +24,8 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
+import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
@@ -72,6 +74,32 @@ public class MainResourceTest {
                 accountRepository,
                 essenceRepository
         );
+    }
+
+    @Test
+    public void testOnSubscribe() throws Exception {
+        GameOutput greeting = mainResource.onSubscribe();
+
+        List<String> lines = greeting.getOutput();
+
+        assertEquals(13, lines.size());
+    }
+
+    @Test
+    public void testOnInput() throws Exception {
+        String text = "I'm a banana!";
+        UserInput input = new UserInput();
+
+        input.setInput(text);
+
+        GameOutput output = mainResource.onInput(input);
+
+        List<String> lines = output.getOutput();
+
+        assertEquals("[cyan]You say 'I&#39;m a banana![cyan]'", lines.get(0));
+        assertEquals("", lines.get(1));
+        assertEquals("> ", lines.get(2));
+        assertEquals(3, lines.size());
     }
 
     @Test
@@ -232,13 +260,133 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlay() throws Exception {
-        String id = "id";
+    public void testPlayNoId() throws Exception {
+        String id = "";
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
         Model model = mock(Model.class);
 
         String view = mainResource.play(id, session, principal, model);
+
+        verifyZeroInteractions(accountRepository);
+        verifyZeroInteractions(essenceRepository);
+
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testPlayNoAccount() throws Exception {
+        String id = "id";
+        String network = "alteranet";
+        String networkId = "123456789";
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Model model = mock(Model.class);
+
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+
+        String view = mainResource.play(id, session, principal, model);
+
+        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
+        verifyZeroInteractions(essenceRepository);
+
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testPlayNoEssence() throws Exception {
+        String id = "id";
+        String network = "alteranet";
+        String networkId = "123456789";
+        String accountId = "accountId";
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Model model = mock(Model.class);
+        Account account = mock(Account.class);
+        List<Essence> essences = new ArrayList<>();
+
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+        when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(account.getId()).thenReturn(accountId);
+
+        String view = mainResource.play(id, session, principal, model);
+
+        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
+        verify(essenceRepository).findByAccountId(eq(accountId));
+
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testPlay() throws Exception {
+        String id = "id";
+        String network = "alteranet";
+        String networkId = "123456789";
+        String accountId = "accountId";
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Model model = mock(Model.class);
+        Account account = mock(Account.class);
+        Essence essence = mock(Essence.class);
+        List<Essence> essences = new ArrayList<>();
+
+        when(essence.getId()).thenReturn(id);
+
+        essences.add(essence);
+
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+        when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(account.getId()).thenReturn(accountId);
+
+        String view = mainResource.play(id, session, principal, model);
+
+        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
+        verify(essenceRepository).findByAccountId(eq(accountId));
+        verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essence"), eq(essence));
+
+        assertEquals("play", view);
+    }
+
+    @Test
+    public void testPlayMultiple() throws Exception {
+        String id = "id";
+        String network = "alteranet";
+        String networkId = "123456789";
+        String accountId = "accountId";
+        HttpSession session = mock(HttpSession.class);
+        Principal principal = mock(Principal.class);
+        Model model = mock(Model.class);
+        Account account = mock(Account.class);
+        Essence essence = mock(Essence.class);
+        List<Essence> essences = new ArrayList<>();
+
+        when(essence.getId()).thenReturn(id);
+        essences.add(essence);
+
+        for (int i = 0; i < 2; i++) {
+            Essence e = mock(Essence.class);
+            when(e.getId()).thenReturn(Integer.toString(i));
+            essences.add(e);
+        }
+
+        when(session.getAttribute(eq("social"))).thenReturn(network);
+        when(principal.getName()).thenReturn(networkId);
+        when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(account.getId()).thenReturn(accountId);
+
+        String view = mainResource.play(id, session, principal, model);
+
+        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
+        verify(essenceRepository).findByAccountId(eq(accountId));
+        verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essence"), eq(essence));
 
         assertEquals("play", view);
     }

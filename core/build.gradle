@@ -52,6 +52,7 @@ configurations.compile {
 
 dependencies {
     compile 'javax.inject:javax.inject:1'
+    compile 'joda-time:joda-time:2.9.3'
 
     compile 'org.webjars:webjars-locator:0.30'
     compile 'org.webjars:jquery:2.1.1'
