@@ -18,52 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.repository;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.emergentmud.core.model.Entity;
 
-@Document
-public class Essence {
-    @Id
-    private String id;
+public class EntityBuilder {
+    private Entity entity = new Entity();
 
-    @DBRef
-    private Entity entity;
-
-    private String accountId;
-    private String name;
-
-    public String getId() {
-        return id;
+    public EntityBuilder() {
+        entity = new Entity();
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
+    EntityBuilder(Entity entity) {
         this.entity = entity;
     }
 
-    public String getAccountId() {
-        return accountId;
+    public EntityBuilder withId(String id) {
+        entity.setId(id);
+        return this;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public EntityBuilder withName(String name) {
+        entity.setName(name);
+        return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public Entity build() {
+        return entity;
     }
 }

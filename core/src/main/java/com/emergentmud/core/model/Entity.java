@@ -21,18 +21,12 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Essence {
+public class Entity {
     @Id
     private String id;
-
-    @DBRef
-    private Entity entity;
-
-    private String accountId;
     private String name;
 
     public String getId() {
@@ -41,22 +35,6 @@ public class Essence {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
     }
 
     public String getName() {

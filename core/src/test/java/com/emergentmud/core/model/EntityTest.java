@@ -20,48 +20,28 @@
 
 package com.emergentmud.core.model;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
-public class EssenceTest {
-    private Essence essence;
-
-    @Before
-    public void setUp() throws Exception {
-        essence = new Essence();
-    }
+public class EntityTest {
+    private Entity entity = new Entity();
 
     @Test
     public void testId() throws Exception {
-        essence.setId("id");
+        String id = "id";
 
-        assertEquals("id", essence.getId());
-    }
+        entity.setId(id);
 
-    @Test
-    public void testEntity() throws Exception {
-        Entity entity = mock(Entity.class);
-
-        essence.setEntity(entity);
-
-        assertEquals(entity, essence.getEntity());
-        verifyZeroInteractions(entity);
-    }
-
-    @Test
-    public void testAccountId() throws Exception {
-        essence.setAccountId("accountId");
-
-        assertEquals("accountId", essence.getAccountId());
+        assertEquals(id, entity.getId());
     }
 
     @Test
     public void testName() throws Exception {
-        essence.setName("name");
+        String name = "Unit";
 
-        assertEquals("name", essence.getName());
+        entity.setName(name);
+
+        assertEquals(name, entity.getName());
     }
 }
