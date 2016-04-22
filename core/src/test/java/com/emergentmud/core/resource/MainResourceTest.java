@@ -22,11 +22,13 @@ package com.emergentmud.core.resource;
 
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +37,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,32 +59,67 @@ public class MainResourceTest {
     private SecurityContextLogoutHandler securityContextLogoutHandler;
 
     @Mock
+    private SessionRepository sessionRepository;
+
+    @Mock
     private AccountRepository accountRepository;
 
     @Mock
     private EssenceRepository essenceRepository;
 
+    @Mock
+    private EntityRepository entityRepository;
+
+    @Mock
+    private OAuth2Authentication oAuth2Authentication;
+
+    @Mock
+    private OAuth2AuthenticationDetails oAuth2AuthenticationDetails;
+
+    @Mock
+    private Session session;
+
+    private String applicationVersion = "9.8.7-SNAPSHOT";
+    private long applicationBootDate = System.currentTimeMillis();
     private List<SocialNetwork> networks = new ArrayList<>();
+    private String sessionId = "sessionid";
+
     private MainResource mainResource;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        when(oAuth2Authentication.getDetails()).thenReturn(oAuth2AuthenticationDetails);
+        when(oAuth2AuthenticationDetails.getSessionId()).thenReturn(sessionId);
+        when(sessionRepository.getSession(eq(sessionId))).thenReturn(session);
+
         networks.add(new SocialNetwork("alteranet", "AlteraNet"));
         networks.add(new SocialNetwork("testnet", "TestNet"));
 
         mainResource = new MainResource(
+                applicationVersion,
+                applicationBootDate,
                 networks,
                 securityContextLogoutHandler,
+                sessionRepository,
                 accountRepository,
-                essenceRepository
+                essenceRepository,
+                entityRepository
         );
     }
 
     @Test
     public void testOnSubscribe() throws Exception {
-        GameOutput greeting = mainResource.onSubscribe();
+        String essenceId = "essenceid";
+        Essence essence = mock(Essence.class);
+        Entity entity = mock(Entity.class);
+
+        when(session.getAttribute(eq("essence"))).thenReturn(essenceId);
+        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(essence.getEntity()).thenReturn(entity);
+
+        GameOutput greeting = mainResource.onSubscribe(oAuth2Authentication);
 
         List<String> lines = greeting.getOutput();
 
@@ -86,13 +127,57 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testOnInput() throws Exception {
+    public void testOnInputInfo() throws Exception {
+        String text = "info";
+        String essenceId = "essenceid";
+        UserInput input = mock(UserInput.class);
+        Essence essence = mock(Essence.class);
+        Entity entity = mock(Entity.class);
+
+        when(session.getAttribute(eq("essence"))).thenReturn(essenceId);
+        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(essence.getEntity()).thenReturn(entity);
+        when(input.getInput()).thenReturn(text);
+
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication);
+
+        List<String> lines = output.getOutput();
+
+        assertEquals(8, lines.size());
+    }
+
+    @Test
+    public void testOnInputInfoNoEntity() throws Exception {
+        String text = "info";
+        String essenceId = "essenceid";
+        UserInput input = mock(UserInput.class);
+        Essence essence = mock(Essence.class);
+
+        when(session.getAttribute(eq("essence"))).thenReturn(essenceId);
+        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(input.getInput()).thenReturn(text);
+
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication);
+
+        List<String> lines = output.getOutput();
+
+        assertEquals(5, lines.size());
+    }
+
+    @Test
+    public void testOnInputSay() throws Exception {
         String text = "I'm a banana!";
-        UserInput input = new UserInput();
+        String essenceId = "essenceid";
+        UserInput input = mock(UserInput.class);
+        Essence essence = mock(Essence.class);
+        Entity entity = mock(Entity.class);
 
-        input.setInput(text);
+        when(session.getAttribute(eq("essence"))).thenReturn(essenceId);
+        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(essence.getEntity()).thenReturn(entity);
+        when(input.getInput()).thenReturn(text);
 
-        GameOutput output = mainResource.onInput(input);
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication);
 
         List<String> lines = output.getOutput();
 
@@ -322,20 +407,26 @@ public class MainResourceTest {
 
     @Test
     public void testPlay() throws Exception {
-        String id = "id";
         String network = "alteranet";
         String networkId = "123456789";
-        String accountId = "accountId";
+        String accountId = "accountid";
+        String essenceId = "essenceid";
+        String entityId = "entityid";
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
         Model model = mock(Model.class);
         Account account = mock(Account.class);
         Essence essence = mock(Essence.class);
+        Entity entity = mock(Entity.class);
         List<Essence> essences = new ArrayList<>();
 
-        when(essence.getId()).thenReturn(id);
+        when(essence.getId()).thenReturn(essenceId);
+        when(essence.getEntity()).thenReturn(entity);
+        when(entity.getId()).thenReturn(entityId);
 
         essences.add(essence);
+
+        addMoreEssences(essences);
 
         when(session.getAttribute(eq("social"))).thenReturn(network);
         when(principal.getName()).thenReturn(networkId);
@@ -343,10 +434,13 @@ public class MainResourceTest {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
         when(account.getId()).thenReturn(accountId);
 
-        String view = mainResource.play(id, session, principal, model);
+        String view = mainResource.play(essenceId, session, principal, model);
 
         verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
         verify(essenceRepository).findByAccountId(eq(accountId));
+        verify(session).setAttribute(eq("account"), eq(accountId));
+        verify(session).setAttribute(eq("essence"), eq(essenceId));
+        verify(session).setAttribute(eq("entity"), eq(entityId));
         verify(model).addAttribute(eq("account"), eq(account));
         verify(model).addAttribute(eq("essence"), eq(essence));
 
@@ -354,11 +448,12 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayMultiple() throws Exception {
-        String id = "id";
+    public void testPlayNoEntity() throws Exception {
         String network = "alteranet";
         String networkId = "123456789";
-        String accountId = "accountId";
+        String accountId = "accountid";
+        String essenceId = "essenceid";
+        String entityId = "entityid";
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
         Model model = mock(Model.class);
@@ -366,25 +461,33 @@ public class MainResourceTest {
         Essence essence = mock(Essence.class);
         List<Essence> essences = new ArrayList<>();
 
-        when(essence.getId()).thenReturn(id);
+        when(essence.getId()).thenReturn(essenceId);
         essences.add(essence);
 
-        for (int i = 0; i < 2; i++) {
-            Essence e = mock(Essence.class);
-            when(e.getId()).thenReturn(Integer.toString(i));
-            essences.add(e);
-        }
+        addMoreEssences(essences);
 
         when(session.getAttribute(eq("social"))).thenReturn(network);
         when(principal.getName()).thenReturn(networkId);
         when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
+        when(entityRepository.save(any(Entity.class))).thenAnswer((Answer<Entity>) invocation -> {
+            Entity entity = (Entity)invocation.getArguments()[0];
+            entity.setId(entityId);
+            return entity;
+        });
+        when(essenceRepository.save(any(Essence.class))).thenAnswer((Answer<Essence>) invocation -> (Essence)invocation.getArguments()[0]);
         when(account.getId()).thenReturn(accountId);
 
-        String view = mainResource.play(id, session, principal, model);
+        String view = mainResource.play(essenceId, session, principal, model);
 
         verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
         verify(essenceRepository).findByAccountId(eq(accountId));
+        verify(entityRepository).save(any(Entity.class));
+        verify(essence).setEntity(any(Entity.class));
+        verify(essenceRepository).save(any(Essence.class));
+        verify(session).setAttribute(eq("account"), eq(accountId));
+        verify(session).setAttribute(eq("essence"), eq(essenceId));
+        verify(session).setAttribute(eq("entity"), eq(entityId));
         verify(model).addAttribute(eq("account"), eq(account));
         verify(model).addAttribute(eq("essence"), eq(essence));
 
@@ -408,5 +511,18 @@ public class MainResourceTest {
 
         verify(securityContextLogoutHandler).logout(eq(request), eq(response), any(Authentication.class));
         assertEquals("redirect:/", view);
+    }
+
+    private void addMoreEssences(List<Essence> essences) {
+        for (int i = 0; i < 3; i++) {
+            Essence mockEssence = mock(Essence.class);
+            Entity mockEntity = mock(Entity.class);
+
+            when(mockEssence.getId()).thenReturn("essence" + i);
+            when(mockEssence.getEntity()).thenReturn(mockEntity);
+            when(mockEntity.getId()).thenReturn("entity" + i);
+
+            essences.add(mockEssence);
+        }
     }
 }

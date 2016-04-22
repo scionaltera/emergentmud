@@ -21,11 +21,14 @@ package com.emergentmud.core.resource;
 
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.EntityBuilder;
+import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -35,7 +38,11 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -43,7 +50,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,31 +62,40 @@ import java.util.Optional;
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
 
-    @Resource(name="applicationVersion")
     private String applicationVersion;
-
-    @Resource(name="applicationBootDate")
     private long applicationBootDate;
-
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
+    private SessionRepository sessionRepository;
     private AccountRepository accountRepository;
     private EssenceRepository essenceRepository;
+    private EntityRepository entityRepository;
 
     @Inject
-    public MainResource(List<SocialNetwork> networks,
+    public MainResource(String applicationVersion,
+                        long applicationBootDate,
+                        List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
+                        SessionRepository sessionRepository,
                         AccountRepository accountRepository,
-                        EssenceRepository essenceRepository) {
+                        EssenceRepository essenceRepository,
+                        EntityRepository entityRepository) {
+        this.applicationVersion = applicationVersion;
+        this.applicationBootDate = applicationBootDate;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
+        this.sessionRepository = sessionRepository;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
+        this.entityRepository = entityRepository;
     }
 
     @SubscribeMapping("/user/queue/output")
     @SendToUser("/queue/output")
-    public GameOutput onSubscribe() {
+    public GameOutput onSubscribe(Principal principal) {
+        Session session = getSessionFromPrincipal(principal);
+        Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
+        Entity entity = essence.getEntity();
         GameOutput output = new GameOutput("[green]Connected to server.");
 
         output.append("[black]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
@@ -98,7 +113,7 @@ public class MainResource {
         output.append("[dwhite]EmergentMUD server status:");
         output.append("[dwhite]&nbsp;&nbsp;Version: [white]" + applicationVersion);
         output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
-        output.append("[yellow]Welcome to the world!");
+        output.append(String.format("[yellow]Welcome to the world, %s!", entity.getName()));
         output.append("");
         output.append("> ");
 
@@ -107,10 +122,26 @@ public class MainResource {
 
     @MessageMapping("/input")
     @SendToUser("/queue/output")
-    public GameOutput onInput(UserInput input) {
+    public GameOutput onInput(UserInput input, Principal principal) {
+        Session session = getSessionFromPrincipal(principal);
+        Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
+
         GameOutput output = new GameOutput();
 
-        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
+        if ("info".equals(input.getInput())) {
+            output.append("[cyan][ [dcyan]Essence ([cyan]" + essence.getId() + "[dcyan]) [cyan]]");
+            output.append("[dcyan]Name: [cyan]" + essence.getName());
+            output.append("[dcyan]Entity: [cyan]" + (essence.getEntity() == null ? "none" : essence.getEntity().getId()));
+
+            if (essence.getEntity() != null) {
+                output.append("");
+                output.append("[cyan][ [dcyan]Entity ([cyan]" + essence.getEntity().getId() + "[dcyan]) [cyan]]");
+                output.append("[dcyan]Name: [cyan]" + essence.getEntity().getName());
+            }
+        } else {
+            output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
+        }
+
         output.append("");
         output.append("> ");
 
@@ -206,6 +237,23 @@ public class MainResource {
         }
 
         Essence essence = eOptional.get();
+        Entity entity = essence.getEntity();
+
+        if (entity == null) {
+            LOGGER.info("Creating a new Entity for {}", essence.getName());
+            entity = new EntityBuilder()
+                    .withName(essence.getName())
+                    .build();
+
+            entity = entityRepository.save(entity);
+
+            essence.setEntity(entity);
+            essence = essenceRepository.save(essence);
+        }
+
+        session.setAttribute("account", account.getId());
+        session.setAttribute("essence", essence.getId());
+        session.setAttribute("entity", entity.getId());
 
         model.addAttribute("account", account);
         model.addAttribute("essence", essence);
@@ -228,6 +276,14 @@ public class MainResource {
         securityContextLogoutHandler.logout(request, response, authentication);
 
         return "redirect:/";
+    }
+
+    private Session getSessionFromPrincipal(Principal principal) {
+        OAuth2Authentication oauth2Authentication = (OAuth2Authentication)principal;
+        OAuth2AuthenticationDetails oAuth2AuthenticationDetails = (OAuth2AuthenticationDetails)oauth2Authentication.getDetails();
+        String sessionId = oAuth2AuthenticationDetails.getSessionId();
+
+        return sessionRepository.getSession(sessionId);
     }
 
     private String htmlEscape(String input) {
