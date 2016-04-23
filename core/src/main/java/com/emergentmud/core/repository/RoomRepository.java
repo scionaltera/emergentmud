@@ -18,41 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.repository;
 
-import org.junit.Test;
+import com.emergentmud.core.model.Room;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-public class EntityTest {
-    private Entity entity = new Entity();
-
-    @Test
-    public void testId() throws Exception {
-        String id = "id";
-
-        entity.setId(id);
-
-        assertEquals(id, entity.getId());
-    }
-
-    @Test
-    public void testName() throws Exception {
-        String name = "Unit";
-
-        entity.setName(name);
-
-        assertEquals(name, entity.getName());
-    }
-
-    @Test
-    public void testRoom() throws Exception {
-        Room room = mock(Room.class);
-
-        entity.setRoom(room);
-
-        verifyZeroInteractions(room);
-        assertEquals(room, entity.getRoom());
-    }
+@Repository
+public interface RoomRepository extends MongoRepository<Room, String> {
+    Room findByXAndYAndZ(long x, long y, long z);
 }

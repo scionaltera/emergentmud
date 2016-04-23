@@ -22,37 +22,56 @@ package com.emergentmud.core.model;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class EntityTest {
-    private Entity entity = new Entity();
+import static org.junit.Assert.*;
+
+public class RoomTest {
+    private Room room = new Room();
 
     @Test
     public void testId() throws Exception {
-        String id = "id";
+        String id = "roomid";
 
-        entity.setId(id);
+        room.setId(id);
 
-        assertEquals(id, entity.getId());
+        assertEquals(id, room.getId());
     }
 
     @Test
-    public void testName() throws Exception {
-        String name = "Unit";
+    public void testX() throws Exception {
+        long x = 0;
 
-        entity.setName(name);
+        room.setX(x);
 
-        assertEquals(name, entity.getName());
+        assertEquals(x, room.getX());
     }
 
     @Test
-    public void testRoom() throws Exception {
-        Room room = mock(Room.class);
+    public void testY() throws Exception {
+        long y = 0;
 
-        entity.setRoom(room);
+        room.setY(y);
 
-        verifyZeroInteractions(room);
-        assertEquals(room, entity.getRoom());
+        assertEquals(y, room.getY());
+    }
+
+    @Test
+    public void testZ() throws Exception {
+        long z = 0;
+
+        room.setZ(z);
+
+        assertEquals(z, room.getZ());
+    }
+
+    @Test
+    public void testSetContents() throws Exception {
+        List<Entity> entityList = new ArrayList<>();
+
+        room.setContents(entityList);
+
+        assertEquals(entityList, room.getContents());
     }
 }

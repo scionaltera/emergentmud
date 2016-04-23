@@ -21,17 +21,28 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Document
-public class Entity {
+@CompoundIndexes({
+        @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
+})
+public class Room {
     @Id
     private String id;
-    private String name;
+
+    private long x;
+    private long y;
+    private long z;
 
     @DBRef
-    private Room room;
+    private List<Entity> contents = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -41,19 +52,35 @@ public class Entity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public long getX() {
+        return x;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setX(long x) {
+        this.x = x;
     }
 
-    public Room getRoom() {
-        return room;
+    public long getY() {
+        return y;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setY(long y) {
+        this.y = y;
+    }
+
+    public long getZ() {
+        return z;
+    }
+
+    public void setZ(long z) {
+        this.z = z;
+    }
+
+    public List<Entity> getContents() {
+        return contents;
+    }
+
+    public void setContents(List<Entity> contents) {
+        this.contents = contents;
     }
 }
