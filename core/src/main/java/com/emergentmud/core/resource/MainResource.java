@@ -23,6 +23,7 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
@@ -30,6 +31,7 @@ import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.WorldManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,23 +65,25 @@ public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
 
     private String applicationVersion;
-    private long applicationBootDate;
+    private Long applicationBootDate;
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private SessionRepository sessionRepository;
     private AccountRepository accountRepository;
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
+    private WorldManager worldManager;
 
     @Inject
     public MainResource(String applicationVersion,
-                        long applicationBootDate,
+                        Long applicationBootDate,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         SessionRepository sessionRepository,
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
-                        EntityRepository entityRepository) {
+                        EntityRepository entityRepository,
+                        WorldManager worldManager) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
         this.networks = networks;
@@ -88,6 +92,7 @@ public class MainResource {
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
+        this.worldManager = worldManager;
     }
 
     @SubscribeMapping("/user/queue/output")
@@ -125,18 +130,43 @@ public class MainResource {
     public GameOutput onInput(UserInput input, Principal principal) {
         Session session = getSessionFromPrincipal(principal);
         Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
+        Entity entity = essence.getEntity();
 
         GameOutput output = new GameOutput();
 
         if ("info".equals(input.getInput())) {
             output.append("[cyan][ [dcyan]Essence ([cyan]" + essence.getId() + "[dcyan]) [cyan]]");
             output.append("[dcyan]Name: [cyan]" + essence.getName());
-            output.append("[dcyan]Entity: [cyan]" + (essence.getEntity() == null ? "none" : essence.getEntity().getId()));
+            output.append("[dcyan]Entity: [cyan]" + (entity == null ? "none" : entity.getId()));
 
-            if (essence.getEntity() != null) {
+            if (entity != null) {
                 output.append("");
-                output.append("[cyan][ [dcyan]Entity ([cyan]" + essence.getEntity().getId() + "[dcyan]) [cyan]]");
-                output.append("[dcyan]Name: [cyan]" + essence.getEntity().getName());
+                output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
+                output.append("[dcyan]Name: [cyan]" + entity.getName());
+                output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
+
+                Room room = entity.getRoom();
+
+                if (room != null) {
+                    output.append("");
+                    output.append("[cyan][ [dcyan]Room ([cyan]" + room.getId() + "[dcyan]) [cyan]]");
+                    output.append(String.format("[dcyan]Location: [cyan](%d, %d, %d)", room.getX(), room. getY(), room.getZ()));
+                    output.append("[dcyan]Contents: [cyan]" + room.getContents().size() + " entities");
+                }
+            }
+        } else if ("look".equals(input.getInput())) {
+            if (entity == null || entity.getRoom() == null) {
+                output.append("[black]You are floating in a formless void.");
+            } else {
+                Room room = entity.getRoom();
+
+                output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", room.getX(), room.getY(), room.getZ()));
+                output.append("[default]There is nothing but inky blackness around you for as far as the eye can see.");
+                output.append("[dcyan]Exits: none");
+
+                room.getContents().stream()
+                        .filter(content -> !content.getId().equals(entity.getId()))
+                        .forEach(content -> output.append("[green]" + content.getName() + " is here."));
             }
         } else {
             output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
@@ -250,6 +280,9 @@ public class MainResource {
             essence.setEntity(entity);
             essence = essenceRepository.save(essence);
         }
+
+        LOGGER.info("Placing Entity {} in world", entity.getName());
+        worldManager.put(entity, 0, 0, 0);
 
         session.setAttribute("account", account.getId());
         session.setAttribute("essence", essence.getId());

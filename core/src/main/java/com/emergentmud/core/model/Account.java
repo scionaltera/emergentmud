@@ -21,9 +21,14 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
+@CompoundIndexes({
+        @CompoundIndex(name = "social_idx", def = "{'socialNetwork': 1, 'socialNetworkId': 1}", unique = true)
+})
 public class Account {
     @Id
     private String id;

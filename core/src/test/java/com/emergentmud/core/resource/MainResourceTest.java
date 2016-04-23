@@ -30,6 +30,7 @@ import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.WorldManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -71,6 +72,9 @@ public class MainResourceTest {
     private EntityRepository entityRepository;
 
     @Mock
+    private WorldManager worldManager;
+
+    @Mock
     private OAuth2Authentication oAuth2Authentication;
 
     @Mock
@@ -105,7 +109,8 @@ public class MainResourceTest {
                 sessionRepository,
                 accountRepository,
                 essenceRepository,
-                entityRepository
+                entityRepository,
+                worldManager
         );
     }
 
@@ -143,7 +148,7 @@ public class MainResourceTest {
 
         List<String> lines = output.getOutput();
 
-        assertEquals(8, lines.size());
+        assertEquals(9, lines.size());
     }
 
     @Test
@@ -438,6 +443,7 @@ public class MainResourceTest {
 
         verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
         verify(essenceRepository).findByAccountId(eq(accountId));
+        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(session).setAttribute(eq("account"), eq(accountId));
         verify(session).setAttribute(eq("essence"), eq(essenceId));
         verify(session).setAttribute(eq("entity"), eq(entityId));
@@ -485,6 +491,7 @@ public class MainResourceTest {
         verify(entityRepository).save(any(Entity.class));
         verify(essence).setEntity(any(Entity.class));
         verify(essenceRepository).save(any(Essence.class));
+        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
         verify(session).setAttribute(eq("account"), eq(accountId));
         verify(session).setAttribute(eq("essence"), eq(essenceId));
         verify(session).setAttribute(eq("entity"), eq(entityId));

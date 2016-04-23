@@ -37,7 +37,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean(name = "applicationBootDate")
-    public long getApplicationBootDate() {
+    public Long getApplicationBootDate() {
         return applicationBootDate;
     }
 }
