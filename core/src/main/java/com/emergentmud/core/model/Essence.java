@@ -66,4 +66,20 @@ public class Essence {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Essence)) return false;
+
+        Essence essence = (Essence) o;
+
+        return getId().equals(essence.getId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

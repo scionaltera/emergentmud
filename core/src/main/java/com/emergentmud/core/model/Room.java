@@ -83,4 +83,20 @@ public class Room {
     public void setContents(List<Entity> contents) {
         this.contents = contents;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Room)) return false;
+
+        Room room = (Room) o;
+
+        return getId().equals(room.getId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }
