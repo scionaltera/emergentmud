@@ -64,4 +64,51 @@ public class EssenceTest {
 
         assertEquals("name", essence.getName());
     }
+
+    @Test
+    public void testEqualsOperator() throws Exception {
+        essence.setId("foo");
+
+        //noinspection EqualsWithItself
+        assertTrue(essence.equals(essence));
+    }
+
+    @Test
+    public void testNotEqualToDifferentClass() throws Exception {
+        String fakeAccount = "fakeAccount";
+
+        //noinspection EqualsBetweenInconvertibleTypes
+        assertFalse(essence.equals(fakeAccount));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        Essence o1 = new Essence();
+        Essence o2 = new Essence();
+
+        o1.setId("foo");
+        o2.setId("foo");
+
+        assertTrue(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEquals() throws Exception {
+        Essence o1 = new Essence();
+        Essence o2 = new Essence();
+
+        o1.setId("foo");
+        o2.setId("bar");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        String id = "foo";
+
+        essence.setId(id);
+
+        assertEquals(id.hashCode(), essence.hashCode());
+    }
 }

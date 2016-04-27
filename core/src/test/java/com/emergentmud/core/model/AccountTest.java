@@ -59,4 +59,51 @@ public class AccountTest {
 
         assertEquals(socialNetworkId, account.getSocialNetworkId());
     }
+
+    @Test
+    public void testEqualsOperator() throws Exception {
+        account.setId("foo");
+
+        //noinspection EqualsWithItself
+        assertTrue(account.equals(account));
+    }
+
+    @Test
+    public void testNotEqualToDifferentClass() throws Exception {
+        String fakeAccount = "fakeAccount";
+
+        //noinspection EqualsBetweenInconvertibleTypes
+        assertFalse(account.equals(fakeAccount));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        Account o1 = new Account();
+        Account o2 = new Account();
+
+        o1.setId("foo");
+        o2.setId("foo");
+
+        assertTrue(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEquals() throws Exception {
+        Account o1 = new Account();
+        Account o2 = new Account();
+
+        o1.setId("foo");
+        o2.setId("bar");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        String id = "foo";
+
+        account.setId(id);
+
+        assertEquals(id.hashCode(), account.hashCode());
+    }
 }

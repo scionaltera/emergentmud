@@ -44,4 +44,43 @@ public class SocialNetworkTest {
     public void testDisplayName() throws Exception {
         assertEquals(displayName, socialNetwork.getDisplayName());
     }
+
+    @Test
+    public void testEqualsOperator() throws Exception {
+        //noinspection EqualsWithItself
+        assertTrue(socialNetwork.equals(socialNetwork));
+    }
+
+    @Test
+    public void testNotEqualToDifferentClass() throws Exception {
+        String fakeAccount = "fakeAccount";
+
+        //noinspection EqualsBetweenInconvertibleTypes
+        assertFalse(socialNetwork.equals(fakeAccount));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        SocialNetwork o1 = new SocialNetwork("foo", "Foo");
+        SocialNetwork o2 = new SocialNetwork("foo", "Foo");
+
+        assertTrue(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEquals() throws Exception {
+        SocialNetwork o1 = new SocialNetwork("foo", "Foo");
+        SocialNetwork o2 = new SocialNetwork("bar", "Bar");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        String id = "foo";
+        String name = "Foo";
+        SocialNetwork socialNetwork = new SocialNetwork(id, name);
+
+        assertEquals(id.hashCode() * 31 + name.hashCode(), socialNetwork.hashCode());
+    }
 }

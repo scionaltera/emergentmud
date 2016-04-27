@@ -44,15 +44,15 @@ public class SocialNetwork {
 
         SocialNetwork that = (SocialNetwork) o;
 
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
-        return getDisplayName() != null ? getDisplayName().equals(that.getDisplayName()) : that.getDisplayName() == null;
+        if (!getId().equals(that.getId())) return false;
+        return getDisplayName().equals(that.getDisplayName());
 
     }
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getDisplayName() != null ? getDisplayName().hashCode() : 0);
+        int result = getId().hashCode();
+        result = 31 * result + getDisplayName().hashCode();
         return result;
     }
 }
