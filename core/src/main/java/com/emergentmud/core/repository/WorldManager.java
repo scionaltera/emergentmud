@@ -61,7 +61,7 @@ public class WorldManager {
         Room room = getRoom(x, y, z);
 
         entity.setRoom(null);
-        entityRepository.save(entity);
+        entity = entityRepository.save(entity);
 
         if (room.getContents().contains(entity)) {
             room.getContents().remove(entity);

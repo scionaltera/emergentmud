@@ -58,4 +58,20 @@ public class Account {
     public void setSocialNetworkId(String socialNetworkId) {
         this.socialNetworkId = socialNetworkId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Account)) return false;
+
+        Account account = (Account) o;
+
+        return getId().equals(account.getId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

@@ -55,4 +55,51 @@ public class EntityTest {
         verifyZeroInteractions(room);
         assertEquals(room, entity.getRoom());
     }
+
+    @Test
+    public void testEqualsOperator() throws Exception {
+        entity.setId("foo");
+
+        //noinspection EqualsWithItself
+        assertTrue(entity.equals(entity));
+    }
+
+    @Test
+    public void testNotEqualToDifferentClass() throws Exception {
+        String fakeAccount = "fakeAccount";
+
+        //noinspection EqualsBetweenInconvertibleTypes
+        assertFalse(entity.equals(fakeAccount));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        Entity o1 = new Entity();
+        Entity o2 = new Entity();
+
+        o1.setId("foo");
+        o2.setId("foo");
+
+        assertTrue(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEquals() throws Exception {
+        Entity o1 = new Entity();
+        Entity o2 = new Entity();
+
+        o1.setId("foo");
+        o2.setId("bar");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        String id = "foo";
+
+        entity.setId(id);
+
+        assertEquals(id.hashCode(), entity.hashCode());
+    }
 }

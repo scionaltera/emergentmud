@@ -74,4 +74,51 @@ public class RoomTest {
 
         assertEquals(entityList, room.getContents());
     }
+
+    @Test
+    public void testEqualsOperator() throws Exception {
+        room.setId("foo");
+
+        //noinspection EqualsWithItself
+        assertTrue(room.equals(room));
+    }
+
+    @Test
+    public void testNotEqualToDifferentClass() throws Exception {
+        String fakeAccount = "fakeAccount";
+
+        //noinspection EqualsBetweenInconvertibleTypes
+        assertFalse(room.equals(fakeAccount));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        Room o1 = new Room();
+        Room o2 = new Room();
+
+        o1.setId("foo");
+        o2.setId("foo");
+
+        assertTrue(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEquals() throws Exception {
+        Room o1 = new Room();
+        Room o2 = new Room();
+
+        o1.setId("foo");
+        o2.setId("bar");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        String id = "foo";
+
+        room.setId(id);
+
+        assertEquals(id.hashCode(), room.hashCode());
+    }
 }

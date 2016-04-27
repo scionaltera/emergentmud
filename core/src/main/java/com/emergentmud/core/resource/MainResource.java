@@ -281,8 +281,7 @@ public class MainResource {
             essence = essenceRepository.save(essence);
         }
 
-        LOGGER.info("Placing Entity {} in world", entity.getName());
-        worldManager.put(entity, 0, 0, 0);
+        worldManager.put(entity, 0L, 0L, 0L);
 
         session.setAttribute("account", account.getId());
         session.setAttribute("essence", essence.getId());

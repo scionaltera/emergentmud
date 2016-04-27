@@ -36,4 +36,23 @@ public class SocialNetwork {
     public String getDisplayName() {
         return displayName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SocialNetwork)) return false;
+
+        SocialNetwork that = (SocialNetwork) o;
+
+        if (!getId().equals(that.getId())) return false;
+        return getDisplayName().equals(that.getDisplayName());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + getDisplayName().hashCode();
+        return result;
+    }
 }
