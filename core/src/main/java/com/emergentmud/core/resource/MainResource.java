@@ -116,7 +116,7 @@ public class MainResource {
                 "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
                 "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
         output.append("[dwhite]EmergentMUD server status:");
-        output.append("[dwhite]&nbsp;&nbsp;Version: [white]" + applicationVersion);
+        output.append("[dwhite]&nbsp;&nbsp;Version: [white]v" + applicationVersion);
         output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
         output.append(String.format("[yellow]Welcome to the world, %s!", entity.getName()));
         output.append("");
@@ -279,6 +279,11 @@ public class MainResource {
 
             essence.setEntity(entity);
             essence = essenceRepository.save(essence);
+        }
+
+        if (entity.getRoom() != null) {
+            LOGGER.info("{} cannot enter the game more than once.", entity.getName());
+            return "redirect:/";
         }
 
         worldManager.put(entity, 0L, 0L, 0L);

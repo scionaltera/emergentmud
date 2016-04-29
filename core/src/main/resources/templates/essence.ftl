@@ -52,9 +52,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <tr>
                 <td>${essence.name}</td>
                 <td>
+                    <#if (essence.entity.room)??>
+                    <a class="btn btn-success" role="button" disabled="disabled" href="#">
+                        <i class="fa fa-play"></i> Play
+                    </a>
+                    <#else>
                     <a class="btn btn-success" role="button" href="<@spring.url '/play/${essence.id}'/>">
                         <i class="fa fa-play"></i> Play
                     </a>
+                    </#if>
                 </td>
             </tr>
         </#list>
