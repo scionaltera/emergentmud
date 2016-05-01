@@ -28,4 +28,4 @@ docker-compose stop core
 docker-compose rm -f core
 
 docker-compose up -d
-docker-compose logs
+docker-compose logs -f

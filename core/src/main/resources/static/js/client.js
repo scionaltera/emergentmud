@@ -66,7 +66,7 @@ function setConnected(newConnected) {
 }
 
 function connect() {
-    socket = new SockJS('/input');
+    socket = new SockJS('/mud');
     stompClient = Stomp.over(socket);
     stompClient.connect({},
         function(frame) {
@@ -99,7 +99,7 @@ function sendInput() {
 
     $("#output-list").find("li:last-child").append("<span class='yellow'> " + htmlEscape(inputBox.val()) + "</span>");
 
-    stompClient.send("/input", {}, JSON.stringify({ 'input': inputBox.val() }));
+    stompClient.send("/app/input", {}, JSON.stringify({ 'input': inputBox.val() }));
     inputBox.val('');
 }
 
