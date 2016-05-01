@@ -32,6 +32,13 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 public class WebSocketConfiguration extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> {
     @Override
     public void configureStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
-        stompEndpointRegistry.addEndpoint("/input").withSockJS();
+        stompEndpointRegistry.addEndpoint("/mud").withSockJS();
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app", "/user");
+        registry.setUserDestinationPrefix("/user");
+        registry.enableSimpleBroker("/queue", "/topic");
     }
 }

@@ -95,8 +95,7 @@ public class MainResource {
         this.worldManager = worldManager;
     }
 
-    @SubscribeMapping("/user/queue/output")
-    @SendToUser("/queue/output")
+    @SubscribeMapping("/queue/output")
     public GameOutput onSubscribe(Principal principal) {
         Session session = getSessionFromPrincipal(principal);
         Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
@@ -126,7 +125,7 @@ public class MainResource {
     }
 
     @MessageMapping("/input")
-    @SendToUser("/queue/output")
+    @SendToUser(value = "/queue/output", broadcast = false)
     public GameOutput onInput(UserInput input, Principal principal) {
         Session session = getSessionFromPrincipal(principal);
         Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
