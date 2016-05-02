@@ -37,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.Authentication;
@@ -77,6 +79,7 @@ public class MainResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private WorldManager worldManager;
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Inject
     public MainResource(String applicationVersion,
@@ -87,7 +90,8 @@ public class MainResource {
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
-                        WorldManager worldManager) {
+                        WorldManager worldManager,
+                        SimpMessagingTemplate simpMessagingTemplate) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
         this.networks = networks;
@@ -97,14 +101,22 @@ public class MainResource {
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @SubscribeMapping("/queue/output")
-    public GameOutput onSubscribe(Principal principal, @Header("breadcrumb") String breadcrumb) {
+    public GameOutput onSubscribe(Principal principal,
+                                  @Header("breadcrumb") String breadcrumb,
+                                  @Header("simpSessionId") String simpSessionId) {
         Session session = getSessionFromPrincipal(principal);
         Map<String, String> sessionMap = session.getAttribute(breadcrumb);
         Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
         Entity entity = essence.getEntity();
+
+        entity.setStompUsername(principal.getName());
+        entity.setStompSessionId(simpSessionId);
+        entity = entityRepository.save(entity);
+
         GameOutput output = new GameOutput("[green]Connected to server.");
 
         output.append("[black]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
@@ -175,6 +187,24 @@ public class MainResource {
             }
         } else {
             output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
+
+            GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(input.getInput())));
+            toRoom.append("");
+            toRoom.append("> ");
+
+            Room room = entity.getRoom();
+
+            room.getContents()
+                    .stream()
+                    .filter(e -> !entity.getId().equals(e.getId()))
+                    .forEach(e -> {
+                        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
+                        headerAccessor.setSessionId(e.getStompSessionId());
+                        headerAccessor.setLeaveMutable(true);
+
+                        simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
+                    });
+
         }
 
         output.append("");

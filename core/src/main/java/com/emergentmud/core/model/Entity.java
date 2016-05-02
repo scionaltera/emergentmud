@@ -29,6 +29,8 @@ public class Entity {
     @Id
     private String id;
     private String name;
+    private String stompUsername;
+    private String stompSessionId;
 
     @DBRef
     private Room room;
@@ -47,6 +49,22 @@ public class Entity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStompUsername() {
+        return stompUsername;
+    }
+
+    public void setStompUsername(String stompUsername) {
+        this.stompUsername = stompUsername;
+    }
+
+    public String getStompSessionId() {
+        return stompSessionId;
+    }
+
+    public void setStompSessionId(String stompSessionId) {
+        this.stompSessionId = stompSessionId;
     }
 
     public Room getRoom() {

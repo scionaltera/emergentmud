@@ -47,6 +47,24 @@ public class EntityTest {
     }
 
     @Test
+    public void testStompUsername() throws Exception {
+        String stompUsername = "stompUsername";
+
+        entity.setStompUsername(stompUsername);
+
+        assertEquals(stompUsername, entity.getStompUsername());
+    }
+
+    @Test
+    public void testStompSessionId() throws Exception {
+        String stompSessionId = "stompSessionId";
+
+        entity.setStompSessionId(stompSessionId);
+
+        assertEquals(stompSessionId, entity.getStompSessionId());
+    }
+
+    @Test
     public void testRoom() throws Exception {
         Room room = mock(Room.class);
 

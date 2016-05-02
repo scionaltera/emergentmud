@@ -38,6 +38,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
@@ -79,6 +80,9 @@ public class MainResourceTest {
     private WorldManager worldManager;
 
     @Mock
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @Mock
     private OAuth2Authentication oAuth2Authentication;
 
     @Mock
@@ -114,28 +118,34 @@ public class MainResourceTest {
                 accountRepository,
                 essenceRepository,
                 entityRepository,
-                worldManager
+                worldManager,
+                simpMessagingTemplate
         );
     }
 
     @Test
     public void testOnSubscribe() throws Exception {
         String essenceId = "essenceid";
+        String username = "username";
         Essence essence = mock(Essence.class);
         Entity entity = mock(Entity.class);
         String breadcrumb = UUID.randomUUID().toString();
+        String simpSessionId = "simpSessionId";
         Map<String, String> sessionMap = new HashMap<>();
 
         sessionMap.put("essence", essenceId);
 
+        when(oAuth2Authentication.getName()).thenReturn(username);
         when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(essence.getEntity()).thenReturn(entity);
 
-        GameOutput greeting = mainResource.onSubscribe(oAuth2Authentication, breadcrumb);
-
+        GameOutput greeting = mainResource.onSubscribe(oAuth2Authentication, breadcrumb, simpSessionId);
         List<String> lines = greeting.getOutput();
 
+        verify(entity).setStompUsername(eq(username));
+        verify(entity).setStompSessionId(eq(simpSessionId));
         assertEquals(16, lines.size());
     }
 
@@ -189,17 +199,24 @@ public class MainResourceTest {
     public void testOnInputSay() throws Exception {
         String text = "I'm a banana!";
         String essenceId = "essenceid";
+        String entityId = "entityId";
         UserInput input = mock(UserInput.class);
         Essence essence = mock(Essence.class);
         Entity entity = mock(Entity.class);
+        Room room = mock(Room.class);
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();
+        List<Entity> roomContents = new ArrayList<>();
 
         sessionMap.put("essence", essenceId);
+        roomContents.add(entity);
 
         when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
         when(essence.getEntity()).thenReturn(entity);
+        when(entity.getId()).thenReturn(entityId);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getContents()).thenReturn(roomContents);
         when(input.getInput()).thenReturn(text);
 
         GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb);
