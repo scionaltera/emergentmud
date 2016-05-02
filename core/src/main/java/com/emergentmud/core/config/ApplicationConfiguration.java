@@ -20,20 +20,17 @@
 
 package com.emergentmud.core.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.emergentmud.core.EmergentMUD;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationConfiguration {
-    @Value("${spring.application.version}")
-    private String applicationVersion;
-
     private long applicationBootDate = System.currentTimeMillis();
 
     @Bean(name = "applicationVersion")
     public String getApplicationVersion() {
-        return applicationVersion == null ? "latest" : applicationVersion;
+        return EmergentMUD.class.getPackage().getImplementationVersion();
     }
 
     @Bean(name = "applicationBootDate")

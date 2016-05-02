@@ -35,6 +35,7 @@ import com.emergentmud.core.repository.WorldManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
@@ -57,8 +58,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class MainResource {
@@ -96,9 +100,10 @@ public class MainResource {
     }
 
     @SubscribeMapping("/queue/output")
-    public GameOutput onSubscribe(Principal principal) {
+    public GameOutput onSubscribe(Principal principal, @Header("breadcrumb") String breadcrumb) {
         Session session = getSessionFromPrincipal(principal);
-        Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
+        Map<String, String> sessionMap = session.getAttribute(breadcrumb);
+        Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
         Entity entity = essence.getEntity();
         GameOutput output = new GameOutput("[green]Connected to server.");
 
@@ -115,7 +120,7 @@ public class MainResource {
                 "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
                 "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
         output.append("[dwhite]EmergentMUD server status:");
-        output.append("[dwhite]&nbsp;&nbsp;Version: [white]" + applicationVersion);
+        output.append("[dwhite]&nbsp;&nbsp;Version: [white]v" + applicationVersion);
         output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
         output.append(String.format("[yellow]Welcome to the world, %s!", entity.getName()));
         output.append("");
@@ -126,9 +131,10 @@ public class MainResource {
 
     @MessageMapping("/input")
     @SendToUser(value = "/queue/output", broadcast = false)
-    public GameOutput onInput(UserInput input, Principal principal) {
+    public GameOutput onInput(UserInput input, Principal principal, @Header("breadcrumb") String breadcrumb) {
         Session session = getSessionFromPrincipal(principal);
-        Essence essence = essenceRepository.findOne(session.getAttribute("essence"));
+        Map<String, String> sessionMap = session.getAttribute(breadcrumb);
+        Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
         Entity entity = essence.getEntity();
 
         GameOutput output = new GameOutput();
@@ -280,12 +286,23 @@ public class MainResource {
             essence = essenceRepository.save(essence);
         }
 
+        if (entity.getRoom() != null) {
+            LOGGER.info("{} cannot enter the game more than once.", entity.getName());
+            return "redirect:/";
+        }
+
         worldManager.put(entity, 0L, 0L, 0L);
 
-        session.setAttribute("account", account.getId());
-        session.setAttribute("essence", essence.getId());
-        session.setAttribute("entity", entity.getId());
+        String breadcrumb = UUID.randomUUID().toString();
+        Map<String, String> sessionMap = new HashMap<>();
 
+        sessionMap.put("account", account.getId());
+        sessionMap.put("essence", essence.getId());
+        sessionMap.put("entity", entity.getId());
+
+        session.setAttribute(breadcrumb, sessionMap);
+
+        model.addAttribute("breadcrumb", breadcrumb);
         model.addAttribute("account", account);
         model.addAttribute("essence", essence);
 

@@ -74,10 +74,17 @@ dependencies {
     testCompile 'org.mockito:mockito-all:1.10.19'
 }
 
+jar {
+    manifest {
+        attributes 'Implementation-Version': project.version
+    }
+}
+
 task buildDocker(type: Docker, dependsOn: build) {
     push = false
     applicationName = jar.getBaseName()
     dockerfile = file('src/main/docker/Dockerfile')
+    tagVersion = "latest"
     doFirst {
         copy {
             from jar

@@ -69,22 +69,22 @@ function connect() {
     socket = new SockJS('/mud');
     stompClient = Stomp.over(socket);
     stompClient.connect({},
-        function(frame) {
-            console.log('Connected: ' + frame);
+    function(frame) {
+        console.log('Connected: ' + frame);
 
-            stompClient.subscribe('/user/queue/output', function(message){
-                var msg = JSON.parse(message.body);
-
-                showOutput(msg.output);
-            });
-
-            setConnected(true);
+        stompClient.subscribe('/user/queue/output', function(message) {
+            var msg = JSON.parse(message.body);
+            showOutput(msg.output);
         },
-        function() {
-            setConnected(false);
-            console.log('Disconnected.');
-            showOutput(["[red]Disconnected from server."]);
-        });
+        { "breadcrumb": breadcrumb });
+
+        setConnected(true);
+    },
+    function() {
+        setConnected(false);
+        console.log('Disconnected.');
+        showOutput(["[red]Disconnected from server."]);
+    });
 }
 
 function sendInput() {
@@ -99,7 +99,7 @@ function sendInput() {
 
     $("#output-list").find("li:last-child").append("<span class='yellow'> " + htmlEscape(inputBox.val()) + "</span>");
 
-    stompClient.send("/app/input", {}, JSON.stringify({ 'input': inputBox.val() }));
+    stompClient.send("/app/input", { "breadcrumb": breadcrumb }, JSON.stringify({ 'input': inputBox.val() }));
     inputBox.val('');
 }
 
