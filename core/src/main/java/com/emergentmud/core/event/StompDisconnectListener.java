@@ -24,8 +24,6 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.session.Session;
@@ -37,8 +35,6 @@ import javax.inject.Inject;
 
 @Component
 public class StompDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StompDisconnectListener.class);
-
     private SessionRepository sessionRepository;
     private EntityRepository entityRepository;
     private WorldManager worldManager;
@@ -57,9 +53,17 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         String springSessionId = (String)sha.getSessionAttributes().get("SPRING.SESSION.ID");
         Session session = sessionRepository.getSession(springSessionId);
-        Entity entity = entityRepository.findOne(session.getAttribute("entity"));
-        Room room = entity.getRoom();
 
-        worldManager.remove(entity, room.getX(), room.getY(), room.getZ());
+        if (session != null) {
+            Entity entity = entityRepository.findOne(session.getAttribute("entity"));
+
+            if (entity != null) {
+                Room room = entity.getRoom();
+
+                if (room != null) {
+                    worldManager.remove(entity, room.getX(), room.getY(), room.getZ());
+                }
+            }
+        }
     }
 }
