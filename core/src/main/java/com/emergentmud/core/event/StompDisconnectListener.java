@@ -25,9 +25,6 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.springframework.context.ApplicationListener;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
@@ -35,34 +32,25 @@ import javax.inject.Inject;
 
 @Component
 public class StompDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
-    private SessionRepository sessionRepository;
     private EntityRepository entityRepository;
     private WorldManager worldManager;
 
     @Inject
-    public StompDisconnectListener(SessionRepository sessionRepository,
-                                   EntityRepository entityRepository,
+    public StompDisconnectListener(EntityRepository entityRepository,
                                    WorldManager worldManager) {
-        this.sessionRepository = sessionRepository;
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
     }
 
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
-        StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        String springSessionId = (String)sha.getSessionAttributes().get("SPRING.SESSION.ID");
-        Session session = sessionRepository.getSession(springSessionId);
+        Entity entity = entityRepository.findByStompSessionIdAndStompUsername(event.getSessionId(), event.getUser().getName());
 
-        if (session != null) {
-            Entity entity = entityRepository.findOne(session.getAttribute("entity"));
+        if (entity != null) {
+            Room room = entity.getRoom();
 
-            if (entity != null) {
-                Room room = entity.getRoom();
-
-                if (room != null) {
-                    worldManager.remove(entity, room.getX(), room.getY(), room.getZ());
-                }
+            if (room != null) {
+                worldManager.remove(entity, room.getX(), room.getY(), room.getZ());
             }
         }
     }

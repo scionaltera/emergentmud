@@ -143,7 +143,10 @@ public class MainResource {
 
     @MessageMapping("/input")
     @SendToUser(value = "/queue/output", broadcast = false)
-    public GameOutput onInput(UserInput input, Principal principal, @Header("breadcrumb") String breadcrumb) {
+    public GameOutput onInput(UserInput input,
+                              Principal principal,
+                              @Header("breadcrumb") String breadcrumb,
+                              @Header("simpSessionId") String simpSessionId) {
         Session session = getSessionFromPrincipal(principal);
         Map<String, String> sessionMap = session.getAttribute(breadcrumb);
         Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
@@ -151,28 +154,37 @@ public class MainResource {
 
         GameOutput output = new GameOutput();
 
+        if (entity == null) {
+            LOGGER.error("Entity was null for user {}", principal.getName());
+            output.append("[red]There was an internal error. The administrators have been notified.");
+            return output;
+        }
+
+        if (!principal.getName().equals(entity.getStompUsername()) || !simpSessionId.equals(entity.getStompSessionId())) {
+            output.append("[red]This session is no longer valid.");
+            return output;
+        }
+
         if ("info".equals(input.getInput())) {
             output.append("[cyan][ [dcyan]Essence ([cyan]" + essence.getId() + "[dcyan]) [cyan]]");
             output.append("[dcyan]Name: [cyan]" + essence.getName());
-            output.append("[dcyan]Entity: [cyan]" + (entity == null ? "none" : entity.getId()));
+            output.append("[dcyan]Entity: [cyan]" + entity.getId());
 
-            if (entity != null) {
+            output.append("");
+            output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
+            output.append("[dcyan]Name: [cyan]" + entity.getName());
+            output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
+
+            Room room = entity.getRoom();
+
+            if (room != null) {
                 output.append("");
-                output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
-                output.append("[dcyan]Name: [cyan]" + entity.getName());
-                output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
-
-                Room room = entity.getRoom();
-
-                if (room != null) {
-                    output.append("");
-                    output.append("[cyan][ [dcyan]Room ([cyan]" + room.getId() + "[dcyan]) [cyan]]");
-                    output.append(String.format("[dcyan]Location: [cyan](%d, %d, %d)", room.getX(), room. getY(), room.getZ()));
-                    output.append("[dcyan]Contents: [cyan]" + room.getContents().size() + " entities");
-                }
+                output.append("[cyan][ [dcyan]Room ([cyan]" + room.getId() + "[dcyan]) [cyan]]");
+                output.append(String.format("[dcyan]Location: [cyan](%d, %d, %d)", room.getX(), room. getY(), room.getZ()));
+                output.append("[dcyan]Contents: [cyan]" + room.getContents().size() + " entities");
             }
         } else if ("look".equals(input.getInput())) {
-            if (entity == null || entity.getRoom() == null) {
+            if (entity.getRoom() == null) {
                 output.append("[black]You are floating in a formless void.");
             } else {
                 Room room = entity.getRoom();
@@ -204,7 +216,6 @@ public class MainResource {
 
                         simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
                     });
-
         }
 
         output.append("");
@@ -297,7 +308,7 @@ public class MainResource {
                 .findFirst();
 
         if (!eOptional.isPresent()) {
-            LOGGER.info("No such character: {}", id);
+            LOGGER.info("No such essence: {}", id);
             return "redirect:/";
         }
 
@@ -305,7 +316,7 @@ public class MainResource {
         Entity entity = essence.getEntity();
 
         if (entity == null) {
-            LOGGER.info("Creating a new Entity for {}", essence.getName());
+            LOGGER.info("Creating a new entity for {}", essence.getName());
             entity = new EntityBuilder()
                     .withName(essence.getName())
                     .build();
@@ -316,9 +327,16 @@ public class MainResource {
             essence = essenceRepository.save(essence);
         }
 
-        if (entity.getRoom() != null) {
-            LOGGER.info("{} cannot enter the game more than once.", entity.getName());
-            return "redirect:/";
+        if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+            LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
+
+            SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
+            headerAccessor.setSessionId(entity.getStompSessionId());
+            headerAccessor.setLeaveMutable(true);
+
+            GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
+
+            simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", out, headerAccessor.getMessageHeaders());
         }
 
         worldManager.put(entity, 0L, 0L, 0L);

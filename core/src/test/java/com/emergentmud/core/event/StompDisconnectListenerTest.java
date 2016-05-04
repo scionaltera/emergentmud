@@ -26,39 +26,46 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(StompHeaderAccessor.class)
 public class StompDisconnectListenerTest {
-    private SessionRepository sessionRepository;
     private EntityRepository entityRepository;
     private WorldManager worldManager;
+    private OAuth2Authentication principal;
+    private SessionDisconnectEvent event;
+    private Entity entity;
+    private Room room;
+
+    private String simpSessionId = "simpSessionId";
+    private String socialUserName = "alteranetUser";
 
     private StompDisconnectListener stompDisconnectListener;
 
     @Before
     public void setUp() throws Exception {
-        sessionRepository = mock(SessionRepository.class);
         entityRepository = mock(EntityRepository.class);
         worldManager = mock(WorldManager.class);
+        principal = mock(OAuth2Authentication.class);
+        event = mock(SessionDisconnectEvent.class);
+        entity = mock(Entity.class);
+        room = mock(Room.class);
+
+        when(event.getSessionId()).thenReturn(simpSessionId);
+        when(event.getUser()).thenReturn(principal);
+        when(principal.getName()).thenReturn(socialUserName);
+        when(entityRepository.findByStompSessionIdAndStompUsername(
+                eq(simpSessionId),
+                eq(socialUserName)
+        )).thenReturn(entity);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(0L);
+        when(room.getY()).thenReturn(0L);
+        when(room.getZ()).thenReturn(0L);
 
         stompDisconnectListener = new StompDisconnectListener(
-                sessionRepository,
                 entityRepository,
                 worldManager
         );
@@ -66,112 +73,33 @@ public class StompDisconnectListenerTest {
 
     @Test
     public void applicationEventTest() throws Exception {
-        SessionDisconnectEvent event = mock(SessionDisconnectEvent.class);
-        Message message = mock(Message.class);
-        StompHeaderAccessor sha = mock(StompHeaderAccessor.class);
-        Map<String, Object> sessionAttributes = new HashMap<>();
-        String springSessionId = UUID.randomUUID().toString();
-        String entityId = "entityId";
-        Session session = mock(Session.class);
-        Entity entity = mock(Entity.class);
-        Room room = mock(Room.class);
-
-        sessionAttributes.put("SPRING.SESSION.ID", springSessionId);
-
-        PowerMockito.mockStatic(StompHeaderAccessor.class);
-        PowerMockito.when(StompHeaderAccessor.wrap(any(Message.class))).thenReturn(sha);
-
-        when(event.getMessage()).thenReturn(message);
-        when(sha.getSessionAttributes()).thenReturn(sessionAttributes);
-        when(sessionRepository.getSession(eq(springSessionId))).thenReturn(session);
-        when(entityRepository.findOne(eq(entityId))).thenReturn(entity);
-        when(session.getAttribute("entity")).thenReturn(entityId);
-        when(entity.getRoom()).thenReturn(room);
-
         stompDisconnectListener.onApplicationEvent(event);
 
-        verify(sessionRepository).getSession(eq(springSessionId));
-        verify(entityRepository).findOne(eq(entityId));
+        verify(entityRepository).findByStompSessionIdAndStompUsername(
+                eq(simpSessionId),
+                eq(socialUserName)
+        );
+        verify(entity).getRoom();
         verify(worldManager).remove(eq(entity), eq(0L), eq(0L), eq(0L));
     }
 
     @Test
-    public void applicationEventTestNoRoom() throws Exception {
-        SessionDisconnectEvent event = mock(SessionDisconnectEvent.class);
-        Message message = mock(Message.class);
-        StompHeaderAccessor sha = mock(StompHeaderAccessor.class);
-        Map<String, Object> sessionAttributes = new HashMap<>();
-        String springSessionId = UUID.randomUUID().toString();
-        String entityId = "entityId";
-        Session session = mock(Session.class);
-        Entity entity = mock(Entity.class);
-
-        sessionAttributes.put("SPRING.SESSION.ID", springSessionId);
-
-        PowerMockito.mockStatic(StompHeaderAccessor.class);
-        PowerMockito.when(StompHeaderAccessor.wrap(any(Message.class))).thenReturn(sha);
-
-        when(event.getMessage()).thenReturn(message);
-        when(sha.getSessionAttributes()).thenReturn(sessionAttributes);
-        when(sessionRepository.getSession(eq(springSessionId))).thenReturn(session);
-        when(entityRepository.findOne(eq(entityId))).thenReturn(entity);
-        when(session.getAttribute("entity")).thenReturn(entityId);
+    public void applicationEventNoRoom() throws Exception {
+        when(entity.getRoom()).thenReturn(null);
 
         stompDisconnectListener.onApplicationEvent(event);
 
-        verify(sessionRepository).getSession(eq(springSessionId));
-        verify(entityRepository).findOne(eq(entityId));
-        verify(worldManager, never()).remove(eq(entity), eq(0L), eq(0L), eq(0L));
+        verify(entity).getRoom();
+        verify(worldManager, never()).remove(any(Entity.class), anyLong(), anyLong(), anyLong());
     }
 
     @Test
-    public void applicationEventTestNoEntity() throws Exception {
-        SessionDisconnectEvent event = mock(SessionDisconnectEvent.class);
-        Message message = mock(Message.class);
-        StompHeaderAccessor sha = mock(StompHeaderAccessor.class);
-        Map<String, Object> sessionAttributes = new HashMap<>();
-        String springSessionId = UUID.randomUUID().toString();
-        String entityId = "entityId";
-        Session session = mock(Session.class);
-        Entity entity = mock(Entity.class);
-
-        sessionAttributes.put("SPRING.SESSION.ID", springSessionId);
-
-        PowerMockito.mockStatic(StompHeaderAccessor.class);
-        PowerMockito.when(StompHeaderAccessor.wrap(any(Message.class))).thenReturn(sha);
-
-        when(event.getMessage()).thenReturn(message);
-        when(sha.getSessionAttributes()).thenReturn(sessionAttributes);
-        when(sessionRepository.getSession(eq(springSessionId))).thenReturn(session);
+    public void applicationEventNoEntity() throws Exception {
+        when(entityRepository.findByStompSessionIdAndStompUsername(anyString(), anyString())).thenReturn(null);
 
         stompDisconnectListener.onApplicationEvent(event);
 
-        verify(sessionRepository).getSession(eq(springSessionId));
-        verify(entityRepository).findOne(null);
-        verify(worldManager, never()).remove(eq(entity), eq(0L), eq(0L), eq(0L));
-    }
-
-    @Test
-    public void applicationEventTestNoSession() throws Exception {
-        SessionDisconnectEvent event = mock(SessionDisconnectEvent.class);
-        Message message = mock(Message.class);
-        StompHeaderAccessor sha = mock(StompHeaderAccessor.class);
-        Map<String, Object> sessionAttributes = new HashMap<>();
-        String springSessionId = UUID.randomUUID().toString();
-        Entity entity = mock(Entity.class);
-
-        sessionAttributes.put("SPRING.SESSION.ID", springSessionId);
-
-        PowerMockito.mockStatic(StompHeaderAccessor.class);
-        PowerMockito.when(StompHeaderAccessor.wrap(any(Message.class))).thenReturn(sha);
-
-        when(event.getMessage()).thenReturn(message);
-        when(sha.getSessionAttributes()).thenReturn(sessionAttributes);
-
-        stompDisconnectListener.onApplicationEvent(event);
-
-        verify(sessionRepository).getSession(eq(springSessionId));
-        verify(entityRepository, never()).findOne(anyString());
-        verify(worldManager, never()).remove(eq(entity), eq(0L), eq(0L), eq(0L));
+        verify(entity, never()).getRoom();
+        verify(worldManager, never()).remove(any(Entity.class), anyLong(), anyLong(), anyLong());
     }
 }
