@@ -190,7 +190,7 @@ public class MainResourceTest {
 
         List<String> lines = output.getOutput();
 
-        assertEquals(9, lines.size());
+        assertEquals(13, lines.size());
     }
 
     @Test
@@ -225,7 +225,7 @@ public class MainResourceTest {
 
     @Test
     public void testOnInputSay() throws Exception {
-        String text = "I'm a banana!";
+        String text = "say I'm a banana!";
         UserInput input = mock(UserInput.class);
         List<Entity> roomContents = new ArrayList<>();
 
@@ -241,6 +241,29 @@ public class MainResourceTest {
         List<String> lines = output.getOutput();
 
         assertEquals("[cyan]You say 'I&#39;m a banana![cyan]'", lines.get(0));
+        assertEquals("", lines.get(1));
+        assertEquals("> ", lines.get(2));
+        assertEquals(3, lines.size());
+    }
+
+    @Test
+    public void testOnInputBadCommand() throws Exception {
+        String text = "I'm a banana!";
+        UserInput input = mock(UserInput.class);
+        List<Entity> roomContents = new ArrayList<>();
+
+        roomContents.add(entity);
+
+        when(entity.getId()).thenReturn(entityId);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getContents()).thenReturn(roomContents);
+        when(input.getInput()).thenReturn(text);
+
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb, simpSessionId);
+
+        List<String> lines = output.getOutput();
+
+        assertEquals("Huh?", lines.get(0));
         assertEquals("", lines.get(1));
         assertEquals("> ", lines.get(2));
         assertEquals(3, lines.size());

@@ -173,6 +173,10 @@ public class MainResource {
             output.append("");
             output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
             output.append("[dcyan]Name: [cyan]" + entity.getName());
+            output.append("[dcyan]Breadcrumb: [cyan]" + breadcrumb);
+            output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
+            output.append("[dcyan]HTTP Session ID: [cyan]" + session.getId());
+            output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
             output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
 
             Room room = entity.getRoom();
@@ -197,10 +201,11 @@ public class MainResource {
                         .filter(content -> !content.getId().equals(entity.getId()))
                         .forEach(content -> output.append("[green]" + content.getName() + " is here."));
             }
-        } else {
-            output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(input.getInput())));
+        } else if (input.getInput().startsWith("say ")) {
+            String text = input.getInput().substring(4);
+            output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(text)));
 
-            GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(input.getInput())));
+            GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(text)));
             toRoom.append("");
             toRoom.append("> ");
 
@@ -216,6 +221,8 @@ public class MainResource {
 
                         simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
                     });
+        } else {
+            output.append("Huh?");
         }
 
         output.append("");
