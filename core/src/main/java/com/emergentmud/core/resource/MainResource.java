@@ -204,7 +204,6 @@ public class MainResource {
 
                         simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
                     });
-
         }
 
         output.append("");
@@ -317,8 +316,17 @@ public class MainResource {
         }
 
         if (entity.getRoom() != null) {
-            LOGGER.info("{} cannot enter the game more than once.", entity.getName());
-            return "redirect:/";
+            if (entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+                LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
+
+                SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
+                headerAccessor.setSessionId(entity.getStompSessionId());
+                headerAccessor.setLeaveMutable(true);
+
+                GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
+
+                simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", out, headerAccessor.getMessageHeaders());
+            }
         }
 
         worldManager.put(entity, 0L, 0L, 0L);
