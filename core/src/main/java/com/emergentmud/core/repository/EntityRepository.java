@@ -26,4 +26,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EntityRepository extends MongoRepository<Entity, String> {
+    Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
 }

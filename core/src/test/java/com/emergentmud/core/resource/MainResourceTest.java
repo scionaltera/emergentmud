@@ -38,6 +38,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -89,12 +91,37 @@ public class MainResourceTest {
     private OAuth2AuthenticationDetails oAuth2AuthenticationDetails;
 
     @Mock
+    private Model model;
+
+    @Mock
+    private HttpSession httpSession;
+
+    @Mock
     private Session session;
+
+    @Mock
+    private Account account;
+
+    @Mock
+    private Essence essence;
+
+    @Mock
+    private Entity entity;
+
+    @Mock
+    private Room room;
 
     private String applicationVersion = "9.8.7-SNAPSHOT";
     private long applicationBootDate = System.currentTimeMillis();
     private List<SocialNetwork> networks = new ArrayList<>();
+    private String network = "alteranet";
+    private String accountId = "accountid";
     private String sessionId = "sessionid";
+    private String simpSessionId = "simpSessionId";
+    private String networkUsername = "alteranetUser007";
+    private String essenceId = "essenceid";
+    private String entityId = "entityid";
+    private String breadcrumb = UUID.randomUUID().toString();
 
     private MainResource mainResource;
 
@@ -102,9 +129,28 @@ public class MainResourceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        Map<String, String> sessionMap = new HashMap<>();
+
+        sessionMap.put("essence", essenceId);
+
+        when(oAuth2Authentication.getName()).thenReturn(networkUsername);
         when(oAuth2Authentication.getDetails()).thenReturn(oAuth2AuthenticationDetails);
         when(oAuth2AuthenticationDetails.getSessionId()).thenReturn(sessionId);
         when(sessionRepository.getSession(eq(sessionId))).thenReturn(session);
+        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(entityRepository.save(any(Entity.class))).thenAnswer((Answer<Entity>) invocation -> {
+            Entity entity = (Entity)invocation.getArguments()[0];
+            entity.setId(entityId);
+            return entity;
+        });
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkUsername))).thenReturn(account);
+        when(account.getId()).thenReturn(accountId);
+        when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
+        when(httpSession.getAttribute(eq("social"))).thenReturn(network);
+        when(essence.getId()).thenReturn(essenceId);
+        when(essence.getEntity()).thenReturn(entity);
+        when(entity.getStompSessionId()).thenReturn(simpSessionId);
+        when(entity.getStompUsername()).thenReturn(networkUsername);
 
         networks.add(new SocialNetwork("alteranet", "AlteraNet"));
         networks.add(new SocialNetwork("testnet", "TestNet"));
@@ -125,26 +171,10 @@ public class MainResourceTest {
 
     @Test
     public void testOnSubscribe() throws Exception {
-        String essenceId = "essenceid";
-        String username = "username";
-        Essence essence = mock(Essence.class);
-        Entity entity = mock(Entity.class);
-        String breadcrumb = UUID.randomUUID().toString();
-        String simpSessionId = "simpSessionId";
-        Map<String, String> sessionMap = new HashMap<>();
-
-        sessionMap.put("essence", essenceId);
-
-        when(oAuth2Authentication.getName()).thenReturn(username);
-        when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
-        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
-        when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-        when(essence.getEntity()).thenReturn(entity);
-
         GameOutput greeting = mainResource.onSubscribe(oAuth2Authentication, breadcrumb, simpSessionId);
         List<String> lines = greeting.getOutput();
 
-        verify(entity).setStompUsername(eq(username));
+        verify(entity).setStompUsername(eq(networkUsername));
         verify(entity).setStompSessionId(eq(simpSessionId));
         assertEquals(16, lines.size());
     }
@@ -152,21 +182,11 @@ public class MainResourceTest {
     @Test
     public void testOnInputInfo() throws Exception {
         String text = "info";
-        String essenceId = "essenceid";
         UserInput input = mock(UserInput.class);
-        Essence essence = mock(Essence.class);
-        Entity entity = mock(Entity.class);
-        String breadcrumb = UUID.randomUUID().toString();
-        Map<String, String> sessionMap = new HashMap<>();
 
-        sessionMap.put("essence", essenceId);
-
-        when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
-        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
-        when(essence.getEntity()).thenReturn(entity);
         when(input.getInput()).thenReturn(text);
 
-        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb);
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb, simpSessionId);
 
         List<String> lines = output.getOutput();
 
@@ -174,52 +194,49 @@ public class MainResourceTest {
     }
 
     @Test
+    public void testOnInputInvalidSession() throws Exception {
+        String text = "info";
+        UserInput input = mock(UserInput.class);
+
+        when(input.getInput()).thenReturn(text);
+        when(entity.getStompUsername()).thenReturn("jello");
+        when(entity.getStompSessionId()).thenReturn("biafra");
+
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb, simpSessionId);
+        List<String> lines = output.getOutput();
+
+        assertEquals(1, lines.size());
+    }
+
+    @Test
     public void testOnInputInfoNoEntity() throws Exception {
         String text = "info";
-        String essenceId = "essenceid";
         UserInput input = mock(UserInput.class);
-        Essence essence = mock(Essence.class);
-        String breadcrumb = UUID.randomUUID().toString();
-        Map<String, String> sessionMap = new HashMap<>();
 
-        sessionMap.put("essence", essenceId);
-
-        when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
-        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
+        when(essence.getEntity()).thenReturn(null);
         when(input.getInput()).thenReturn(text);
 
-        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb);
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb, simpSessionId);
 
         List<String> lines = output.getOutput();
 
-        assertEquals(5, lines.size());
+        assertEquals(1, lines.size());
     }
 
     @Test
     public void testOnInputSay() throws Exception {
         String text = "I'm a banana!";
-        String essenceId = "essenceid";
-        String entityId = "entityId";
         UserInput input = mock(UserInput.class);
-        Essence essence = mock(Essence.class);
-        Entity entity = mock(Entity.class);
-        Room room = mock(Room.class);
-        String breadcrumb = UUID.randomUUID().toString();
-        Map<String, String> sessionMap = new HashMap<>();
         List<Entity> roomContents = new ArrayList<>();
 
-        sessionMap.put("essence", essenceId);
         roomContents.add(entity);
 
-        when(session.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
-        when(essenceRepository.findOne(eq(essenceId))).thenReturn(essence);
-        when(essence.getEntity()).thenReturn(entity);
         when(entity.getId()).thenReturn(entityId);
         when(entity.getRoom()).thenReturn(room);
         when(room.getContents()).thenReturn(roomContents);
         when(input.getInput()).thenReturn(text);
 
-        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb);
+        GameOutput output = mainResource.onInput(input, oAuth2Authentication, breadcrumb, simpSessionId);
 
         List<String> lines = output.getOutput();
 
@@ -349,7 +366,6 @@ public class MainResourceTest {
 
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
-        Essence essence = mock(Essence.class);
         Account account = mock(Account.class);
 
         when(essence.getName()).thenReturn("Testy");
@@ -374,7 +390,6 @@ public class MainResourceTest {
 
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
-        Essence essence = mock(Essence.class);
 
         when(session.getAttribute(eq("social"))).thenReturn(network);
         when(principal.getName()).thenReturn(networkId);
@@ -452,14 +467,10 @@ public class MainResourceTest {
         String network = "alteranet";
         String networkId = "123456789";
         String accountId = "accountid";
-        String essenceId = "essenceid";
-        String entityId = "entityid";
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
         Model model = mock(Model.class);
         Account account = mock(Account.class);
-        Essence essence = mock(Essence.class);
-        Entity entity = mock(Entity.class);
         List<Essence> essences = new ArrayList<>();
 
         when(essence.getId()).thenReturn(essenceId);
@@ -494,16 +505,12 @@ public class MainResourceTest {
         String network = "alteranet";
         String networkId = "123456789";
         String accountId = "accountid";
-        String essenceId = "essenceid";
-        String entityId = "entityid";
         HttpSession session = mock(HttpSession.class);
         Principal principal = mock(Principal.class);
         Model model = mock(Model.class);
         Account account = mock(Account.class);
-        Essence essence = mock(Essence.class);
         List<Essence> essences = new ArrayList<>();
 
-        when(essence.getId()).thenReturn(essenceId);
         essences.add(essence);
 
         addMoreEssences(essences);
@@ -512,13 +519,9 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn(networkId);
         when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
-        when(entityRepository.save(any(Entity.class))).thenAnswer((Answer<Entity>) invocation -> {
-            Entity entity = (Entity)invocation.getArguments()[0];
-            entity.setId(entityId);
-            return entity;
-        });
         when(essenceRepository.save(any(Essence.class))).thenAnswer((Answer<Essence>) invocation -> (Essence)invocation.getArguments()[0]);
         when(account.getId()).thenReturn(accountId);
+        when(essence.getEntity()).thenReturn(null);
 
         String view = mainResource.play(essenceId, session, principal, model);
 
@@ -538,21 +541,8 @@ public class MainResourceTest {
 
     @Test
     public void testPlayAlreadyInGame() throws Exception {
-        String network = "alteranet";
-        String networkId = "123456789";
-        String accountId = "accountid";
-        String essenceId = "essenceid";
-        String entityId = "entityid";
-        HttpSession session = mock(HttpSession.class);
-        Principal principal = mock(Principal.class);
-        Model model = mock(Model.class);
-        Account account = mock(Account.class);
-        Essence essence = mock(Essence.class);
-        Entity entity = mock(Entity.class);
-        Room room = mock(Room.class);
         List<Essence> essences = new ArrayList<>();
 
-        when(essence.getId()).thenReturn(essenceId);
         when(essence.getEntity()).thenReturn(entity);
         when(entity.getId()).thenReturn(entityId);
         when(entity.getRoom()).thenReturn(room);
@@ -561,23 +551,53 @@ public class MainResourceTest {
 
         addMoreEssences(essences);
 
-        when(session.getAttribute(eq("social"))).thenReturn(network);
-        when(principal.getName()).thenReturn(networkId);
         when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
-        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId))).thenReturn(account);
-        when(account.getId()).thenReturn(accountId);
 
-        String view = mainResource.play(essenceId, session, principal, model);
+        String view = mainResource.play(essenceId, httpSession, oAuth2Authentication, model);
 
-        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkId));
+        verify(accountRepository).findBySocialNetworkAndSocialNetworkId(eq(network), eq(networkUsername));
         verify(essenceRepository).findByAccountId(eq(accountId));
-        verify(worldManager, never()).put(any(Entity.class), anyLong(), anyLong(), anyLong());
-        verify(session, never()).setAttribute(anyString(), any(Map.class));
-        verify(model, never()).addAttribute(eq("breadcrumb"), anyString());
-        verify(model, never()).addAttribute(eq("account"), eq(account));
-        verify(model, never()).addAttribute(eq("essence"), eq(essence));
+        verify(worldManager).put(any(Entity.class), anyLong(), anyLong(), anyLong());
+        verify(httpSession).setAttribute(anyString(), any(Map.class));
+        verify(model).addAttribute(eq("breadcrumb"), anyString());
+        verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essence"), eq(essence));
 
-        assertEquals("redirect:/", view);
+        assertEquals("play", view);
+    }
+
+    @Test
+    public void testPlayReconnect() throws Exception {
+        List<Essence> essences = new ArrayList<>();
+
+        when(essence.getEntity()).thenReturn(entity);
+        when(entity.getId()).thenReturn(entityId);
+        when(entity.getRoom()).thenReturn(room);
+
+        essences.add(essence);
+
+        addMoreEssences(essences);
+
+        when(essenceRepository.findByAccountId(eq(accountId))).thenReturn(essences);
+
+        ArgumentCaptor<MessageHeaders> headersCaptor = ArgumentCaptor.forClass(MessageHeaders.class);
+
+        String view = mainResource.play(essenceId, httpSession, oAuth2Authentication, model);
+
+        assertEquals("play", view);
+
+        verify(simpMessagingTemplate).convertAndSendToUser(anyString(), eq("/queue/output"), any(GameOutput.class), headersCaptor.capture());
+        verify(worldManager).put(any(Entity.class), anyLong(), anyLong(), anyLong());
+        verify(httpSession).setAttribute(anyString(), any(Map.class));
+        verify(model).addAttribute(eq("breadcrumb"), anyString());
+        verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essence"), eq(essence));
+
+        MessageHeaders headers = headersCaptor.getValue();
+        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+
+        assertTrue(headers.get("simpSessionId").equals(simpSessionId));
+        assertTrue(accessor.isMutable());
     }
 
     @Test
