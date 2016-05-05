@@ -18,29 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.stomp;
+package com.emergentmud.core.repository;
 
-import java.util.ArrayList;
+import com.emergentmud.core.model.CommandMetadata;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public class GameOutput {
-    private List<String> output = new ArrayList<>();
-
-    public GameOutput() {}
-
-    public GameOutput(String... messages) {
-        for (String message : messages) {
-            append(message);
-        }
-    }
-
-    public GameOutput append(String message) {
-        output.add(message);
-
-        return this;
-    }
-
-    public List<String> getOutput() {
-        return output;
-    }
+@Repository
+public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
+    CommandMetadata findByName(String name);
 }

@@ -19,15 +19,17 @@
  */
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
@@ -35,6 +37,8 @@ import com.emergentmud.core.repository.WorldManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -69,37 +73,44 @@ import java.util.UUID;
 @Controller
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
+    private static final Sort SORT = new Sort("priority", "name");
 
     private String applicationVersion;
     private Long applicationBootDate;
+    private ApplicationContext applicationContext;
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private SessionRepository sessionRepository;
     private AccountRepository accountRepository;
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
+    private CommandMetadataRepository commandMetadataRepository;
     private WorldManager worldManager;
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Inject
     public MainResource(String applicationVersion,
                         Long applicationBootDate,
+                        ApplicationContext applicationContext,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         SessionRepository sessionRepository,
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
+                        CommandMetadataRepository commandMetadataRepository,
                         WorldManager worldManager,
                         SimpMessagingTemplate simpMessagingTemplate) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
+        this.applicationContext = applicationContext;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.sessionRepository = sessionRepository;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
+        this.commandMetadataRepository = commandMetadataRepository;
         this.worldManager = worldManager;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
@@ -136,6 +147,11 @@ public class MainResource {
         output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
         output.append(String.format("[yellow]Welcome to the world, %s!", entity.getName()));
         output.append("");
+
+        Command command = (Command)applicationContext.getBean("lookCommand");
+        command.execute(output, entity, new String[0], "");
+
+        output.append("");
         output.append("> ");
 
         return output;
@@ -165,62 +181,23 @@ public class MainResource {
             return output;
         }
 
-        if ("info".equals(input.getInput())) {
-            output.append("[cyan][ [dcyan]Essence ([cyan]" + essence.getId() + "[dcyan]) [cyan]]");
-            output.append("[dcyan]Name: [cyan]" + essence.getName());
-            output.append("[dcyan]Entity: [cyan]" + entity.getId());
+        String[] tokens = input.getInput().split(" ");
+        String cmd = tokens[0];
+        String[] args = new String[tokens.length - 1];
+        System.arraycopy(tokens, 1, args, 0, tokens.length - 1);
+        String raw = input.getInput().indexOf(' ') == -1 ? "" : input.getInput().substring(input.getInput().indexOf(' ') + 1);
+        List<CommandMetadata> commandMetadataList = commandMetadataRepository.findAll(SORT);
 
-            output.append("");
-            output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
-            output.append("[dcyan]Name: [cyan]" + entity.getName());
-            output.append("[dcyan]Breadcrumb: [cyan]" + breadcrumb);
-            output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
-            output.append("[dcyan]HTTP Session ID: [cyan]" + session.getId());
-            output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
-            output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
+        Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
+                .stream()
+                .filter(cm -> cm.getName().startsWith(cmd.toLowerCase().trim()))
+                .findFirst();
 
-            Room room = entity.getRoom();
+        if (optionalCommandMetadata.isPresent()) {
+            CommandMetadata metadata = optionalCommandMetadata.get();
+            Command command = (Command)applicationContext.getBean(metadata.getBeanName());
 
-            if (room != null) {
-                output.append("");
-                output.append("[cyan][ [dcyan]Room ([cyan]" + room.getId() + "[dcyan]) [cyan]]");
-                output.append(String.format("[dcyan]Location: [cyan](%d, %d, %d)", room.getX(), room. getY(), room.getZ()));
-                output.append("[dcyan]Contents: [cyan]" + room.getContents().size() + " entities");
-            }
-        } else if ("look".equals(input.getInput())) {
-            if (entity.getRoom() == null) {
-                output.append("[black]You are floating in a formless void.");
-            } else {
-                Room room = entity.getRoom();
-
-                output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", room.getX(), room.getY(), room.getZ()));
-                output.append("[default]There is nothing but inky blackness around you for as far as the eye can see.");
-                output.append("[dcyan]Exits: none");
-
-                room.getContents().stream()
-                        .filter(content -> !content.getId().equals(entity.getId()))
-                        .forEach(content -> output.append("[green]" + content.getName() + " is here."));
-            }
-        } else if (input.getInput().startsWith("say ")) {
-            String text = input.getInput().substring(4);
-            output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(text)));
-
-            GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(text)));
-            toRoom.append("");
-            toRoom.append("> ");
-
-            Room room = entity.getRoom();
-
-            room.getContents()
-                    .stream()
-                    .filter(e -> !entity.getId().equals(e.getId()))
-                    .forEach(e -> {
-                        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                        headerAccessor.setSessionId(e.getStompSessionId());
-                        headerAccessor.setLeaveMutable(true);
-
-                        simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
-                    });
+            command.execute(output, entity, args, raw);
         } else {
             output.append("Huh?");
         }
@@ -387,15 +364,5 @@ public class MainResource {
         String sessionId = oAuth2AuthenticationDetails.getSessionId();
 
         return sessionRepository.getSession(sessionId);
-    }
-
-    private String htmlEscape(String input) {
-        return input
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\\", "&#x2F;");
     }
 }

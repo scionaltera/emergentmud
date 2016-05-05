@@ -18,29 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.stomp;
+package com.emergentmud.core.command;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.stomp.GameOutput;
 
-public class GameOutput {
-    private List<String> output = new ArrayList<>();
-
-    public GameOutput() {}
-
-    public GameOutput(String... messages) {
-        for (String message : messages) {
-            append(message);
-        }
-    }
-
-    public GameOutput append(String message) {
-        output.add(message);
-
-        return this;
-    }
-
-    public List<String> getOutput() {
-        return output;
-    }
+public interface Command {
+    GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw);
 }
