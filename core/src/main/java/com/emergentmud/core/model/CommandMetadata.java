@@ -76,19 +76,12 @@ public class CommandMetadata {
 
         CommandMetadata metadata = (CommandMetadata) o;
 
-        if (!getId().equals(metadata.getId())) return false;
-        if (!getName().equals(metadata.getName())) return false;
-        if (!getPriority().equals(metadata.getPriority())) return false;
-        return getBeanName().equals(metadata.getBeanName());
+        return getId().equals(metadata.getId());
 
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + getPriority().hashCode();
-        result = 31 * result + getBeanName().hashCode();
-        return result;
+        return getId().hashCode();
     }
 }

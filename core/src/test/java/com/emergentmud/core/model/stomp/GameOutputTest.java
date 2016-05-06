@@ -58,6 +58,23 @@ public class GameOutputTest {
     }
 
     @Test
+    public void testFluentAppend() throws Exception {
+        String text1 = "Test 1";
+        String text2 = "Test 2";
+        String text3 = "Test 3";
+        GameOutput output = new GameOutput(text1)
+                .append(text2)
+                .append(text3);
+
+        List<String> outputList = output.getOutput();
+
+        assertEquals(3, outputList.size());
+        assertEquals(text1, outputList.get(0));
+        assertEquals(text2, outputList.get(1));
+        assertEquals(text3, outputList.get(2));
+    }
+
+    @Test
     public void testAppend() throws Exception {
         String text1 = "Test 1";
         String text2 = "Test 2";
