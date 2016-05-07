@@ -48,22 +48,12 @@ public class CommandLoader {
 
             List<CommandMetadata> metadataList = new ArrayList<>();
 
-            metadataList.add(createMetadata("look", "lookCommand", 100));
-            metadataList.add(createMetadata("say", "sayCommand", 200));
-            metadataList.add(createMetadata("info", "infoCommand", 300));
-            metadataList.add(createMetadata("cmdedit", "commandEditCommand", 1000));
+            metadataList.add(new CommandMetadata("look", "lookCommand", 100));
+            metadataList.add(new CommandMetadata("say", "sayCommand", 200));
+            metadataList.add(new CommandMetadata("info", "infoCommand", 300));
+            metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000));
 
             commandMetadataRepository.save(metadataList);
         }
-    }
-
-    private CommandMetadata createMetadata(String name, String beanName, Integer priority) {
-        CommandMetadata commandMetadata = new CommandMetadata();
-
-        commandMetadata.setName(name);
-        commandMetadata.setBeanName(beanName);
-        commandMetadata.setPriority(priority);
-
-        return commandMetadata;
     }
 }

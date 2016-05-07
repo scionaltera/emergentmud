@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.model;
 
+import com.emergentmud.core.command.Command;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -36,6 +37,16 @@ public class CommandMetadata {
     private Integer priority;
 
     private String beanName;
+
+    public CommandMetadata() {
+        // this method intentionally left blank
+    }
+
+    public CommandMetadata(String name, String beanName, Integer priority) {
+        setName(name);
+        setBeanName(beanName);
+        setPriority(priority);
+    }
 
     public String getId() {
         return id;
