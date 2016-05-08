@@ -23,31 +23,20 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.WorldManager;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -70,11 +59,8 @@ import java.util.UUID;
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
 
-    private String applicationVersion;
-    private Long applicationBootDate;
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
-    private SessionRepository sessionRepository;
     private AccountRepository accountRepository;
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
@@ -82,153 +68,21 @@ public class MainResource {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Inject
-    public MainResource(String applicationVersion,
-                        Long applicationBootDate,
+    public MainResource(
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
-                        SessionRepository sessionRepository,
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         WorldManager worldManager,
                         SimpMessagingTemplate simpMessagingTemplate) {
-        this.applicationVersion = applicationVersion;
-        this.applicationBootDate = applicationBootDate;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
-        this.sessionRepository = sessionRepository;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
         this.simpMessagingTemplate = simpMessagingTemplate;
-    }
-
-    @SubscribeMapping("/queue/output")
-    public GameOutput onSubscribe(Principal principal,
-                                  @Header("breadcrumb") String breadcrumb,
-                                  @Header("simpSessionId") String simpSessionId) {
-        Session session = getSessionFromPrincipal(principal);
-        Map<String, String> sessionMap = session.getAttribute(breadcrumb);
-        Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
-        Entity entity = essence.getEntity();
-
-        entity.setStompUsername(principal.getName());
-        entity.setStompSessionId(simpSessionId);
-        entity = entityRepository.save(entity);
-
-        GameOutput output = new GameOutput("[green]Connected to server.");
-
-        output.append("[black]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
-        output.append("[dwhite] | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \\/  | | | |   \\ ".replace(" ", "&nbsp;"));
-        output.append("[dwhite] | _|| '  \\/ -_) '_/ _` / -_) ' \\  _| |\\/| | |_| | |) |".replace(" ", "&nbsp;"));
-        output.append("[white] |___|_|_|_\\___|_| \\__, \\___|_||_\\__|_|  |_|\\___/|___/ ".replace(" ", "&nbsp;"));
-        output.append("[white]                   |___/                               ".replace(" ", "&nbsp;"));
-        output.append("[white]Copyright &copy; 2016 BoneVM, LLC.");
-        output.append("[dwhite]EmergentMUD is licensed under the <a class=\"green\" target=\"_blank\" " +
-                "href=\"http://www.gnu.org/licenses/agpl-3.0.en.html\">GNU Affero General Public License</a>.");
-        output.append("[dwhite]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
-        output.append("[dwhite]EmergentMUD is <a class=\"green\" target=\"_blank\" " +
-                "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
-                "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
-        output.append("[dwhite]EmergentMUD server status:");
-        output.append("[dwhite]&nbsp;&nbsp;Version: [white]v" + applicationVersion);
-        output.append("[dwhite]&nbsp;&nbsp;Up since: [white]" + new DateTime(applicationBootDate));
-        output.append(String.format("[yellow]Welcome to the world, %s!", entity.getName()));
-        output.append("");
-        output.append("> ");
-
-        return output;
-    }
-
-    @MessageMapping("/input")
-    @SendToUser(value = "/queue/output", broadcast = false)
-    public GameOutput onInput(UserInput input,
-                              Principal principal,
-                              @Header("breadcrumb") String breadcrumb,
-                              @Header("simpSessionId") String simpSessionId) {
-        Session session = getSessionFromPrincipal(principal);
-        Map<String, String> sessionMap = session.getAttribute(breadcrumb);
-        Essence essence = essenceRepository.findOne(sessionMap.get("essence"));
-        Entity entity = essence.getEntity();
-
-        GameOutput output = new GameOutput();
-
-        if (entity == null) {
-            LOGGER.error("Entity was null for user {}", principal.getName());
-            output.append("[red]There was an internal error. The administrators have been notified.");
-            return output;
-        }
-
-        if (!principal.getName().equals(entity.getStompUsername()) || !simpSessionId.equals(entity.getStompSessionId())) {
-            output.append("[red]This session is no longer valid.");
-            return output;
-        }
-
-        if ("info".equals(input.getInput())) {
-            output.append("[cyan][ [dcyan]Essence ([cyan]" + essence.getId() + "[dcyan]) [cyan]]");
-            output.append("[dcyan]Name: [cyan]" + essence.getName());
-            output.append("[dcyan]Entity: [cyan]" + entity.getId());
-
-            output.append("");
-            output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
-            output.append("[dcyan]Name: [cyan]" + entity.getName());
-            output.append("[dcyan]Breadcrumb: [cyan]" + breadcrumb);
-            output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
-            output.append("[dcyan]HTTP Session ID: [cyan]" + session.getId());
-            output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
-            output.append("[dcyan]Room: [cyan]" + (entity.getRoom() == null ? "none" : entity.getRoom().getId()));
-
-            Room room = entity.getRoom();
-
-            if (room != null) {
-                output.append("");
-                output.append("[cyan][ [dcyan]Room ([cyan]" + room.getId() + "[dcyan]) [cyan]]");
-                output.append(String.format("[dcyan]Location: [cyan](%d, %d, %d)", room.getX(), room. getY(), room.getZ()));
-                output.append("[dcyan]Contents: [cyan]" + room.getContents().size() + " entities");
-            }
-        } else if ("look".equals(input.getInput())) {
-            if (entity.getRoom() == null) {
-                output.append("[black]You are floating in a formless void.");
-            } else {
-                Room room = entity.getRoom();
-
-                output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", room.getX(), room.getY(), room.getZ()));
-                output.append("[default]There is nothing but inky blackness around you for as far as the eye can see.");
-                output.append("[dcyan]Exits: none");
-
-                room.getContents().stream()
-                        .filter(content -> !content.getId().equals(entity.getId()))
-                        .forEach(content -> output.append("[green]" + content.getName() + " is here."));
-            }
-        } else if (input.getInput().startsWith("say ")) {
-            String text = input.getInput().substring(4);
-            output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(text)));
-
-            GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(text)));
-            toRoom.append("");
-            toRoom.append("> ");
-
-            Room room = entity.getRoom();
-
-            room.getContents()
-                    .stream()
-                    .filter(e -> !entity.getId().equals(e.getId()))
-                    .forEach(e -> {
-                        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                        headerAccessor.setSessionId(e.getStompSessionId());
-                        headerAccessor.setLeaveMutable(true);
-
-                        simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
-                    });
-        } else {
-            output.append("Huh?");
-        }
-
-        output.append("");
-        output.append("> ");
-
-        return output;
     }
 
     @RequestMapping("/")
@@ -294,8 +148,8 @@ public class MainResource {
     }
 
     @RequestMapping("/play/{id}")
-    public String play(@PathVariable("id") String id, HttpSession session, Principal principal, Model model) {
-        if (StringUtils.isEmpty(id)) {
+    public String play(@PathVariable("id") String essenceId, HttpSession session, Principal principal, Model model) {
+        if (StringUtils.isEmpty(essenceId)) {
             LOGGER.info("No ID provided.");
             return "redirect:/";
         }
@@ -311,11 +165,11 @@ public class MainResource {
 
         List<Essence> essences = essenceRepository.findByAccountId(account.getId());
         Optional<Essence> eOptional = essences.stream()
-                .filter(e -> id.equals(e.getId()))
+                .filter(e -> essenceId.equals(e.getId()))
                 .findFirst();
 
         if (!eOptional.isPresent()) {
-            LOGGER.info("No such essence: {}", id);
+            LOGGER.info("No such essence: {}", essenceId);
             return "redirect:/";
         }
 
@@ -375,27 +229,8 @@ public class MainResource {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         LOGGER.info("Logged out: {}:{}", network, networkId);
-
         securityContextLogoutHandler.logout(request, response, authentication);
 
         return "redirect:/";
-    }
-
-    private Session getSessionFromPrincipal(Principal principal) {
-        OAuth2Authentication oauth2Authentication = (OAuth2Authentication)principal;
-        OAuth2AuthenticationDetails oAuth2AuthenticationDetails = (OAuth2AuthenticationDetails)oauth2Authentication.getDetails();
-        String sessionId = oAuth2AuthenticationDetails.getSessionId();
-
-        return sessionRepository.getSession(sessionId);
-    }
-
-    private String htmlEscape(String input) {
-        return input
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\\", "&#x2F;");
     }
 }
