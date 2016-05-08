@@ -49,7 +49,7 @@ public class SayCommand implements Command {
 
         output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(raw)));
 
-        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s'", entity.getName(), htmlEscape(raw)))
+        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), htmlEscape(raw)))
                 .append("")
                 .append("> ");
 
