@@ -47,6 +47,7 @@ public class WorldManagerTest {
         MockitoAnnotations.initMocks(this);
 
         when(roomRepository.save(any(Room.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(roomRepository.save(anyCollectionOf(Room.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         worldManager = new WorldManager(roomRepository, entityRepository);
@@ -149,9 +150,34 @@ public class WorldManagerTest {
         Room room = worldManager.getRoom(2L, 1L, 3L);
 
         verify(roomRepository).findByXAndYAndZ(eq(2L), eq(1L), eq(3L));
-        verify(roomRepository).save(eq(room));
+        verify(roomRepository).save(anyCollectionOf(Room.class));
         assertEquals(2L, room.getX());
         assertEquals(1L, room.getY());
         assertEquals(3L, room.getZ());
+    }
+
+    @Test
+    public void testNearestGridCenter() throws Exception {
+        assertEquals(-10, worldManager.nearestGridCenter(-10L));
+        assertEquals(-10, worldManager.nearestGridCenter(-9L));
+        assertEquals(-10, worldManager.nearestGridCenter(-8L));
+        assertEquals(-5, worldManager.nearestGridCenter(-7L));
+        assertEquals(-5, worldManager.nearestGridCenter(-6L));
+        assertEquals(-5, worldManager.nearestGridCenter(-5L));
+        assertEquals(-5, worldManager.nearestGridCenter(-4L));
+        assertEquals(-5, worldManager.nearestGridCenter(-3L));
+        assertEquals(0, worldManager.nearestGridCenter(-2L));
+        assertEquals(0, worldManager.nearestGridCenter(-1L));
+        assertEquals(0, worldManager.nearestGridCenter(0L));
+        assertEquals(0, worldManager.nearestGridCenter(1L));
+        assertEquals(0, worldManager.nearestGridCenter(2L));
+        assertEquals(5, worldManager.nearestGridCenter(3L));
+        assertEquals(5, worldManager.nearestGridCenter(4L));
+        assertEquals(5, worldManager.nearestGridCenter(5L));
+        assertEquals(5, worldManager.nearestGridCenter(6L));
+        assertEquals(5, worldManager.nearestGridCenter(7L));
+        assertEquals(10, worldManager.nearestGridCenter(8L));
+        assertEquals(10, worldManager.nearestGridCenter(9L));
+        assertEquals(10, worldManager.nearestGridCenter(10L));
     }
 }

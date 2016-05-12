@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class WorldManager {
@@ -78,15 +81,40 @@ public class WorldManager {
         Room room = roomRepository.findByXAndYAndZ(x, y, z);
 
         if (room == null) {
-            room = new Room();
-            room.setX(x);
-            room.setY(y);
-            room.setZ(z);
+            List<Room> newRooms = new ArrayList<>();
+            long[] center = new long[] {
+                nearestGridCenter(x),
+                nearestGridCenter(y),
+                z
+            };
 
-            room = roomRepository.save(room);
-            LOGGER.info("Generated room ({}, {}, {})", x, y, z);
+            for (long yAxis = center[1] - 2; yAxis <= center[1] + 2; yAxis++) {
+                for (long xAxis = center[0] - 2; xAxis <= center[0] + 2; xAxis++) {
+                    Room r = new Room();
+                    r.setX(xAxis);
+                    r.setY(yAxis);
+                    r.setZ(z);
+
+                    newRooms.add(r);
+                }
+            }
+
+            List<Room> created = roomRepository.save(newRooms);
+            LOGGER.info("Generated {} rooms centered @ ({}, {}, {})", created.size(), center[0], center[1], center[2]);
+
+            Optional<Room> option = created.stream()
+                    .filter(r -> r.getX() == x && r.getY() == y && r.getZ() == z)
+                    .findFirst();
+
+            if (option.isPresent()) {
+                room = option.get();
+            }
         }
 
         return room;
+    }
+
+    protected long nearestGridCenter(long coordinate) {
+        return 5L * Math.round((double)coordinate / 5L);
     }
 }
