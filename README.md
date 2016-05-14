@@ -61,6 +61,7 @@ If you would like to contribute to the project, please feel free to submit a pul
 1. Match the coding style of existing code as best as possible.
 1. Make sure the code you are contributing is covered by unit tests.
 1. Document your work, or include updates to the existing documentation.
+1. Include the license header in any new files that you create.
 1. Be sure to include a version bump in your pull request. EmergentMUD is versioned following [Semantic Versioning](http://semver.org).
 
 ## License
