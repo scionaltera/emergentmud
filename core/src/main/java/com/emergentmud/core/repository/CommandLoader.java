@@ -48,6 +48,10 @@ public class CommandLoader {
 
             List<CommandMetadata> metadataList = new ArrayList<>();
 
+            metadataList.add(new CommandMetadata("north", "northCommand", 10));
+            metadataList.add(new CommandMetadata("east", "eastCommand", 10));
+            metadataList.add(new CommandMetadata("south", "southCommand", 10));
+            metadataList.add(new CommandMetadata("west", "westCommand", 10));
             metadataList.add(new CommandMetadata("look", "lookCommand", 100));
             metadataList.add(new CommandMetadata("say", "sayCommand", 200));
             metadataList.add(new CommandMetadata("info", "infoCommand", 300));
