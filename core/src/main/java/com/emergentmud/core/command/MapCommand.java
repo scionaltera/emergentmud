@@ -25,14 +25,30 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InfoCommand implements Command {
+public class MapCommand implements Command {
+    private static final int MAP_EXTENT = 20;
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
-        output.append("[dcyan]Name: [cyan]" + entity.getName());
-        output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
-        output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
+        for (long y = entity.getY() + MAP_EXTENT; y > entity.getY() - MAP_EXTENT; y--) {
+            StringBuilder line = new StringBuilder();
+
+            for (long x = entity.getX() - MAP_EXTENT; x < entity.getY() + MAP_EXTENT; x++) {
+                if (x == entity.getX() && y == entity.getY()) {
+                    line.append("[cyan]");
+                } else {
+                    line.append("[dwhite]");
+                }
+
+                line.append("[]");
+            }
+
+            line.append(String.format("  [yellow]Y: %d", y));
+
+            output.append(line.toString());
+        }
+
+        output.append(String.format("[yellow]X: %d - %d", entity.getX() - MAP_EXTENT, entity.getX() + MAP_EXTENT));
 
         return output;
     }

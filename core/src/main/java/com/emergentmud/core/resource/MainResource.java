@@ -188,7 +188,10 @@ public class MainResource {
             essence = essenceRepository.save(essence);
         }
 
-        if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+        if ((entity.getX() != null || entity.getY() != null || entity.getZ() != null)
+                && entity.getStompSessionId() != null
+                && entity.getStompUsername() != null) {
+
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
             SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();

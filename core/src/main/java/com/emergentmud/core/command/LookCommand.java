@@ -21,34 +21,38 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class LookCommand implements Command {
     private WorldManager worldManager;
+    private EntityRepository entityRepository;
 
     @Inject
-    public LookCommand(WorldManager worldManager) {
+    public LookCommand(WorldManager worldManager,
+                       EntityRepository entityRepository) {
         this.worldManager = worldManager;
+        this.entityRepository = entityRepository;
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        if (entity.getRoom() == null) {
+        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
-            Room room = entity.getRoom();
-
-            output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", room.getX(), room.getY(), room.getZ()));
+            output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", entity.getX(), entity.getY(), entity.getZ()));
             output.append("[default]There is nothing but inky blackness around you for as far as the eye can see.");
-            output.append("[dcyan]Exits: " + computeExits(room));
+            output.append("[dcyan]Exits: " + computeExits());
 
-            room.getContents().stream()
+            List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+
+            contents.stream()
                     .filter(content -> !content.getId().equals(entity.getId()))
                     .forEach(content -> output.append("[green]" + content.getName() + " is here."));
         }
@@ -56,23 +60,7 @@ public class LookCommand implements Command {
         return output;
     }
 
-    private String computeExits(Room room) {
-        StringBuilder exits = new StringBuilder();
-
-        Room north = worldManager.getRoom(room.getX(), room.getY() + 1, room.getZ());
-        Room east = worldManager.getRoom(room.getX() + 1, room.getY(), room.getZ());
-        Room south = worldManager.getRoom(room.getX(), room.getY() - 1, room.getZ());
-        Room west = worldManager.getRoom(room.getX() - 1, room.getY(), room.getZ());
-
-        exits.append(north != null ? "north " : "");
-        exits.append(east != null ? "east " : "");
-        exits.append(south != null ? "south " : "");
-        exits.append(west != null ? "west " : "");
-
-        if (exits.length() == 0) {
-            exits.append("none");
-        }
-
-        return exits.toString().trim();
+    private String computeExits() {
+        return "north east south west";
     }
 }

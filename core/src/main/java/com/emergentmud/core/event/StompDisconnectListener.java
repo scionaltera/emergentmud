@@ -21,7 +21,6 @@
 package com.emergentmud.core.event;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.springframework.context.ApplicationListener;
@@ -47,11 +46,7 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
         Entity entity = entityRepository.findByStompSessionIdAndStompUsername(event.getSessionId(), event.getUser().getName());
 
         if (entity != null) {
-            Room room = entity.getRoom();
-
-            if (room != null) {
-                worldManager.remove(entity, room.getX(), room.getY(), room.getZ());
-            }
+            worldManager.remove(entity, entity.getX(), entity.getY(), entity.getZ());
         }
     }
 }
