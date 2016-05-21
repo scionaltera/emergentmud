@@ -39,7 +39,7 @@ public class WorldManager {
     }
 
     public boolean put(Entity entity, long x, long y, long z) {
-        LOGGER.debug("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
+        LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
         entity.setX(x);
         entity.setY(y);
@@ -55,7 +55,7 @@ public class WorldManager {
         entity.setZ(null);
         entity = entityRepository.save(entity);
 
-        LOGGER.debug("Remove {} from room ({}, {}, {})", entity.getName(), x, y, z);
+        LOGGER.trace("Remove {} from room ({}, {}, {})", entity.getName(), x, y, z);
 
         return true;
     }

@@ -55,7 +55,7 @@ public class MoveCommand implements Command {
                     entity.getZ()
             };
 
-            LOGGER.info("Location before: ({}, {}, {})", location[0], location[1], location[2]);
+            LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
             worldManager.remove(entity, location[0], location[1], location[2]);
 
             location[0] += differential[0];
@@ -63,7 +63,7 @@ public class MoveCommand implements Command {
             location[2] += differential[2];
 
             worldManager.put(entity, location[0], location[1], location[2]);
-            LOGGER.info("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+            LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
             Command command = (Command)applicationContext.getBean("lookCommand");
             command.execute(output, entity, new String[0], "");

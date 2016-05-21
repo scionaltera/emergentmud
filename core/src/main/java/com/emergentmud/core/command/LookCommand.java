@@ -46,8 +46,8 @@ public class LookCommand implements Command {
         if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
-            output.append(String.format("[yellow]Floating in the Void [dyellow](%d, %d, %d)", entity.getX(), entity.getY(), entity.getZ()));
-            output.append("[default]There is nothing but inky blackness around you for as far as the eye can see.");
+            output.append(String.format("[yellow]The Featureless Plains [dyellow](%d, %d, %d)", entity.getX(), entity.getY(), entity.getZ()));
+            output.append("[default]A bleak, empty landscape stretches beyond the limits of your vision.");
             output.append("[dcyan]Exits: " + computeExits());
 
             List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());

@@ -22,25 +22,35 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import opensimplex.OpenSimplexNoise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MapCommand implements Command {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapCommand.class);
     private static final int MAP_EXTENT = 20;
+    private static final OpenSimplexNoise BIG_SIMPLEX_NOISE = new OpenSimplexNoise(2309480L);
+    private static final OpenSimplexNoise DETAIL_SIMPLEX_NOISE = new OpenSimplexNoise(9879238L);
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        for (long y = entity.getY() + MAP_EXTENT; y > entity.getY() - MAP_EXTENT; y--) {
+        for (long y = entity.getY() + MAP_EXTENT; y >= entity.getY() - MAP_EXTENT; y--) {
             StringBuilder line = new StringBuilder();
 
-            for (long x = entity.getX() - MAP_EXTENT; x < entity.getY() + MAP_EXTENT; x++) {
+            for (long x = entity.getX() - MAP_EXTENT; x <= entity.getX() + MAP_EXTENT; x++) {
                 if (x == entity.getX() && y == entity.getY()) {
-                    line.append("[cyan]");
+                    line.append("[cyan][]</span>");
                 } else {
-                    line.append("[dwhite]");
-                }
+                    byte noise = noise(x, y);
 
-                line.append("[]");
+                    if (noise < 0) {
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, 0, noise + 256));
+                    } else {
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, noise + 128, 0));
+                    }
+                }
             }
 
             line.append(String.format("  [yellow]Y: %d", y));
@@ -48,8 +58,94 @@ public class MapCommand implements Command {
             output.append(line.toString());
         }
 
-        output.append(String.format("[yellow]X: %d - %d", entity.getX() - MAP_EXTENT, entity.getX() + MAP_EXTENT));
+        StringBuilder line = new StringBuilder("[yellow]");
+        int offset = 0;
+
+        for (long x = entity.getX() - MAP_EXTENT; x <= entity.getX() + MAP_EXTENT; x++) {
+            if (x == entity.getX() - MAP_EXTENT || x == entity.getX() - offset || x == entity.getX() + MAP_EXTENT - offset) {
+                line.append(x + offset);
+
+                int length = Long.toString(x).length();
+
+                if (length == 1) {
+                    line.append("&nbsp;");
+                } else {
+                    offset += Math.max(0, length - 2);
+                }
+            } else {
+                if (offset >= 2) {
+                    offset -= 2;
+                } else if (offset == 1) {
+                    offset--;
+                    line.append("&nbsp;");
+                } else {
+                    line.append("&nbsp;&nbsp;");
+                }
+            }
+        }
+
+        output.append(line.toString());
 
         return output;
+    }
+
+    private byte noise(long x, long y) {
+        return (byte)((bigNoise(x, y) + detailNoise(x, y)) / 2.0);
+    }
+
+    private byte detailNoise(long x, long y) {
+        final int octaves = 8;
+        final double gain = 0.45;
+        final double lacunarity = 2.5;
+        double total = 0.0;
+        double frequency = 1.0 / MAP_EXTENT;
+        double amplitude = gain;
+
+        for (int i = 0; i < octaves; ++i) {
+            total += DETAIL_SIMPLEX_NOISE.eval((float)x * frequency, (float)y * frequency) * amplitude;
+            frequency *= lacunarity;
+            amplitude *= gain;
+        }
+
+        total = clamp(total);
+
+        byte result = (byte)Math.round(Byte.MAX_VALUE * total);
+
+        LOGGER.info("({}, {}) Total: {} -> {}", x, y, total, result);
+
+        return result;
+    }
+
+    private byte bigNoise(long x, long y) {
+        final int octaves = 8;
+        final double gain = 0.95;
+        final double lacunarity = 0.4;
+        double total = 0.0;
+        double frequency = 1.0 / MAP_EXTENT;
+        double amplitude = gain;
+
+        for (int i = 0; i < octaves; ++i) {
+            total += BIG_SIMPLEX_NOISE.eval((float)x * frequency, (float)y * frequency) * amplitude;
+            frequency *= lacunarity;
+            amplitude *= gain;
+        }
+
+        total = clamp(total);
+
+        byte result = (byte)Math.round(Byte.MAX_VALUE * total);
+
+        LOGGER.info("({}, {}) Total: {} -> {}", x, y, total, result);
+
+        return result;
+    }
+
+    private double clamp(double in) {
+        if (in > 1.0) {
+            in = 1.0;
+        } else if (in < -1.0) {
+            in = -1.0;
+        }
+
+        return in;
     }
 }
