@@ -216,6 +216,7 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
+        verifyZeroInteractions(simpMessagingTemplate);
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
@@ -271,6 +272,7 @@ public class MainResourceTest {
 
         String view = mainResource.play("essence1", httpSession, principal, model);
 
+        verifyZeroInteractions(simpMessagingTemplate);
         verify(entityRepository).save(any(Entity.class));
         verify(essence1).setEntity(any(Entity.class));
         verify(essenceRepository).save(eq(essence1));
