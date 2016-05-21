@@ -38,25 +38,21 @@ public class WorldManager {
         this.entityRepository = entityRepository;
     }
 
-    public boolean put(Entity entity, long x, long y, long z) {
+    public void put(Entity entity, long x, long y, long z) {
         LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
         entity.setX(x);
         entity.setY(y);
         entity.setZ(z);
         entityRepository.save(entity);
-
-        return true;
     }
 
-    public boolean remove(Entity entity, long x, long y, long z) {
+    public void remove(Entity entity) {
+        LOGGER.trace("Remove {} from room ({}, {}, {})", entity.getName(), entity.getX(), entity.getY(), entity.getZ());
+
         entity.setX(null);
         entity.setY(null);
         entity.setZ(null);
-        entity = entityRepository.save(entity);
-
-        LOGGER.trace("Remove {} from room ({}, {}, {})", entity.getName(), x, y, z);
-
-        return true;
+        entityRepository.save(entity);
     }
 }

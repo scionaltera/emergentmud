@@ -24,7 +24,6 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -294,9 +293,7 @@ public class MainResourceTest {
         ArgumentCaptor<MessageHeaders> headerCaptor = ArgumentCaptor.forClass(MessageHeaders.class);
         Essence essence0 = essences.get(0);
         Entity entity0 = essence0.getEntity();
-        Room room = mock(Room.class);
 
-        when(entity0.getRoom()).thenReturn(room);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 

@@ -46,7 +46,7 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
         Entity entity = entityRepository.findByStompSessionIdAndStompUsername(event.getSessionId(), event.getUser().getName());
 
         if (entity != null) {
-            worldManager.remove(entity, entity.getX(), entity.getY(), entity.getZ());
+            worldManager.remove(entity);
         }
     }
 }

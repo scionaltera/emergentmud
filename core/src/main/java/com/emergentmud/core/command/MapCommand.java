@@ -111,7 +111,7 @@ public class MapCommand implements Command {
 
         byte result = (byte)Math.round(Byte.MAX_VALUE * total);
 
-        LOGGER.info("({}, {}) Total: {} -> {}", x, y, total, result);
+        LOGGER.trace("Detail noise: ({}, {}) Total: {} -> {}", x, y, total, result);
 
         return result;
     }
@@ -134,7 +134,7 @@ public class MapCommand implements Command {
 
         byte result = (byte)Math.round(Byte.MAX_VALUE * total);
 
-        LOGGER.info("({}, {}) Total: {} -> {}", x, y, total, result);
+        LOGGER.trace("Big noise: ({}, {}) Total: {} -> {}", x, y, total, result);
 
         return result;
     }

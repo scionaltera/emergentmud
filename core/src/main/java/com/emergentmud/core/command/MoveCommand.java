@@ -56,7 +56,7 @@ public class MoveCommand implements Command {
             };
 
             LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
-            worldManager.remove(entity, location[0], location[1], location[2]);
+            worldManager.remove(entity);
 
             location[0] += differential[0];
             location[1] += differential[1];
