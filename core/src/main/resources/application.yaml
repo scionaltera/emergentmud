@@ -23,14 +23,6 @@ spring:
     chain:
       enabled: true
 
-simplex:
-  elevation:
-    big: 2309480
-    detail: 9879238
-  waterTable:
-    big: 28942983
-    detail: 3726383
-
 facebook:
   client:
     accessTokenUri: https://graph.facebook.com/oauth/access_token
