@@ -20,6 +20,7 @@ The following major features are already complete:
 
 A few of the things on the roadmap to v1.0:
 
+* High availability (run multiple instances behind a load balancer, clustered datastores, real STOMP message broker)
 * Detailed terrain types
 * Plants and foliage
 * Sparsely populated Room entities to overlay changes made by players onto the world map
