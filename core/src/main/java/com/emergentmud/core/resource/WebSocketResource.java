@@ -146,25 +146,27 @@ public class WebSocketResource {
             return output;
         }
 
-        String[] tokens = input.getInput().split(" ");
-        String cmd = tokens[0];
-        String[] args = new String[tokens.length - 1];
-        System.arraycopy(tokens, 1, args, 0, tokens.length - 1);
-        String raw = input.getInput().indexOf(' ') == -1 ? "" : input.getInput().substring(input.getInput().indexOf(' ') + 1);
-        List<CommandMetadata> commandMetadataList = commandMetadataRepository.findAll(SORT);
+        if (!"".equals(input.getInput().trim())) {
+            String[] tokens = input.getInput().split(" ");
+            String cmd = tokens[0];
+            String[] args = new String[tokens.length - 1];
+            System.arraycopy(tokens, 1, args, 0, tokens.length - 1);
+            String raw = input.getInput().indexOf(' ') == -1 ? "" : input.getInput().substring(input.getInput().indexOf(' ') + 1);
+            List<CommandMetadata> commandMetadataList = commandMetadataRepository.findAll(SORT);
 
-        Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
-                .stream()
-                .filter(cm -> cm.getName().startsWith(cmd.toLowerCase().trim()))
-                .findFirst();
+            Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
+                    .stream()
+                    .filter(cm -> cm.getName().startsWith(cmd.toLowerCase().trim()))
+                    .findFirst();
 
-        if (optionalCommandMetadata.isPresent()) {
-            CommandMetadata metadata = optionalCommandMetadata.get();
-            Command command = (Command)applicationContext.getBean(metadata.getBeanName());
+            if (optionalCommandMetadata.isPresent()) {
+                CommandMetadata metadata = optionalCommandMetadata.get();
+                Command command = (Command) applicationContext.getBean(metadata.getBeanName());
 
-            command.execute(output, entity, args, raw);
-        } else {
-            output.append("Huh?");
+                command.execute(output, entity, args, raw);
+            } else {
+                output.append("Huh?");
+            }
         }
 
         output.append("");
