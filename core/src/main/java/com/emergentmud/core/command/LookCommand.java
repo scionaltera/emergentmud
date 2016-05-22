@@ -23,7 +23,6 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.WorldManager;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -31,13 +30,10 @@ import java.util.List;
 
 @Component
 public class LookCommand implements Command {
-    private WorldManager worldManager;
     private EntityRepository entityRepository;
 
     @Inject
-    public LookCommand(WorldManager worldManager,
-                       EntityRepository entityRepository) {
-        this.worldManager = worldManager;
+    public LookCommand(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
     }
 
@@ -48,7 +44,7 @@ public class LookCommand implements Command {
         } else {
             output.append(String.format("[yellow]The Featureless Plains [dyellow](%d, %d, %d)", entity.getX(), entity.getY(), entity.getZ()));
             output.append("[default]A bleak, empty landscape stretches beyond the limits of your vision.");
-            output.append("[dcyan]Exits: " + computeExits());
+            output.append("[dcyan]Exits: north east south west");
 
             List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
 
@@ -58,9 +54,5 @@ public class LookCommand implements Command {
         }
 
         return output;
-    }
-
-    private String computeExits() {
-        return "north east south west";
     }
 }

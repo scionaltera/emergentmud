@@ -36,7 +36,7 @@ public class MapCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        for (long y = entity.getY() + MAP_EXTENT; y >= entity.getY() - MAP_EXTENT; y--) {
+        for (long y = entity.getY() + MAP_EXTENT, i = 0; y >= entity.getY() - MAP_EXTENT; y--, i++) {
             StringBuilder line = new StringBuilder();
 
             for (long x = entity.getX() - MAP_EXTENT; x <= entity.getX() + MAP_EXTENT; x++) {
@@ -53,7 +53,9 @@ public class MapCommand implements Command {
                 }
             }
 
-            line.append(String.format("  [yellow]Y: %d", y));
+            if (i % 10 == 0) {
+                line.append(String.format("  [yellow]%d", y));
+            }
 
             output.append(line.toString());
         }
@@ -61,8 +63,8 @@ public class MapCommand implements Command {
         StringBuilder line = new StringBuilder("[yellow]");
         int offset = 0;
 
-        for (long x = entity.getX() - MAP_EXTENT; x <= entity.getX() + MAP_EXTENT; x++) {
-            if (x == entity.getX() - MAP_EXTENT || x == entity.getX() - offset || x == entity.getX() + MAP_EXTENT - offset) {
+        for (long x = entity.getX() - MAP_EXTENT, i = 0; x <= entity.getX() + MAP_EXTENT; x++, i++) {
+            if (i % 10 == 0) {
                 line.append(x + offset);
 
                 int length = Long.toString(x).length();

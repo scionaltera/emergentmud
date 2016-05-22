@@ -31,7 +31,7 @@ import javax.inject.Inject;
 
 @Component
 public class CommandEditCommand implements Command {
-    private static final Sort SORT = new Sort("priority", "name");
+    static final Sort SORT = new Sort("priority", "name");
 
     private CommandMetadataRepository commandMetadataRepository;
 
