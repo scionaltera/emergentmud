@@ -152,6 +152,18 @@ public class WebSocketResourceTest {
     }
 
     @Test
+    public void testOnInputBlank() throws Exception {
+        UserInput input = mock(UserInput.class);
+
+        when(input.getInput()).thenReturn("");
+
+        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
+
+        verify(applicationContext, never()).getBean(anyString());
+        assertEquals(2, output.getOutput().size());
+    }
+
+    @Test
     public void testOnInput() throws Exception {
         UserInput input = mock(UserInput.class);
 
