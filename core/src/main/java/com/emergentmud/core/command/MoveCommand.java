@@ -21,7 +21,6 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
 import org.slf4j.Logger;
@@ -47,25 +46,24 @@ public class MoveCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        if (entity.getRoom() == null) {
+        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
-            Room origin = entity.getRoom();
             long[] location = new long[] {
-                    origin.getX(),
-                    origin.getY(),
-                    origin.getZ()
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ()
             };
 
-            LOGGER.info("Location before: ({}, {}, {})", location[0], location[1], location[2]);
-            worldManager.remove(entity, location[0], location[1], location[2]);
+            LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
+            worldManager.remove(entity);
 
             location[0] += differential[0];
             location[1] += differential[1];
             location[2] += differential[2];
 
             worldManager.put(entity, location[0], location[1], location[2]);
-            LOGGER.info("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+            LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
             Command command = (Command)applicationContext.getBean("lookCommand");
             command.execute(output, entity, new String[0], "");

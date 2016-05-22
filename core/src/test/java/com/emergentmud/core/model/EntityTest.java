@@ -63,15 +63,38 @@ public class EntityTest {
 
         assertEquals(stompSessionId, entity.getStompSessionId());
     }
+    
+    @Test
+    public void testX() throws Exception {
+        entity.setX(6L);
+        
+        assertEquals(6L, (long)entity.getX());
+        
+        entity.setX(null);
+        
+        assertNull(entity.getX());
+    }
 
     @Test
-    public void testRoom() throws Exception {
-        Room room = mock(Room.class);
+    public void testY() throws Exception {
+        entity.setY(6L);
 
-        entity.setRoom(room);
+        assertEquals(6L, (long)entity.getY());
 
-        verifyZeroInteractions(room);
-        assertEquals(room, entity.getRoom());
+        entity.setY(null);
+
+        assertNull(entity.getY());
+    }
+
+    @Test
+    public void testZ() throws Exception {
+        entity.setZ(6L);
+
+        assertEquals(6L, (long)entity.getZ());
+
+        entity.setZ(null);
+
+        assertNull(entity.getZ());
     }
 
     @Test

@@ -55,6 +55,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("look", "lookCommand", 100));
             metadataList.add(new CommandMetadata("say", "sayCommand", 200));
             metadataList.add(new CommandMetadata("info", "infoCommand", 300));
+            metadataList.add(new CommandMetadata("map", "mapCommand", 400));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000));
 
             commandMetadataRepository.save(metadataList);

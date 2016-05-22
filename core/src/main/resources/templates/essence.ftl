@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <tr>
                 <td>${essence.name}</td>
                 <td>
-                    <#if (essence.entity.room)??>
+                    <#if (essence.entity.x)?? || (essence.entity.y)?? || (essence.entity.z)??>
                     <a class="btn btn-warning" role="button" href="<@spring.url '/play/${essence.id}'/>">
                         <i class="fa fa-play"></i> Reconnect
                     </a>

@@ -24,7 +24,6 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -217,6 +216,7 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
+        verifyZeroInteractions(simpMessagingTemplate);
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
@@ -272,6 +272,7 @@ public class MainResourceTest {
 
         String view = mainResource.play("essence1", httpSession, principal, model);
 
+        verifyZeroInteractions(simpMessagingTemplate);
         verify(entityRepository).save(any(Entity.class));
         verify(essence1).setEntity(any(Entity.class));
         verify(essenceRepository).save(eq(essence1));
@@ -294,9 +295,7 @@ public class MainResourceTest {
         ArgumentCaptor<MessageHeaders> headerCaptor = ArgumentCaptor.forClass(MessageHeaders.class);
         Essence essence0 = essences.get(0);
         Entity entity0 = essence0.getEntity();
-        Room room = mock(Room.class);
 
-        when(entity0.getRoom()).thenReturn(room);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 

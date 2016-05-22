@@ -22,18 +22,42 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import org.springframework.stereotype.Component;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-@Component
-public class InfoCommand implements Command {
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-    @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
-        output.append("[dcyan]Name: [cyan]" + entity.getName());
-        output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
-        output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
+public class InfoCommandTest {
+    @Mock
+    private GameOutput output;
 
-        return output;
+    @Mock
+    private Entity entity;
+
+    private String[] tokens = new String[0];
+    private String raw = "";
+
+    private InfoCommand infoCommand;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
+        infoCommand = new InfoCommand();
+    }
+
+    @Test
+    public void testExecute() throws Exception {
+        GameOutput result = infoCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(entity).getId();
+        verify(entity).getName();
+        verify(entity).getStompUsername();
+        verify(entity).getStompSessionId();
+        verify(output, atLeastOnce()).append(anyString());
     }
 }

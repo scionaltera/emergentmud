@@ -21,8 +21,8 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -44,6 +44,9 @@ public class SayCommandTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
+    private EntityRepository entityRepository;
+
+    @Mock
     private GameOutput output;
 
     @Mock
@@ -51,9 +54,6 @@ public class SayCommandTest {
 
     @Mock
     private Entity stu;
-
-    @Mock
-    private Room room;
 
     @Captor
     private ArgumentCaptor<MessageHeaders> headerCaptor;
@@ -70,10 +70,12 @@ public class SayCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getContents()).thenReturn(roomContents);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
+        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
 
-        command = new SayCommand(simpMessagingTemplate);
+        command = new SayCommand(simpMessagingTemplate, entityRepository);
     }
 
     @Test

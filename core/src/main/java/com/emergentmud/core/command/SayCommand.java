@@ -21,22 +21,26 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class SayCommand implements Command {
     private SimpMessagingTemplate simpMessagingTemplate;
+    private EntityRepository entityRepository;
 
     @Inject
-    public SayCommand(SimpMessagingTemplate simpMessagingTemplate) {
+    public SayCommand(SimpMessagingTemplate simpMessagingTemplate,
+                      EntityRepository entityRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.entityRepository = entityRepository;
     }
 
     @Override
@@ -53,9 +57,9 @@ public class SayCommand implements Command {
                 .append("")
                 .append("> ");
 
-        Room room = entity.getRoom();
+        List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
 
-        room.getContents()
+        contents
                 .stream()
                 .filter(e -> !entity.getId().equals(e.getId()))
                 .forEach(e -> {

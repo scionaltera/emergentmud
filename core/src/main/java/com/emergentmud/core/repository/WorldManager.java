@@ -21,100 +21,38 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class WorldManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
 
-    private RoomRepository roomRepository;
     private EntityRepository entityRepository;
 
     @Inject
-    public WorldManager(RoomRepository roomRepository, EntityRepository entityRepository) {
-        this.roomRepository = roomRepository;
+    public WorldManager(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
     }
 
-    public boolean put(Entity entity, long x, long y, long z) {
-        Room room = getRoom(x, y, z);
+    public void put(Entity entity, long x, long y, long z) {
+        LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
-        if (!room.getContents().contains(entity)) {
-            room.getContents().add(entity);
-            roomRepository.save(room);
-
-            LOGGER.info("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
-        }
-
-        entity.setRoom(room);
+        entity.setX(x);
+        entity.setY(y);
+        entity.setZ(z);
         entityRepository.save(entity);
-
-        return true;
     }
 
-    public boolean remove(Entity entity, long x, long y, long z) {
-        Room room = getRoom(x, y, z);
+    public void remove(Entity entity) {
+        LOGGER.trace("Remove {} from room ({}, {}, {})", entity.getName(), entity.getX(), entity.getY(), entity.getZ());
 
-        entity.setRoom(null);
-        entity = entityRepository.save(entity);
-
-        if (room.getContents().contains(entity)) {
-            room.getContents().remove(entity);
-            roomRepository.save(room);
-
-            LOGGER.info("Remove {} from room ({}, {}, {})", entity.getName(), x, y, z);
-            return true;
-        }
-
-        return false;
-    }
-
-    public Room getRoom(long x, long y, long z) {
-        Room room = roomRepository.findByXAndYAndZ(x, y, z);
-
-        if (room == null) {
-            List<Room> newRooms = new ArrayList<>();
-            long[] center = new long[] {
-                nearestGridCenter(x),
-                nearestGridCenter(y),
-                z
-            };
-
-            for (long yAxis = center[1] - 2; yAxis <= center[1] + 2; yAxis++) {
-                for (long xAxis = center[0] - 2; xAxis <= center[0] + 2; xAxis++) {
-                    Room r = new Room();
-                    r.setX(xAxis);
-                    r.setY(yAxis);
-                    r.setZ(z);
-
-                    newRooms.add(r);
-                }
-            }
-
-            List<Room> created = roomRepository.save(newRooms);
-            LOGGER.info("Generated {} rooms centered @ ({}, {}, {})", created.size(), center[0], center[1], center[2]);
-
-            Optional<Room> option = created.stream()
-                    .filter(r -> r.getX() == x && r.getY() == y && r.getZ() == z)
-                    .findFirst();
-
-            if (option.isPresent()) {
-                room = option.get();
-            }
-        }
-
-        return room;
-    }
-
-    protected long nearestGridCenter(long coordinate) {
-        return 5L * Math.round((double)coordinate / 5L);
+        entity.setX(null);
+        entity.setY(null);
+        entity.setZ(null);
+        entityRepository.save(entity);
     }
 }
