@@ -41,21 +41,21 @@ public class NoiseConfiguration {
 
     @Bean
     public OpenSimplexNoise elevationBigSimplexNoise() {
-        return new OpenSimplexNoise(2309480L);
+        return new OpenSimplexNoise(elevationBigSeed);
     }
 
     @Bean
     public OpenSimplexNoise elevationDetailSimplexNoise() {
-        return new OpenSimplexNoise(9879238L);
+        return new OpenSimplexNoise(elevationDetailSeed);
     }
 
     @Bean
     public OpenSimplexNoise waterTableBigSimplexNoise() {
-        return new OpenSimplexNoise(28942983L);
+        return new OpenSimplexNoise(waterTableBigSeed);
     }
 
     @Bean
     public OpenSimplexNoise waterTableDetailSimplexNoise() {
-        return new OpenSimplexNoise(3726383L);
+        return new OpenSimplexNoise(waterTableDetailSeed);
     }
 }
