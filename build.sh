@@ -18,14 +18,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set -x
-
 cd core
 ./gradlew clean buildDocker -x test
 cd ..
 
-docker-compose stop core
-docker-compose rm -f core
+if [ $? -eq 0 ]
+then
+    docker-compose stop core
+    docker-compose rm -f core
 
-docker-compose up -d
-docker-compose logs -f
+    docker-compose up -d
+    docker-compose logs -f
+else
+    echo There were build errors.
+fi
