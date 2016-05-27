@@ -29,7 +29,8 @@ import javax.inject.Inject;
 
 @Component
 public class MapCommand implements Command {
-    public static final int MAP_EXTENT = 20;
+    public static final int MAP_EXTENT_X = 40;
+    public static final int MAP_EXTENT_Y = 20;
 
     private NoiseUtility noiseUtility;
 
@@ -40,10 +41,10 @@ public class MapCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        for (long y = entity.getY() + MAP_EXTENT, i = 0; y >= entity.getY() - MAP_EXTENT; y--, i++) {
+        for (long y = entity.getY() + MAP_EXTENT_Y, i = 0; y >= entity.getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
 
-            for (long x = entity.getX() - MAP_EXTENT; x <= entity.getX() + MAP_EXTENT; x++) {
+            for (long x = entity.getX() - MAP_EXTENT_X; x <= entity.getX() + MAP_EXTENT_X; x++) {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
@@ -70,7 +71,7 @@ public class MapCommand implements Command {
         StringBuilder line = new StringBuilder("[yellow]");
         int offset = 0;
 
-        for (long x = entity.getX() - MAP_EXTENT, i = 0; x <= entity.getX() + MAP_EXTENT; x++, i++) {
+        for (long x = entity.getX() - MAP_EXTENT_X, i = 0; x <= entity.getX() + MAP_EXTENT_X; x++, i++) {
             if (i % 10 == 0) {
                 line.append(x + offset);
 

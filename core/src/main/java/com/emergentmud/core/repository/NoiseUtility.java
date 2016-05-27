@@ -73,7 +73,7 @@ public class NoiseUtility {
 
     private byte detailNoise(long x, long y, final OpenSimplexNoise openSimplex, final int octaves, final double gain, final double lacunarity) {
         double total = 0.0;
-        double frequency = 1.0 / MapCommand.MAP_EXTENT;
+        double frequency = 1.0 / MapCommand.MAP_EXTENT_X;
         double amplitude = gain;
 
         for (int i = 0; i < octaves; ++i) {
@@ -93,7 +93,7 @@ public class NoiseUtility {
 
     private byte bigNoise(long x, long y, final OpenSimplexNoise openSimplex, final int octaves, final double gain, final double lacunarity) {
         double total = 0.0;
-        double frequency = 1.0 / MapCommand.MAP_EXTENT;
+        double frequency = 1.0 / MapCommand.MAP_EXTENT_X;
         double amplitude = gain;
 
         for (int i = 0; i < octaves; ++i) {
