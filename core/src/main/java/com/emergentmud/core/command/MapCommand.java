@@ -29,8 +29,8 @@ import javax.inject.Inject;
 
 @Component
 public class MapCommand implements Command {
-    public static final int MAP_EXTENT_X = 40;
-    public static final int MAP_EXTENT_Y = 20;
+    private static final int MAP_EXTENT_X = 40;
+    private static final int MAP_EXTENT_Y = 20;
 
     private NoiseUtility noiseUtility;
 

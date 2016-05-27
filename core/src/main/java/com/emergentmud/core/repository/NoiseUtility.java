@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.command.MapCommand;
 import opensimplex.OpenSimplexNoise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,8 @@ import javax.inject.Inject;
 @Component
 public class NoiseUtility {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoiseUtility.class);
+    private static final int OCTAVES = 8;
+    private static final long MAP_EXTENT = 20;
 
     private OpenSimplexNoise elevationBigSimplexNoise;
     private OpenSimplexNoise elevationDetailSimplexNoise;
@@ -50,8 +51,8 @@ public class NoiseUtility {
     }
 
     public byte elevationNoise(long x, long y) {
-        double result = ((bigNoise(x, y, elevationDetailSimplexNoise, 8, 0.45, 2.5)
-                + detailNoise(x, y, elevationBigSimplexNoise, 8, 0.95, 0.4)) / 2.0);
+        double result = ((bigNoise(x, y, elevationDetailSimplexNoise, OCTAVES, 0.45, 2.5)
+                + detailNoise(x, y, elevationBigSimplexNoise, OCTAVES, 0.95, 0.4)) / 2.0);
 
         if (result > Byte.MAX_VALUE || result < Byte.MIN_VALUE) {
             throw new IllegalStateException("Noise result is out of range: " + result);
@@ -61,8 +62,8 @@ public class NoiseUtility {
     }
 
     public byte waterTableNoise(long x, long y) {
-        double result = ((bigNoise(x, y, waterTableDetailSimplexNoise, 8, 0.45, 2.5)
-                + detailNoise(x, y, waterTableBigSimplexNoise, 8, 0.95, 0.4)) / 2.0);
+        double result = ((bigNoise(x, y, waterTableDetailSimplexNoise, OCTAVES, 0.45, 2.5)
+                + detailNoise(x, y, waterTableBigSimplexNoise, OCTAVES, 0.95, 0.4)) / 2.0);
 
         if (result > Byte.MAX_VALUE || result < Byte.MIN_VALUE) {
             throw new IllegalStateException("Noise result is out of range: " + result);
@@ -73,7 +74,7 @@ public class NoiseUtility {
 
     private byte detailNoise(long x, long y, final OpenSimplexNoise openSimplex, final int octaves, final double gain, final double lacunarity) {
         double total = 0.0;
-        double frequency = 1.0 / MapCommand.MAP_EXTENT_X;
+        double frequency = 1.0 / MAP_EXTENT;
         double amplitude = gain;
 
         for (int i = 0; i < octaves; ++i) {
@@ -93,7 +94,7 @@ public class NoiseUtility {
 
     private byte bigNoise(long x, long y, final OpenSimplexNoise openSimplex, final int octaves, final double gain, final double lacunarity) {
         double total = 0.0;
-        double frequency = 1.0 / MapCommand.MAP_EXTENT_X;
+        double frequency = 1.0 / MAP_EXTENT;
         double amplitude = gain;
 
         for (int i = 0; i < octaves; ++i) {
