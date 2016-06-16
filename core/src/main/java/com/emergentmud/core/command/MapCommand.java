@@ -21,13 +21,24 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 @Component
 public class MapCommand implements Command {
     private static final int MAP_EXTENT_X = 40;
     private static final int MAP_EXTENT_Y = 20;
+
+    private RoomRepository roomRepository;
+
+    @Inject
+    public MapCommand(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
+    }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
@@ -38,7 +49,13 @@ public class MapCommand implements Command {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 256, 256, 256));
+                    Room room = roomRepository.findByXAndYAndZ(x, y, entity.getZ());
+
+                    if (room != null) {
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 256, 256, 256));
+                    } else {
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, 0, 0));
+                    }
                 }
             }
 

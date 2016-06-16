@@ -21,6 +21,8 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,13 +34,35 @@ public class WorldManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
 
     private EntityRepository entityRepository;
+    private RoomRepository roomRepository;
+    private ZoneRepository zoneRepository;
 
     @Inject
-    public WorldManager(EntityRepository entityRepository) {
+    public WorldManager(EntityRepository entityRepository,
+                        RoomRepository roomRepository,
+                        ZoneRepository zoneRepository) {
         this.entityRepository = entityRepository;
+        this.roomRepository = roomRepository;
+        this.zoneRepository = zoneRepository;
     }
 
     public void put(Entity entity, long x, long y, long z) {
+        Room room = roomRepository.findByXAndYAndZ(x, y, z);
+
+        if (room == null) {
+            Zone zone = new Zone();
+            zone = zoneRepository.save(zone);
+
+            room = new Room();
+            room.setX(x);
+            room.setY(y);
+            room.setZ(z);
+            room.setZone(zone);
+            roomRepository.save(room);
+
+            LOGGER.info("Generated new zone {} starting at ({}, {}, {})", zone.getId(), x, y, z);
+        }
+
         LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
         entity.setX(x);

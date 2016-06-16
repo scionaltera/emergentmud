@@ -23,6 +23,7 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -31,10 +32,12 @@ import java.util.List;
 @Component
 public class LookCommand implements Command {
     private EntityRepository entityRepository;
+    private RoomRepository roomRepository;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository) {
+    public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
         this.entityRepository = entityRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Override

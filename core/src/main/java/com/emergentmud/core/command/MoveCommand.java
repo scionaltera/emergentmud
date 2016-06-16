@@ -21,7 +21,9 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,21 +35,24 @@ public class MoveCommand implements Command {
     private long[] differential;
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
+    private RoomRepository roomRepository;
 
     public MoveCommand(
             long x, long y, long z,
             ApplicationContext applicationContext,
-            WorldManager worldManager) {
+            WorldManager worldManager,
+            RoomRepository roomRepository) {
 
         differential = new long[] {x, y, z};
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
+        this.roomRepository = roomRepository;
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
         if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
-            output.append("[black]You are floating in a formless void.");
+            output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
         } else {
             long[] location = new long[] {
                     entity.getX(),
@@ -56,12 +61,19 @@ public class MoveCommand implements Command {
             };
 
             LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
-            worldManager.remove(entity);
 
             location[0] += differential[0];
             location[1] += differential[1];
             location[2] += differential[2];
 
+            Room room = roomRepository.findByXAndYAndZ(location[0], location[1], location[2]);
+
+            if (room == null) {
+                output.append("Alas, you cannot go that way.");
+                return output;
+            }
+
+            worldManager.remove(entity);
             worldManager.put(entity, location[0], location[1], location[2]);
             LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
