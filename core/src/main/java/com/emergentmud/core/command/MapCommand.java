@@ -54,7 +54,7 @@ public class MapCommand implements Command {
                     if (room != null) {
                         line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 256, 256, 256));
                     } else {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, 0, 0));
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }
                 }
             }
