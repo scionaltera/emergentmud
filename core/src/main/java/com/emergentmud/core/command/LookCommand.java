@@ -53,7 +53,26 @@ public class LookCommand implements Command {
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)", roomName, entity.getX(), entity.getY(), entity.getZ()));
             output.append(String.format("[default]%s", roomDescription));
-            output.append("[dcyan]Exits: north east south west");
+
+            StringBuilder exits = new StringBuilder("[dcyan]Exits: ");
+
+            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() + 1, entity.getZ()) != null) {
+                exits.append("north");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX() + 1, entity.getY(), entity.getZ()) != null) {
+                exits.append("east");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() - 1, entity.getZ()) != null) {
+                exits.append("south");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX() - 1, entity.getY(), entity.getZ()) != null) {
+                exits.append("west");
+            }
+
+            output.append(exits.toString());
 
             List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
 

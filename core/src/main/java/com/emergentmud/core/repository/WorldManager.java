@@ -34,31 +34,23 @@ public class WorldManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
 
     private EntityRepository entityRepository;
+    private ZoneBuilder zoneBuilder;
     private RoomRepository roomRepository;
-    private ZoneRepository zoneRepository;
 
     @Inject
     public WorldManager(EntityRepository entityRepository,
-                        RoomRepository roomRepository,
-                        ZoneRepository zoneRepository) {
+                        ZoneBuilder zoneBuilder,
+                        RoomRepository roomRepository) {
         this.entityRepository = entityRepository;
+        this.zoneBuilder = zoneBuilder;
         this.roomRepository = roomRepository;
-        this.zoneRepository = zoneRepository;
     }
 
     public void put(Entity entity, long x, long y, long z) {
         Room room = roomRepository.findByXAndYAndZ(x, y, z);
 
         if (room == null) {
-            Zone zone = new Zone();
-            zone = zoneRepository.save(zone);
-
-            room = new Room();
-            room.setX(x);
-            room.setY(y);
-            room.setZ(z);
-            room.setZone(zone);
-            roomRepository.save(room);
+            Zone zone = zoneBuilder.build(x, y, z);
 
             LOGGER.info("Generated new zone {} starting at ({}, {}, {})", zone.getId(), x, y, z);
         }
