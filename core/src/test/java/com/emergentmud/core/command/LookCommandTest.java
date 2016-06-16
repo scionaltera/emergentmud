@@ -23,7 +23,6 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.NoiseUtility;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,9 +37,6 @@ import static org.mockito.Mockito.*;
 public class LookCommandTest {
     @Mock
     private EntityRepository entityRepository;
-
-    @Mock
-    private NoiseUtility noiseUtility;
 
     @Mock
     private GameOutput output;
@@ -76,7 +72,7 @@ public class LookCommandTest {
             contents.add(entity);
         }
 
-        lookCommand = new LookCommand(entityRepository, noiseUtility);
+        lookCommand = new LookCommand(entityRepository);
     }
 
     @Test

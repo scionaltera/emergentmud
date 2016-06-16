@@ -23,7 +23,6 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.NoiseUtility;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,12 +31,10 @@ import java.util.List;
 @Component
 public class LookCommand implements Command {
     private EntityRepository entityRepository;
-    private NoiseUtility noiseUtility;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, NoiseUtility noiseUtility) {
+    public LookCommand(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
-        this.noiseUtility = noiseUtility;
     }
 
     @Override
@@ -45,21 +42,11 @@ public class LookCommand implements Command {
         if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
-            byte elevation = noiseUtility.elevationNoise(entity.getX(), entity.getY());
-            byte waterTable = noiseUtility.waterTableNoise(entity.getX(), entity.getY());
             String roomName;
             String roomDescription;
 
-            if (elevation < 0) {
-                roomName = "In the Ocean";
-                roomDescription = "Massive waves of seawater rise and fall all around you, yet you remain.";
-            } else if (waterTable > elevation) {
-                roomName = "A Clear Lake";
-                roomDescription = "They must call it standing water because you are standing in it.";
-            } else {
-                roomName = "The Featureless Plains";
-                roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-            }
+            roomName = "The Featureless Plains";
+            roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)", roomName, entity.getX(), entity.getY(), entity.getZ()));
             output.append(String.format("[default]%s", roomDescription));
