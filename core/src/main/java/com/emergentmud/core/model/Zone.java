@@ -27,6 +27,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Zone {
     @Id
     private String id;
+    private int[] color;
 
     public String getId() {
         return id;
@@ -34,5 +35,13 @@ public class Zone {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int[] getColor() {
+        return color;
+    }
+
+    public void setColor(int[] color) {
+        this.color = color;
     }
 }

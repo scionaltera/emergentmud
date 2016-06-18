@@ -22,6 +22,7 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,12 @@ public class MapCommand implements Command {
                     Room room = roomRepository.findByXAndYAndZ(x, y, entity.getZ());
 
                     if (room != null) {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 256, 256, 256));
+                        Zone zone = room.getZone();
+
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>",
+                                zone.getColor()[0],
+                                zone.getColor()[1],
+                                zone.getColor()[2]));
                     } else {
                         line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }
