@@ -40,9 +40,6 @@ public class ZoneBuilder {
     private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
 
-    private List<Room> in = new ArrayList<>();
-    private List<Room> out = new ArrayList<>();
-
     @Inject
     public ZoneBuilder(ZoneRepository zoneRepository, RoomRepository roomRepository) {
         this.zoneRepository = zoneRepository;
@@ -51,7 +48,10 @@ public class ZoneBuilder {
 
     public Zone build(Long x, Long y, Long z) {
         int iterations = 0;
+        List<Room> in = new ArrayList<>();
+        List<Room> out = new ArrayList<>();
         Zone zone = new Zone();
+
         zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
         zone = zoneRepository.save(zone);
 
