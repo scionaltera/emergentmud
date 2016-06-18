@@ -35,6 +35,7 @@ import java.util.Random;
 public class ZoneBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoneBuilder.class);
     private static final int ZONE_SIZE = 100;
+    private static final int MAX_ITERATIONS = 30;
     private static final Random RANDOM = new Random();
 
     private ZoneRepository zoneRepository;
@@ -92,11 +93,15 @@ public class ZoneBuilder {
             out.add(room);
 
             if (in.isEmpty() && out.size() < ZONE_SIZE) {
-                iterations++;
+                if (iterations < MAX_ITERATIONS) {
+                    iterations++;
 
-                LOGGER.info("Pass {} completed, but zone is still too small.", iterations);
-                in.addAll(out);
-                out.clear();
+                    LOGGER.info("Pass {} completed, but zone is still too small.", iterations);
+                    in.addAll(out);
+                    out.clear();
+                } else {
+                    LOGGER.info("Maximum iterations reached, but zone is still too small.");
+                }
             }
         }
 
