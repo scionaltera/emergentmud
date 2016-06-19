@@ -22,6 +22,7 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,9 @@ public class MoveCommandTest {
 
     @Mock
     private WorldManager worldManager;
+
+    @Mock
+    private RoomRepository roomRepository;
 
     @Mock
     private GameOutput output;
@@ -66,7 +70,7 @@ public class MoveCommandTest {
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        moveCommand = new MoveCommand(1, 1, 1, applicationContext, worldManager);
+        moveCommand = new MoveCommand(1, 1, 1, applicationContext, worldManager, roomRepository);
     }
 
     @Test

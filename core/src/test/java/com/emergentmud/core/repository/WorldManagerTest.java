@@ -21,6 +21,7 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Zone;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,6 +36,15 @@ public class WorldManagerTest {
     @Mock
     private EntityRepository entityRepository;
 
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private ZoneBuilder zoneBuilder;
+
+    @Mock
+    private Zone zone;
+
     private WorldManager worldManager;
 
     @Before
@@ -42,8 +52,11 @@ public class WorldManagerTest {
         MockitoAnnotations.initMocks(this);
 
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(zoneBuilder.build(anyLong(), anyLong(), anyLong())).thenReturn(zone);
+        when(zone.getId()).thenReturn("zoneId");
 
-        worldManager = new WorldManager(entityRepository);
+        worldManager = new WorldManager(entityRepository, zoneBuilder, roomRepository);
+
     }
 
     @Test
