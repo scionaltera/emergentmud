@@ -66,13 +66,6 @@ public class MoveCommand implements Command {
             location[1] += differential[1];
             location[2] += differential[2];
 
-//            Room room = roomRepository.findByXAndYAndZ(location[0], location[1], location[2]);
-//
-//            if (room == null) {
-//                output.append("Alas, you cannot go that way.");
-//                return output;
-//            }
-
             worldManager.remove(entity);
             worldManager.put(entity, location[0], location[1], location[2]);
             LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
