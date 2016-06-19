@@ -21,8 +21,10 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.NoiseUtility;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,11 +34,11 @@ public class MapCommand implements Command {
     private static final int MAP_EXTENT_X = 40;
     private static final int MAP_EXTENT_Y = 20;
 
-    private NoiseUtility noiseUtility;
+    private RoomRepository roomRepository;
 
     @Inject
-    public MapCommand(NoiseUtility noiseUtility) {
-        this.noiseUtility = noiseUtility;
+    public MapCommand(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -48,15 +50,17 @@ public class MapCommand implements Command {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    byte elevationNoise = noiseUtility.elevationNoise(x, y);
-                    byte waterTableNoise = noiseUtility.waterTableNoise(x, y);
+                    Room room = roomRepository.findByXAndYAndZ(x, y, entity.getZ());
 
-                    if (elevationNoise < 0) {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, 0, elevationNoise + 256));
-                    } else if (waterTableNoise > elevationNoise) {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, elevationNoise + 128, elevationNoise + 128));
+                    if (room != null) {
+                        Zone zone = room.getZone();
+
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>",
+                                zone.getColor()[0],
+                                zone.getColor()[1],
+                                zone.getColor()[2]));
                     } else {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>", 0, elevationNoise + 128, 0));
+                        line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }
                 }
             }

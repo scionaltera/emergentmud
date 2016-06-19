@@ -21,6 +21,8 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,6 +37,15 @@ public class WorldManagerTest {
     @Mock
     private EntityRepository entityRepository;
 
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private ZoneBuilder zoneBuilder;
+
+    @Mock
+    private Zone zone;
+
     private WorldManager worldManager;
 
     @Before
@@ -42,12 +53,35 @@ public class WorldManagerTest {
         MockitoAnnotations.initMocks(this);
 
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(zoneBuilder.build(anyLong(), anyLong(), anyLong())).thenReturn(zone);
+        when(zone.getId()).thenReturn("zoneId");
 
-        worldManager = new WorldManager(entityRepository);
+        worldManager = new WorldManager(entityRepository, zoneBuilder, roomRepository);
+
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPutExistingZone() throws Exception {
+        Entity entity = mock(Entity.class);
+        List<Entity> contents = new ArrayList<>();
+
+        when(entity.getX()).thenReturn(2L);
+        when(entity.getY()).thenReturn(1L);
+        when(entity.getZ()).thenReturn(3L);
+        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(mock(Room.class));
+        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+
+        worldManager.put(entity, 2L, 1L, 3L);
+
+        verify(zoneBuilder, never()).build(eq(2L), eq(1L), eq(3L));
+        verify(entityRepository).save(eq(entity));
+        verify(entity).setX(eq(2L));
+        verify(entity).setY(eq(1L));
+        verify(entity).setZ(eq(3L));
+    }
+
+    @Test
+    public void testPutNewZone() throws Exception {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
@@ -58,6 +92,7 @@ public class WorldManagerTest {
 
         worldManager.put(entity, 2L, 1L, 3L);
 
+        verify(zoneBuilder).build(eq(2L), eq(1L), eq(3L));
         verify(entityRepository).save(eq(entity));
         verify(entity).setX(eq(2L));
         verify(entity).setY(eq(1L));

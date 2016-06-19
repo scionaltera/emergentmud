@@ -21,15 +21,17 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.NoiseUtility;
+import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -40,7 +42,7 @@ public class LookCommandTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private NoiseUtility noiseUtility;
+    private RoomRepository roomRepository;
 
     @Mock
     private GameOutput output;
@@ -76,7 +78,7 @@ public class LookCommandTest {
             contents.add(entity);
         }
 
-        lookCommand = new LookCommand(entityRepository, noiseUtility);
+        lookCommand = new LookCommand(entityRepository, roomRepository);
     }
 
     @Test
@@ -90,6 +92,11 @@ public class LookCommandTest {
 
     @Test
     public void testLook() throws Exception {
+        when(roomRepository.findByXAndYAndZ(eq(0L), eq(1L), eq(0L))).thenReturn(mock(Room.class));
+        when(roomRepository.findByXAndYAndZ(eq(1L), eq(0L), eq(0L))).thenReturn(mock(Room.class));
+        when(roomRepository.findByXAndYAndZ(eq(0L), eq(-1L), eq(0L))).thenReturn(mock(Room.class));
+        when(roomRepository.findByXAndYAndZ(eq(-1L), eq(0L), eq(0L))).thenReturn(mock(Room.class));
+
         entity.setX(0L);
         entity.setY(0L);
         entity.setZ(0L);
@@ -98,7 +105,12 @@ public class LookCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());
+        verify(output).append(eq("[dcyan]Exits: north east south west"));
         verify(entityRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
+        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(1L), eq(0L));
+        verify(roomRepository).findByXAndYAndZ(eq(1L), eq(0L), eq(0L));
+        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(-1L), eq(0L));
+        verify(roomRepository).findByXAndYAndZ(eq(-1L), eq(0L), eq(0L));
 
         contents.stream()
                 .forEach(e -> {

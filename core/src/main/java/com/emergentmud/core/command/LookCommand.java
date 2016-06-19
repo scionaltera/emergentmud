@@ -23,7 +23,7 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.NoiseUtility;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,12 +32,12 @@ import java.util.List;
 @Component
 public class LookCommand implements Command {
     private EntityRepository entityRepository;
-    private NoiseUtility noiseUtility;
+    private RoomRepository roomRepository;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, NoiseUtility noiseUtility) {
+    public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
         this.entityRepository = entityRepository;
-        this.noiseUtility = noiseUtility;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -45,25 +45,34 @@ public class LookCommand implements Command {
         if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
-            byte elevation = noiseUtility.elevationNoise(entity.getX(), entity.getY());
-            byte waterTable = noiseUtility.waterTableNoise(entity.getX(), entity.getY());
             String roomName;
             String roomDescription;
 
-            if (elevation < 0) {
-                roomName = "In the Ocean";
-                roomDescription = "Massive waves of seawater rise and fall all around you, yet you remain.";
-            } else if (waterTable > elevation) {
-                roomName = "A Clear Lake";
-                roomDescription = "They must call it standing water because you are standing in it.";
-            } else {
-                roomName = "The Featureless Plains";
-                roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-            }
+            roomName = "The Featureless Plains";
+            roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)", roomName, entity.getX(), entity.getY(), entity.getZ()));
             output.append(String.format("[default]%s", roomDescription));
-            output.append("[dcyan]Exits: north east south west");
+
+            StringBuilder exits = new StringBuilder("[dcyan]Exits:");
+
+            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() + 1, entity.getZ()) != null) {
+                exits.append(" north");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX() + 1, entity.getY(), entity.getZ()) != null) {
+                exits.append(" east");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() - 1, entity.getZ()) != null) {
+                exits.append(" south");
+            }
+
+            if (roomRepository.findByXAndYAndZ(entity.getX() - 1, entity.getY(), entity.getZ()) != null) {
+                exits.append(" west");
+            }
+
+            output.append(exits.toString());
 
             List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
 
