@@ -28,7 +28,10 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Component
@@ -51,22 +54,21 @@ public class ZoneBuilder {
         int iterations = 0;
         List<Room> in = new ArrayList<>();
         List<Room> out = new ArrayList<>();
-        Zone zone = new Zone();
+        Map<String, Room> rooms = new HashMap<>();
 
-        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
-        zone = zoneRepository.save(zone);
-
-        in.add(createRoom(zone, x, y, z));
+        in.add(createRoom(rooms, x, y, z));
 
         while (!in.isEmpty() && out.size() < ZONE_SIZE) {
             Room room = in.remove(in.size() - 1);
             int neighbors = countNeighbors(room);
             int limit = 2;
+            double chance = RANDOM.nextDouble() + (iterations * 0.01);
 
-            if (RANDOM.nextDouble() > 0.65) {
+            if (chance > 0.90) {
                 limit++;
             }
 
+            LOGGER.info("Chance: {}", chance);
             LOGGER.info("Assigning {} neighbors to ({}, {}, {})", limit, room.getX(), room.getY(), room.getZ());
 
             while (neighbors < limit) {
@@ -82,7 +84,7 @@ public class ZoneBuilder {
 
                 if (neighbor == null) {
                     LOGGER.info("New neighbor: ({}, {}, {})", room.getX() + xMod, room.getY() + yMod, room.getZ());
-                    in.add(createRoom(zone,
+                    in.add(createRoom(rooms,
                             room.getX() + xMod,
                             room.getY() + yMod,
                             room.getZ()));
@@ -96,16 +98,40 @@ public class ZoneBuilder {
                 if (iterations < MAX_ITERATIONS) {
                     iterations++;
 
-                    LOGGER.info("Pass {} completed, but zone is still too small.", iterations);
+                    LOGGER.info("Pass {} completed, but zone only has {} of {} rooms.", iterations, out.size(), ZONE_SIZE);
                     in.addAll(out);
                     out.clear();
+                    Collections.shuffle(in);
                 } else {
-                    LOGGER.info("Maximum iterations reached, but zone is still too small.");
+                    LOGGER.error("Maximum iterations reached, but zone only has {} of {} rooms.", out.size(), ZONE_SIZE);
+                    return null;
                 }
             }
         }
 
+        Zone zone = new Zone();
+        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
+        Zone savedZone = zoneRepository.save(zone);
+
+        out.stream().forEach(room -> room.setZone(savedZone));
+        roomRepository.save(out);
+
         return zone;
+    }
+
+    private Room createRoom(Map<String, Room> rooms, long x, long y, long z) {
+        Room room = rooms.get(String.format("%d-%d-%d", x, y, z));
+
+        if (room != null) {
+            return room;
+        }
+
+        room = new Room();
+        room.setX(x);
+        room.setY(y);
+        room.setZ(z);
+
+        return room;
     }
 
     private Room createRoom(Zone zone, Long x, Long y, Long z) {
