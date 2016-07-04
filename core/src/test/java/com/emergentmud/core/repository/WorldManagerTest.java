@@ -31,6 +31,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class WorldManagerTest {
@@ -45,6 +46,9 @@ public class WorldManagerTest {
 
     @Mock
     private Zone zone;
+
+    @Mock
+    private Room room;
 
     private WorldManager worldManager;
 
@@ -61,7 +65,32 @@ public class WorldManagerTest {
     }
 
     @Test
-    public void testPutExistingZone() throws Exception {
+    public void testTest() throws Exception {
+        when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
+
+        assertTrue(worldManager.test(0L, 0L, 0L));
+
+        verify(zoneBuilder, never()).build(anyLong(), anyLong(), anyLong());
+    }
+
+    @Test
+    public void testTestMissing() throws Exception {
+        assertTrue(worldManager.test(0L, 0L, 0L));
+
+        verify(zoneBuilder).build(eq(0L), eq(0L), eq(0L));
+    }
+
+    @Test
+    public void testTestNoZone() throws Exception {
+        when(zoneBuilder.build(eq(0L), eq(0L), eq(0L))).thenReturn(null);
+
+        assertFalse(worldManager.test(0L, 0L, 0L));
+
+        verify(zoneBuilder).build(eq(0L), eq(0L), eq(0L));
+    }
+
+    @Test
+    public void testPutExistingRoom() throws Exception {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
@@ -73,15 +102,14 @@ public class WorldManagerTest {
 
         worldManager.put(entity, 2L, 1L, 3L);
 
-        verify(zoneBuilder, never()).build(eq(2L), eq(1L), eq(3L));
         verify(entityRepository).save(eq(entity));
         verify(entity).setX(eq(2L));
         verify(entity).setY(eq(1L));
         verify(entity).setZ(eq(3L));
     }
 
-    @Test
-    public void testPutNewZone() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutMissingRoom() throws Exception {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
@@ -92,11 +120,7 @@ public class WorldManagerTest {
 
         worldManager.put(entity, 2L, 1L, 3L);
 
-        verify(zoneBuilder).build(eq(2L), eq(1L), eq(3L));
-        verify(entityRepository).save(eq(entity));
-        verify(entity).setX(eq(2L));
-        verify(entity).setY(eq(1L));
-        verify(entity).setZ(eq(3L));
+        fail("Required exception was not thrown.");
     }
 
     @Test
@@ -110,6 +134,7 @@ public class WorldManagerTest {
         when(entity.getY()).thenReturn(1L);
         when(entity.getZ()).thenReturn(3L);
         when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
 
         worldManager.put(entity, 2L, 1L, 3L);
 
