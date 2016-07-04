@@ -36,8 +36,9 @@ import java.util.Random;
 
 @Component
 public class ZoneBuilder {
+    static final int ZONE_SIZE = 100;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoneBuilder.class);
-    private static final int ZONE_SIZE = 100;
     private static final int MAX_ITERATIONS = 50;
     private static final Random RANDOM = new Random();
     private static final List<int[]> DIRECTIONS = new ArrayList<>();

@@ -21,11 +21,18 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -41,6 +48,9 @@ public class ZoneBuilderTest {
     @Mock
     private Room origin;
 
+    @Captor
+    private ArgumentCaptor<List<Room>> roomListCaptor;
+
     private ZoneBuilder zoneBuilder;
 
     public ZoneBuilderTest() {
@@ -50,8 +60,44 @@ public class ZoneBuilderTest {
         when(origin.getY()).thenReturn(0L);
         when(origin.getZ()).thenReturn(0L);
         when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(origin);
+        when(roomRepository.save(anyCollectionOf(Room.class))).thenAnswer(new Answer<Iterable<Room>>() {
+            @Override
+            public Iterable<Room> answer(InvocationOnMock invocation) throws Throwable {
+                //noinspection unchecked
+                Iterable<Room> iterable = (Iterable<Room>)invocation.getArguments()[0];
+
+                iterable.forEach(room -> room.setId("roomId"));
+
+                return iterable;
+            }
+        });
+        when(zoneRepository.save(any(Zone.class))).thenAnswer(new Answer<Zone>() {
+            @Override
+            public Zone answer(InvocationOnMock invocation) throws Throwable {
+                Zone zone = (Zone)invocation.getArguments()[0];
+
+                zone.setId("zoneId");
+
+                return zone;
+            }
+        });
 
         zoneBuilder = new ZoneBuilder(zoneRepository, roomRepository);
+    }
+
+    @Test
+    public void testBuild() throws Exception {
+        Zone zone = zoneBuilder.build(0L, 0L, 0L);
+
+        assertTrue(3 == zone.getColor().length);
+
+        verify(zoneRepository).save(eq(zone));
+        verify(roomRepository).save(roomListCaptor.capture());
+
+        List<Room> roomList = roomListCaptor.getValue();
+
+        assertEquals(ZoneBuilder.ZONE_SIZE, roomList.size());
+        roomList.stream().forEach(room -> assertEquals(zone, room.getZone()));
     }
 
     @Test
