@@ -21,6 +21,7 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
@@ -50,6 +51,9 @@ public class SayCommandTest {
     private GameOutput output;
 
     @Mock
+    private Room room;
+
+    @Mock
     private Entity entity;
 
     @Mock
@@ -70,10 +74,11 @@ public class SayCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(0L);
+        when(room.getY()).thenReturn(0L);
+        when(room.getZ()).thenReturn(0L);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(roomContents);
 
         command = new SayCommand(simpMessagingTemplate, entityRepository);
     }

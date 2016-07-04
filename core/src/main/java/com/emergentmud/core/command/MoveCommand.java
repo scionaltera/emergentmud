@@ -51,13 +51,15 @@ public class MoveCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+        Room room = entity.getRoom();
+
+        if (room == null) {
             output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
         } else {
             long[] location = new long[] {
-                    entity.getX(),
-                    entity.getY(),
-                    entity.getZ()
+                    room.getX(),
+                    room.getY(),
+                    room.getZ()
             };
 
             LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);

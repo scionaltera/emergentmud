@@ -21,12 +21,21 @@
 package com.emergentmud.core.model;
 
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class EntityTest {
+    @Mock
+    private Room room;
+
     private Entity entity = new Entity();
+
+    public EntityTest() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testId() throws Exception {
@@ -63,38 +72,16 @@ public class EntityTest {
 
         assertEquals(stompSessionId, entity.getStompSessionId());
     }
-    
-    @Test
-    public void testX() throws Exception {
-        entity.setX(6L);
-        
-        assertEquals(6L, (long)entity.getX());
-        
-        entity.setX(null);
-        
-        assertNull(entity.getX());
-    }
 
     @Test
-    public void testY() throws Exception {
-        entity.setY(6L);
+    public void setRoom() throws Exception {
+        entity.setRoom(room);
 
-        assertEquals(6L, (long)entity.getY());
+        assertEquals(room, entity.getRoom());
 
-        entity.setY(null);
+        entity.setRoom(null);
 
-        assertNull(entity.getY());
-    }
-
-    @Test
-    public void testZ() throws Exception {
-        entity.setZ(6L);
-
-        assertEquals(6L, (long)entity.getZ());
-
-        entity.setZ(null);
-
-        assertNull(entity.getZ());
+        assertNull(entity.getRoom());
     }
 
     @Test

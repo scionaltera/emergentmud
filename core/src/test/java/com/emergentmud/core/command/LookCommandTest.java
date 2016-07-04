@@ -50,6 +50,9 @@ public class LookCommandTest {
     @Mock
     private Entity entity;
 
+    @Mock
+    private Room room;
+
     private String[] tokens = new String[0];
     private String raw = "";
     private List<Entity> contents = new ArrayList<>();
@@ -61,13 +64,15 @@ public class LookCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(entity.getId()).thenReturn("Tester1");
-        when(entity.getX()).thenCallRealMethod();
-        when(entity.getY()).thenCallRealMethod();
-        when(entity.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setX(anyLong());
-        doCallRealMethod().when(entity).setY(anyLong());
-        doCallRealMethod().when(entity).setZ(anyLong());
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
+        when(entity.getRoom()).thenCallRealMethod();
+        doCallRealMethod().when(entity).setRoom(any(Room.class));
+        when(room.getX()).thenCallRealMethod();
+        when(room.getY()).thenCallRealMethod();
+        when(room.getZ()).thenCallRealMethod();
+        doCallRealMethod().when(room).setX(anyLong());
+        doCallRealMethod().when(room).setY(anyLong());
+        doCallRealMethod().when(room).setZ(anyLong());
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
 
         for (int i = 0; i < 3; i++) {
             Entity entity = mock(Entity.class);
@@ -97,16 +102,17 @@ public class LookCommandTest {
         when(roomRepository.findByXAndYAndZ(eq(0L), eq(-1L), eq(0L))).thenReturn(mock(Room.class));
         when(roomRepository.findByXAndYAndZ(eq(-1L), eq(0L), eq(0L))).thenReturn(mock(Room.class));
 
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
+        room.setX(0L);
+        room.setY(0L);
+        room.setZ(0L);
+        entity.setRoom(room);
 
         GameOutput result = lookCommand.execute(output, entity, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());
         verify(output).append(eq("[dcyan]Exits: north east south west"));
-        verify(entityRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
+        verify(entityRepository).findByRoom(eq(room));
         verify(roomRepository).findByXAndYAndZ(eq(0L), eq(1L), eq(0L));
         verify(roomRepository).findByXAndYAndZ(eq(1L), eq(0L), eq(0L));
         verify(roomRepository).findByXAndYAndZ(eq(0L), eq(-1L), eq(0L));

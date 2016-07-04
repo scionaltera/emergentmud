@@ -21,6 +21,7 @@
 package com.emergentmud.core.event;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.junit.Before;
@@ -36,6 +37,7 @@ public class StompDisconnectListenerTest {
     private OAuth2Authentication principal;
     private SessionDisconnectEvent event;
     private Entity entity;
+    private Room room;
 
     private String simpSessionId = "simpSessionId";
     private String socialUserName = "alteranetUser";
@@ -49,6 +51,7 @@ public class StompDisconnectListenerTest {
         principal = mock(OAuth2Authentication.class);
         event = mock(SessionDisconnectEvent.class);
         entity = mock(Entity.class);
+        room = mock(Room.class);
 
         when(event.getSessionId()).thenReturn(simpSessionId);
         when(event.getUser()).thenReturn(principal);
@@ -57,9 +60,10 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         )).thenReturn(entity);
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(0L);
+        when(room.getY()).thenReturn(0L);
+        when(room.getZ()).thenReturn(0L);
 
         stompDisconnectListener = new StompDisconnectListener(
                 entityRepository,

@@ -21,6 +21,7 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,5 +30,6 @@ import java.util.List;
 @Repository
 public interface EntityRepository extends MongoRepository<Entity, String> {
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
-    List<Entity> findByXAndYAndZ(Long x, Long y, Long z);
+    List<Entity> findByRoom(Room room);
+    List<Entity> findByRoomIn(List<Room> rooms);
 }
