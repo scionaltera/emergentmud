@@ -107,6 +107,7 @@ public class MainResourceTest {
         generateEssences();
         essence = essences.get(0);
 
+        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(true);
         when(httpSession.getAttribute(eq("social"))).thenReturn(NETWORK_ID);
         when(principal.getName()).thenReturn(NETWORK_USER);
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> {

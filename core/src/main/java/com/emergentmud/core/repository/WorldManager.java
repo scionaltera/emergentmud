@@ -46,13 +46,28 @@ public class WorldManager {
         this.roomRepository = roomRepository;
     }
 
-    public void put(Entity entity, long x, long y, long z) {
+    public boolean test(long x, long y, long z) {
         Room room = roomRepository.findByXAndYAndZ(x, y, z);
 
         if (room == null) {
             Zone zone = zoneBuilder.build(x, y, z);
 
+            if (zone == null) {
+                LOGGER.error("Zone could not be generated.");
+                return false;
+            }
+
             LOGGER.info("Generated new zone {} starting at ({}, {}, {})", zone.getId(), x, y, z);
+        }
+
+        return true;
+    }
+
+    public void put(Entity entity, long x, long y, long z) {
+        Room room = roomRepository.findByXAndYAndZ(x, y, z);
+
+        if (room == null) {
+            throw new IllegalArgumentException("No such room exists.");
         }
 
         LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);

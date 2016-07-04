@@ -28,15 +28,20 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Component
 public class ZoneBuilder {
+    static final int ZONE_SIZE = 100;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoneBuilder.class);
-    private static final int ZONE_SIZE = 100;
-    private static final int MAX_ITERATIONS = 30;
+    private static final int MAX_ITERATIONS = 50;
     private static final Random RANDOM = new Random();
+    private static final List<int[]> DIRECTIONS = new ArrayList<>();
 
     private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
@@ -45,48 +50,56 @@ public class ZoneBuilder {
     public ZoneBuilder(ZoneRepository zoneRepository, RoomRepository roomRepository) {
         this.zoneRepository = zoneRepository;
         this.roomRepository = roomRepository;
+
+        DIRECTIONS.add(new int[] {1, 1});
+        DIRECTIONS.add(new int[] {-1, 1});
+        DIRECTIONS.add(new int[] {1, 0});
+        DIRECTIONS.add(new int[] {-1, 0});
     }
 
     public Zone build(Long x, Long y, Long z) {
         int iterations = 0;
         List<Room> in = new ArrayList<>();
         List<Room> out = new ArrayList<>();
-        Zone zone = new Zone();
+        Map<String, Room> rooms = new HashMap<>();
 
-        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
-        zone = zoneRepository.save(zone);
-
-        in.add(createRoom(zone, x, y, z));
+        in.add(createRoom(rooms, x, y, z));
 
         while (!in.isEmpty() && out.size() < ZONE_SIZE) {
             Room room = in.remove(in.size() - 1);
             int neighbors = countNeighbors(room);
-            int limit = 2;
+            int limit = 1;
+            double chance = RANDOM.nextDouble() + (iterations * 0.01);
 
-            if (RANDOM.nextDouble() > 0.65) {
+            if (chance > 0.90) {
                 limit++;
             }
 
+            LOGGER.info("Chance: {}", chance);
             LOGGER.info("Assigning {} neighbors to ({}, {}, {})", limit, room.getX(), room.getY(), room.getZ());
 
-            while (neighbors < limit) {
-                int mod = RANDOM.nextBoolean() ? 1 : -1;
-                int axis = RANDOM.nextBoolean() ? 1 : 0;
-                long xMod = axis == 0 ? mod : 0;
-                long yMod = axis == 1 ? mod : 0;
+            Collections.shuffle(DIRECTIONS);
 
-                Room neighbor = roomRepository.findByXAndYAndZ(
-                        room.getX() + xMod,
-                        room.getY() + yMod,
-                        room.getZ());
+            for (int[] direction : DIRECTIONS) {
+                if (neighbors < limit) {
+                    int mod = direction[0];
+                    int axis = direction[1];
+                    long xMod = axis == 0 ? mod : 0;
+                    long yMod = axis == 1 ? mod : 0;
 
-                if (neighbor == null) {
-                    LOGGER.info("New neighbor: ({}, {}, {})", room.getX() + xMod, room.getY() + yMod, room.getZ());
-                    in.add(createRoom(zone,
+                    Room neighbor = roomRepository.findByXAndYAndZ(
                             room.getX() + xMod,
                             room.getY() + yMod,
-                            room.getZ()));
-                    neighbors++;
+                            room.getZ());
+
+                    if (neighbor == null) {
+                        LOGGER.info("New neighbor: ({}, {}, {})", room.getX() + xMod, room.getY() + yMod, room.getZ());
+                        in.add(createRoom(rooms,
+                                room.getX() + xMod,
+                                room.getY() + yMod,
+                                room.getZ()));
+                        neighbors++;
+                    }
                 }
             }
 
@@ -96,20 +109,29 @@ public class ZoneBuilder {
                 if (iterations < MAX_ITERATIONS) {
                     iterations++;
 
-                    LOGGER.info("Pass {} completed, but zone is still too small.", iterations);
+                    LOGGER.info("Pass {} completed, but zone only has {} of {} rooms.", iterations, out.size(), ZONE_SIZE);
                     in.addAll(out);
                     out.clear();
+                    Collections.shuffle(in);
                 } else {
-                    LOGGER.info("Maximum iterations reached, but zone is still too small.");
+                    LOGGER.error("Maximum iterations reached, but zone only has {} of {} rooms.", out.size(), ZONE_SIZE);
+                    return null;
                 }
             }
         }
 
+        Zone zone = new Zone();
+        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
+        Zone savedZone = zoneRepository.save(zone);
+
+        out.stream().forEach(room -> room.setZone(savedZone));
+        roomRepository.save(out);
+
         return zone;
     }
 
-    private Room createRoom(Zone zone, Long x, Long y, Long z) {
-        Room room = roomRepository.findByXAndYAndZ(x, y, z);
+    Room createRoom(Map<String, Room> rooms, long x, long y, long z) {
+        Room room = rooms.get(String.format("%d-%d-%d", x, y, z));
 
         if (room != null) {
             return room;
@@ -119,12 +141,13 @@ public class ZoneBuilder {
         room.setX(x);
         room.setY(y);
         room.setZ(z);
-        room.setZone(zone);
 
-        return roomRepository.save(room);
+        rooms.put(String.format("%d-%d-%d", x, y, z), room);
+
+        return room;
     }
 
-    private int countNeighbors(Room room) {
+    int countNeighbors(Room room) {
         Room north = roomRepository.findByXAndYAndZ(room.getX(), room.getY() + 1, room.getZ());
         Room east = roomRepository.findByXAndYAndZ(room.getX() + 1, room.getY(), room.getZ());
         Room south = roomRepository.findByXAndYAndZ(room.getX(), room.getY() - 1, room.getZ());

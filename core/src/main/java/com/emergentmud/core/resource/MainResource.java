@@ -200,7 +200,11 @@ public class MainResource {
             simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", out, headerAccessor.getMessageHeaders());
         }
 
-        worldManager.put(entity, 0L, 0L, 0L);
+        if (worldManager.test(0L, 0L, 0L)) {
+            worldManager.put(entity, 0L, 0L, 0L);
+        } else {
+            LOGGER.error("Unable to create world's first zone!");
+        }
 
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();

@@ -68,6 +68,8 @@ public class MoveCommandTest {
         doCallRealMethod().when(entity).setY(anyLong());
         doCallRealMethod().when(entity).setZ(anyLong());
 
+        when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(true);
+
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
         moveCommand = new MoveCommand(1, 1, 1, applicationContext, worldManager, roomRepository);
@@ -86,6 +88,21 @@ public class MoveCommandTest {
         verify(worldManager).put(eq(entity), eq(1L), eq(1L), eq(1L));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq(new String[0]), eq(""));
+    }
+
+    @Test
+    public void testMoveNoRoom() throws Exception {
+        entity.setX(0L);
+        entity.setY(0L);
+        entity.setZ(0L);
+
+        when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(false);
+
+        GameOutput result = moveCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(worldManager, never()).remove(eq(entity));
+        verify(worldManager, never()).put(eq(entity), eq(1L), eq(1L), eq(1L));
     }
 
     @Test
