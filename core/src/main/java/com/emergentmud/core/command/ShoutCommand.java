@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -57,9 +56,9 @@ public class ShoutCommand implements Command {
             return output;
         }
 
-        output.append(String.format("[cyan]You shout '%s[cyan]'", htmlEscape(raw)));
+        output.append(String.format("[dyellow]You shout '%s[dyellow]'", htmlEscape(raw)));
 
-        GameOutput toZone = new GameOutput(String.format("[cyan]%s shouts '%s[cyan]'", entity.getName(), htmlEscape(raw)))
+        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)))
                 .append("")
                 .append("> ");
 
