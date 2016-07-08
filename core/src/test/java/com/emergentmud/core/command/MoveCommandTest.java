@@ -21,6 +21,7 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.WorldManager;
@@ -50,6 +51,9 @@ public class MoveCommandTest {
     private Entity entity;
 
     @Mock
+    private Room room;
+
+    @Mock
     private LookCommand lookCommand;
 
     private String[] tokens = new String[] { "e" };
@@ -61,12 +65,14 @@ public class MoveCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(entity.getX()).thenCallRealMethod();
-        when(entity.getY()).thenCallRealMethod();
-        when(entity.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setX(anyLong());
-        doCallRealMethod().when(entity).setY(anyLong());
-        doCallRealMethod().when(entity).setZ(anyLong());
+        when(entity.getRoom()).thenCallRealMethod();
+        doCallRealMethod().when(entity).setRoom(any(Room.class));
+        when(room.getX()).thenCallRealMethod();
+        when(room.getY()).thenCallRealMethod();
+        when(room.getZ()).thenCallRealMethod();
+        doCallRealMethod().when(room).setX(anyLong());
+        doCallRealMethod().when(room).setY(anyLong());
+        doCallRealMethod().when(room).setZ(anyLong());
 
         when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(true);
 
@@ -77,9 +83,10 @@ public class MoveCommandTest {
 
     @Test
     public void testMove() throws Exception {
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
+        room.setX(0L);
+        room.setY(0L);
+        room.setZ(0L);
+        entity.setRoom(room);
 
         GameOutput result = moveCommand.execute(output, entity, tokens, raw);
 
@@ -92,9 +99,10 @@ public class MoveCommandTest {
 
     @Test
     public void testMoveNoRoom() throws Exception {
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
+        room.setX(0L);
+        room.setY(0L);
+        room.setZ(0L);
+        entity.setRoom(room);
 
         when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(false);
 

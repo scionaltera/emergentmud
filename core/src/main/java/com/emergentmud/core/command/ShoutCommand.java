@@ -21,8 +21,10 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -32,31 +34,37 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class SayCommand extends BaseCommunicationCommand implements Command {
+public class ShoutCommand extends BaseCommunicationCommand implements Command {
+    private RoomRepository roomRepository;
+
     @Inject
-    public SayCommand(SimpMessagingTemplate simpMessagingTemplate,
-                      EntityRepository entityRepository) {
+    public ShoutCommand(SimpMessagingTemplate simpMessagingTemplate,
+                        RoomRepository roomRepository,
+                        EntityRepository entityRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.roomRepository = roomRepository;
         this.entityRepository = entityRepository;
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
         if (StringUtils.isEmpty(raw)) {
-            output.append("What would you like to say?");
+            output.append("What would you like to shout?");
 
             return output;
         }
 
-        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(raw)));
+        output.append(String.format("[dyellow]You shout '%s[dyellow]'", htmlEscape(raw)));
 
-        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), htmlEscape(raw)))
+        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)))
                 .append("")
                 .append("> ");
 
-        List<Entity> contents = entityRepository.findByRoom(entity.getRoom());
+        Room entityRoom = entity.getRoom();
+        List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
+        List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
-        sendMessageToListeners(contents, entity, toRoom);
+        sendMessageToListeners(contents, entity, toZone);
 
         return output;
     }

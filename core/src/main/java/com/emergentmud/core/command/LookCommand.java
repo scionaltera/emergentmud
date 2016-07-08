@@ -21,6 +21,7 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
@@ -42,7 +43,7 @@ public class LookCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+        if (entity.getRoom() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {
             String roomName;
@@ -51,30 +52,35 @@ public class LookCommand implements Command {
             roomName = "The Featureless Plains";
             roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
 
-            output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)", roomName, entity.getX(), entity.getY(), entity.getZ()));
+            output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
+                    roomName,
+                    entity.getRoom().getX(),
+                    entity.getRoom().getY(),
+                    entity.getRoom().getZ()));
             output.append(String.format("[default]%s", roomDescription));
 
             StringBuilder exits = new StringBuilder("[dcyan]Exits:");
+            Room room = entity.getRoom();
 
-            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() + 1, entity.getZ()) != null) {
+            if (roomRepository.findByXAndYAndZ(room.getX(), room.getY() + 1, room.getZ()) != null) {
                 exits.append(" north");
             }
 
-            if (roomRepository.findByXAndYAndZ(entity.getX() + 1, entity.getY(), entity.getZ()) != null) {
+            if (roomRepository.findByXAndYAndZ(room.getX() + 1, room.getY(), room.getZ()) != null) {
                 exits.append(" east");
             }
 
-            if (roomRepository.findByXAndYAndZ(entity.getX(), entity.getY() - 1, entity.getZ()) != null) {
+            if (roomRepository.findByXAndYAndZ(room.getX(), room.getY() - 1, room.getZ()) != null) {
                 exits.append(" south");
             }
 
-            if (roomRepository.findByXAndYAndZ(entity.getX() - 1, entity.getY(), entity.getZ()) != null) {
+            if (roomRepository.findByXAndYAndZ(room.getX() - 1, room.getY(), room.getZ()) != null) {
                 exits.append(" west");
             }
 
             output.append(exits.toString());
 
-            List<Entity> contents = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+            List<Entity> contents = entityRepository.findByRoom(room);
 
             contents.stream()
                     .filter(content -> !content.getId().equals(entity.getId()))

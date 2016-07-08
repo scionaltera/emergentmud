@@ -21,15 +21,10 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-@CompoundIndexes({
-        @CompoundIndex(name = "location_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
-})
 public class Entity {
     @Id
     private String id;
@@ -37,9 +32,8 @@ public class Entity {
     private String stompUsername;
     private String stompSessionId;
 
-    private Long x;
-    private Long y;
-    private Long z;
+    @DBRef
+    private Room room;
 
     public String getId() {
         return id;
@@ -73,28 +67,12 @@ public class Entity {
         this.stompSessionId = stompSessionId;
     }
 
-    public Long getX() {
-        return x;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setX(Long x) {
-        this.x = x;
-    }
-
-    public Long getY() {
-        return y;
-    }
-
-    public void setY(Long y) {
-        this.y = y;
-    }
-
-    public Long getZ() {
-        return z;
-    }
-
-    public void setZ(Long z) {
-        this.z = z;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @Override

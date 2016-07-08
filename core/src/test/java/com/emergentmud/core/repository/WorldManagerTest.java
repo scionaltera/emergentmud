@@ -94,18 +94,20 @@ public class WorldManagerTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(mock(Room.class));
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(entity.getRoom()).thenCallRealMethod();
+        doCallRealMethod().when(entity).setRoom(any(Room.class));
+        when(room.getX()).thenReturn(2L);
+        when(room.getY()).thenReturn(1L);
+        when(room.getZ()).thenReturn(3L);
+        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
+
+        entity.setRoom(mock(Room.class));
 
         worldManager.put(entity, 2L, 1L, 3L);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setX(eq(2L));
-        verify(entity).setY(eq(1L));
-        verify(entity).setZ(eq(3L));
+        verify(entity).setRoom(eq(room));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -113,10 +115,11 @@ public class WorldManagerTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(2L);
+        when(room.getY()).thenReturn(1L);
+        when(room.getZ()).thenReturn(3L);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
 
         worldManager.put(entity, 2L, 1L, 3L);
 
@@ -130,18 +133,17 @@ public class WorldManagerTest {
 
         contents.add(entity);
 
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(2L);
+        when(room.getY()).thenReturn(1L);
+        when(room.getZ()).thenReturn(3L);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
         when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
 
         worldManager.put(entity, 2L, 1L, 3L);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setX(eq(2L));
-        verify(entity).setY(eq(1L));
-        verify(entity).setZ(eq(3L));
+        verify(entity).setRoom(eq(room));
     }
 
     @Test
@@ -151,17 +153,16 @@ public class WorldManagerTest {
 
         contents.add(entity);
 
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(2L);
+        when(room.getY()).thenReturn(1L);
+        when(room.getZ()).thenReturn(3L);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
 
         worldManager.remove(entity);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setX(null);
-        verify(entity).setY(null);
-        verify(entity).setZ(null);
+        verify(entity).setRoom(null);
     }
 
     @Test
@@ -169,16 +170,15 @@ public class WorldManagerTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(entity.getRoom()).thenReturn(room);
+        when(room.getX()).thenReturn(2L);
+        when(room.getY()).thenReturn(1L);
+        when(room.getZ()).thenReturn(3L);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
 
         worldManager.remove(entity);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setX(null);
-        verify(entity).setY(null);
-        verify(entity).setZ(null);
+        verify(entity).setRoom(null);
     }
 }

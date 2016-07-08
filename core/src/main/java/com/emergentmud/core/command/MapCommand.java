@@ -43,14 +43,16 @@ public class MapCommand implements Command {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        for (long y = entity.getY() + MAP_EXTENT_Y, i = 0; y >= entity.getY() - MAP_EXTENT_Y; y--, i++) {
+        Room center = entity.getRoom();
+
+        for (long y = center.getY() + MAP_EXTENT_Y, i = 0; y >= center.getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
 
-            for (long x = entity.getX() - MAP_EXTENT_X; x <= entity.getX() + MAP_EXTENT_X; x++) {
-                if (x == entity.getX() && y == entity.getY()) {
+            for (long x = center.getX() - MAP_EXTENT_X; x <= center.getX() + MAP_EXTENT_X; x++) {
+                if (x == center.getX() && y == center.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomRepository.findByXAndYAndZ(x, y, entity.getZ());
+                    Room room = roomRepository.findByXAndYAndZ(x, y, center.getZ());
 
                     if (room != null) {
                         Zone zone = room.getZone();
@@ -75,7 +77,7 @@ public class MapCommand implements Command {
         StringBuilder line = new StringBuilder("[yellow]");
         int offset = 0;
 
-        for (long x = entity.getX() - MAP_EXTENT_X, i = 0; x <= entity.getX() + MAP_EXTENT_X; x++, i++) {
+        for (long x = center.getX() - MAP_EXTENT_X, i = 0; x <= center.getX() + MAP_EXTENT_X; x++, i++) {
             if (i % 10 == 0) {
                 line.append(x + offset);
 

@@ -20,43 +20,60 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class SayCommandTest extends BaseCommunicationCommandTest {
-    private SayCommand command;
+public class ShoutCommandTest extends BaseCommunicationCommandTest {
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private Zone zone;
+
+    private ShoutCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        List<Room> roomList = generateRoomList();
 
         roomContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
         when(entity.getRoom()).thenReturn(room);
+        when(room.getZone()).thenReturn(zone);
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(roomContents);
+        when(roomRepository.findByZone(eq(zone))).thenReturn(roomList);
+        when(entityRepository.findByRoomIn(anyListOf(Room.class))).thenReturn(roomContents);
 
-        command = new SayCommand(simpMessagingTemplate, entityRepository);
+        command = new ShoutCommand(simpMessagingTemplate, roomRepository, entityRepository);
     }
 
     @Test
-    public void testSaySomething() throws Exception {
+    public void testShoutSomething() throws Exception {
         GameOutput response = command.execute(output, entity,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
-        verify(response).append(eq("[cyan]You say 'Feed me a stray cat.[cyan]'"));
+        verify(response).append(eq("[dyellow]You shout 'Feed me a stray cat.[dyellow]'"));
         verify(simpMessagingTemplate).convertAndSendToUser(
                 eq("stuSimpUsername"),
                 eq("/queue/output"),
@@ -72,12 +89,12 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testSaySomethingWithSymbols() throws Exception {
+    public void testShoutSomethingWithSymbols() throws Exception {
         GameOutput response = command.execute(output, entity,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
-        verify(response).append(eq("[cyan]You say '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
+        verify(response).append(eq("[dyellow]You shout '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[dyellow]'"));
         verify(simpMessagingTemplate).convertAndSendToUser(
                 eq("stuSimpUsername"),
                 eq("/queue/output"),
@@ -93,9 +110,27 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testSayNothing() throws Exception {
+    public void testShoutNothing() throws Exception {
         GameOutput response = command.execute(output, entity, new String[] {}, "");
 
-        verify(response).append(eq("What would you like to say?"));
+        verify(response).append(eq("What would you like to shout?"));
+    }
+
+    private List<Room> generateRoomList() {
+        List<Room> rooms = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            Room room = mock(Room.class);
+
+            when(room.getId()).thenReturn("room-" + i);
+            when(room.getX()).thenReturn((long)i);
+            when(room.getY()).thenReturn(0L);
+            when(room.getZ()).thenReturn(0L);
+            when(room.getZone()).thenReturn(zone);
+
+            rooms.add(room);
+        }
+
+        return rooms;
     }
 }
