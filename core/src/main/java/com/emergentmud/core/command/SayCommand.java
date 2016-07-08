@@ -32,10 +32,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class SayCommand implements Command {
-    private SimpMessagingTemplate simpMessagingTemplate;
-    private EntityRepository entityRepository;
-
+public class SayCommand extends BaseCommunicationCommand implements Command {
     @Inject
     public SayCommand(SimpMessagingTemplate simpMessagingTemplate,
                       EntityRepository entityRepository) {
@@ -59,15 +56,7 @@ public class SayCommand implements Command {
 
         List<Entity> contents = entityRepository.findByRoom(entity.getRoom());
 
-        contents.stream()
-                .filter(e -> !entity.getId().equals(e.getId()))
-                .forEach(e -> {
-                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                    headerAccessor.setSessionId(e.getStompSessionId());
-                    headerAccessor.setLeaveMutable(true);
-
-                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toRoom, headerAccessor.getMessageHeaders());
-                });
+        sendMessageToListeners(contents, entity, toRoom);
 
         return output;
     }

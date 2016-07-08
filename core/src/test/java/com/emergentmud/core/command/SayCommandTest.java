@@ -30,7 +30,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class SayCommandTest extends CommunicationCommandTestBase {
+public class SayCommandTest extends BaseCommunicationCommandTest {
     private SayCommand command;
 
     @Before

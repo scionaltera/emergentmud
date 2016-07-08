@@ -37,7 +37,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ShoutCommandTest extends CommunicationCommandTestBase {
+public class ShoutCommandTest extends BaseCommunicationCommandTest {
     @Mock
     private RoomRepository roomRepository;
 

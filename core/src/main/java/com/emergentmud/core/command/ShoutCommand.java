@@ -34,10 +34,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class ShoutCommand implements Command {
-    private SimpMessagingTemplate simpMessagingTemplate;
+public class ShoutCommand extends BaseCommunicationCommand implements Command {
     private RoomRepository roomRepository;
-    private EntityRepository entityRepository;
 
     @Inject
     public ShoutCommand(SimpMessagingTemplate simpMessagingTemplate,
@@ -66,15 +64,7 @@ public class ShoutCommand implements Command {
         List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
         List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
-        contents.stream()
-                .filter(e -> !entity.getId().equals(e.getId()))
-                .forEach(e -> {
-                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                    headerAccessor.setSessionId(e.getStompSessionId());
-                    headerAccessor.setLeaveMutable(true);
-
-                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", toZone, headerAccessor.getMessageHeaders());
-                });
+        sendMessageToListeners(contents, entity, toZone);
 
         return output;
     }

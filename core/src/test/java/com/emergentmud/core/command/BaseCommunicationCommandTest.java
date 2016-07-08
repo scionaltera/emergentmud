@@ -35,7 +35,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public abstract class CommunicationCommandTestBase {
+public abstract class BaseCommunicationCommandTest {
     @Mock
     protected SimpMessagingTemplate simpMessagingTemplate;
 
