@@ -20,50 +20,17 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class SayCommandTest {
-    @Mock
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    @Mock
-    private EntityRepository entityRepository;
-
-    @Mock
-    private GameOutput output;
-
-    @Mock
-    private Room room;
-
-    @Mock
-    private Entity entity;
-
-    @Mock
-    private Entity stu;
-
-    @Captor
-    private ArgumentCaptor<MessageHeaders> headerCaptor;
-
-    private List<Entity> roomContents;
-
+public class SayCommandTest extends CommunicationCommandTestBase {
     private SayCommand command;
 
     @Before
@@ -130,20 +97,5 @@ public class SayCommandTest {
         GameOutput response = command.execute(output, entity, new String[] {}, "");
 
         verify(response).append(eq("What would you like to say?"));
-    }
-
-    private List<Entity> generateRoomContents() {
-        List<Entity> contents = new ArrayList<>();
-
-        stu = mock(Entity.class);
-
-        when(stu.getId()).thenReturn("stuId");
-        when(stu.getName()).thenReturn("Stu");
-        when(stu.getStompSessionId()).thenReturn("stuSimpSessionId");
-        when(stu.getStompUsername()).thenReturn("stuSimpUsername");
-
-        contents.add(stu);
-
-        return contents;
     }
 }

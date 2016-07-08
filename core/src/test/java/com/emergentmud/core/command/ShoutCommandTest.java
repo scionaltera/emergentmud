@@ -20,59 +20,29 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ShoutCommandTest {
-    @Mock
-    private SimpMessagingTemplate simpMessagingTemplate;
-
+public class ShoutCommandTest extends CommunicationCommandTestBase {
     @Mock
     private RoomRepository roomRepository;
 
     @Mock
-    private EntityRepository entityRepository;
-
-    @Mock
-    private GameOutput output;
-
-    @Mock
     private Zone zone;
-
-    @Mock
-    private Room room;
-
-    @Mock
-    private Entity entity;
-
-    @Mock
-    private Entity stu;
-
-    @Captor
-    private ArgumentCaptor<MessageHeaders> headerCaptor;
-
-    private List<Room> roomList;
-    private List<Entity> roomContents;
 
     private ShoutCommand command;
 
@@ -80,7 +50,8 @@ public class ShoutCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomList = generateRoomList();
+        List<Room> roomList = generateRoomList();
+
         roomContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
@@ -161,20 +132,5 @@ public class ShoutCommandTest {
         }
 
         return rooms;
-    }
-
-    private List<Entity> generateRoomContents() {
-        List<Entity> contents = new ArrayList<>();
-
-        stu = mock(Entity.class);
-
-        when(stu.getId()).thenReturn("stuId");
-        when(stu.getName()).thenReturn("Stu");
-        when(stu.getStompSessionId()).thenReturn("stuSimpSessionId");
-        when(stu.getStompUsername()).thenReturn("stuSimpUsername");
-
-        contents.add(stu);
-
-        return contents;
     }
 }
