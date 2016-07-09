@@ -43,4 +43,14 @@ public abstract class BaseCommunicationCommand {
                     simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
                 });
     }
+
+    protected String htmlEscape(String input) {
+        return input
+                .replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\\", "&#x2F;");
+    }
 }

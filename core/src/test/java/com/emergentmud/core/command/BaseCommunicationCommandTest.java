@@ -57,7 +57,7 @@ public abstract class BaseCommunicationCommandTest {
     @Captor
     protected ArgumentCaptor<MessageHeaders> headerCaptor;
 
-    protected List<Entity> roomContents;
+    protected List<Entity> worldContents;
 
     protected List<Entity> generateRoomContents() {
         List<Entity> contents = new ArrayList<>();

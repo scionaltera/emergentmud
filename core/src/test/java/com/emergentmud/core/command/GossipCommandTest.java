@@ -20,60 +20,44 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Room;
-import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class ShoutCommandTest extends BaseCommunicationCommandTest {
-    @Mock
-    private RoomRepository roomRepository;
-
-    @Mock
-    private Zone zone;
-
-    private ShoutCommand command;
+public class GossipCommandTest extends BaseCommunicationCommandTest {
+    private GossipCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        List<Room> roomList = generateRoomList();
 
         worldContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
         when(entity.getRoom()).thenReturn(room);
-        when(room.getZone()).thenReturn(zone);
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
-        when(roomRepository.findByZone(eq(zone))).thenReturn(roomList);
-        when(entityRepository.findByRoomIn(anyListOf(Room.class))).thenReturn(worldContents);
+        when(entityRepository.findByRoomIsNotNull()).thenReturn(worldContents);
 
-        command = new ShoutCommand(simpMessagingTemplate, roomRepository, entityRepository);
+        command = new GossipCommand(simpMessagingTemplate, entityRepository);
     }
 
     @Test
-    public void testShoutSomething() throws Exception {
+    public void testGossipSomething() throws Exception {
         GameOutput response = command.execute(output, entity,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
-        verify(response).append(eq("[dyellow]You shout 'Feed me a stray cat.[dyellow]'"));
+        verify(response).append(eq("[green]You gossip 'Feed me a stray cat.[green]'"));
         verify(simpMessagingTemplate).convertAndSendToUser(
                 eq("stuSimpUsername"),
                 eq("/queue/output"),
@@ -89,12 +73,12 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testShoutSomethingWithSymbols() throws Exception {
+    public void testGossipSomethingWithSymbols() throws Exception {
         GameOutput response = command.execute(output, entity,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
-        verify(response).append(eq("[dyellow]You shout '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[dyellow]'"));
+        verify(response).append(eq("[green]You gossip '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[green]'"));
         verify(simpMessagingTemplate).convertAndSendToUser(
                 eq("stuSimpUsername"),
                 eq("/queue/output"),
@@ -110,27 +94,9 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testShoutNothing() throws Exception {
+    public void testSayNothing() throws Exception {
         GameOutput response = command.execute(output, entity, new String[] {}, "");
 
-        verify(response).append(eq("What would you like to shout?"));
-    }
-
-    private List<Room> generateRoomList() {
-        List<Room> rooms = new ArrayList<>();
-
-        for (int i = 0; i < 5; i++) {
-            Room room = mock(Room.class);
-
-            when(room.getId()).thenReturn("room-" + i);
-            when(room.getX()).thenReturn((long)i);
-            when(room.getY()).thenReturn(0L);
-            when(room.getZ()).thenReturn(0L);
-            when(room.getZone()).thenReturn(zone);
-
-            rooms.add(room);
-        }
-
-        return rooms;
+        verify(response).append(eq("What would you like to gossip?"));
     }
 }

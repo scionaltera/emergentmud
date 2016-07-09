@@ -37,7 +37,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomContents = generateRoomContents();
+        worldContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
@@ -45,7 +45,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(roomContents);
+        when(entityRepository.findByRoom(eq(room))).thenReturn(worldContents);
 
         command = new SayCommand(simpMessagingTemplate, entityRepository);
     }
