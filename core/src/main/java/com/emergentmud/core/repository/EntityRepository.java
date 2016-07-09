@@ -29,6 +29,7 @@ import java.util.List;
 
 @Repository
 public interface EntityRepository extends MongoRepository<Entity, String> {
+    Entity findByNameStartingWithIgnoreCase(String name);
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
     List<Entity> findByRoom(Room room);
     List<Entity> findByRoomIn(List<Room> rooms);
