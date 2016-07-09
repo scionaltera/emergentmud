@@ -21,11 +21,8 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -34,37 +31,31 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class ShoutCommand extends BaseCommunicationCommand implements Command {
-    private RoomRepository roomRepository;
-
+public class GossipCommand extends BaseCommunicationCommand implements Command {
     @Inject
-    public ShoutCommand(SimpMessagingTemplate simpMessagingTemplate,
-                        RoomRepository roomRepository,
-                        EntityRepository entityRepository) {
+    public GossipCommand(SimpMessagingTemplate simpMessagingTemplate,
+                         EntityRepository entityRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.roomRepository = roomRepository;
         this.entityRepository = entityRepository;
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
         if (StringUtils.isEmpty(raw)) {
-            output.append("What would you like to shout?");
+            output.append("What would you like to gossip?");
 
             return output;
         }
 
-        output.append(String.format("[dyellow]You shout '%s[dyellow]'", htmlEscape(raw)));
+        output.append(String.format("[green]You gossip '%s[green]'", htmlEscape(raw)));
 
-        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)))
+        GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), htmlEscape(raw)))
                 .append("")
                 .append("> ");
 
-        Room entityRoom = entity.getRoom();
-        List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
-        List<Entity> contents = entityRepository.findByRoomIn(rooms);
+        List<Entity> contents = entityRepository.findByRoomIsNotNull();
 
-        sendMessageToListeners(contents, entity, toZone);
+        sendMessageToListeners(contents, entity, toRoom);
 
         return output;
     }

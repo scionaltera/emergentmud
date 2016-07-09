@@ -32,4 +32,5 @@ public interface EntityRepository extends MongoRepository<Entity, String> {
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
     List<Entity> findByRoom(Room room);
     List<Entity> findByRoomIn(List<Room> rooms);
+    List<Entity> findByRoomIsNotNull();
 }

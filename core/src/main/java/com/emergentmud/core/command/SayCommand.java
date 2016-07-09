@@ -60,14 +60,4 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
 
         return output;
     }
-
-    private String htmlEscape(String input) {
-        return input
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\\", "&#x2F;");
-    }
 }
