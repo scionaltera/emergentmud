@@ -31,6 +31,7 @@ public class InfoCommand implements Command {
     public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
         output.append("[cyan][ [dcyan]Entity ([cyan]" + entity.getId() + "[dcyan]) [cyan]]");
         output.append("[dcyan]Name: [cyan]" + entity.getName());
+        output.append("[dcyan]Admin: " + entity.isAdmin());
         output.append("[dcyan]Social Username: [cyan]" + entity.getStompUsername());
         output.append("[dcyan]STOMP Session ID: [cyan]" + entity.getStompSessionId());
 

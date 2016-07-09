@@ -34,6 +34,7 @@ public class Essence {
 
     private String accountId;
     private String name;
+    private Boolean admin;
 
     public String getId() {
         return id;
@@ -65,6 +66,14 @@ public class Essence {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isAdmin() {
+        return admin == null ? false : admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     @Override

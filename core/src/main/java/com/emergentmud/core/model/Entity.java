@@ -29,6 +29,7 @@ public class Entity {
     @Id
     private String id;
     private String name;
+    private Boolean admin;
     private String stompUsername;
     private String stompSessionId;
 
@@ -49,6 +50,14 @@ public class Entity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean isAdmin() {
+        return admin == null ? false : admin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        this.admin = admin;
     }
 
     public String getStompUsername() {

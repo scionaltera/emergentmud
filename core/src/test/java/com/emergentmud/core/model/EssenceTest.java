@@ -66,6 +66,19 @@ public class EssenceTest {
     }
 
     @Test
+    public void testAdmin() throws Exception {
+        assertEquals(false, essence.isAdmin());
+
+        essence.setAdmin(true);
+
+        assertEquals(true, essence.isAdmin());
+
+        essence.setAdmin(false);
+
+        assertEquals(false, essence.isAdmin());
+    }
+
+    @Test
     public void testEqualsOperator() throws Exception {
         essence.setId("foo");
 

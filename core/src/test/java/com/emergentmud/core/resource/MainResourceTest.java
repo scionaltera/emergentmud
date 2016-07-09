@@ -198,10 +198,24 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEssence() throws Exception {
+    public void testSaveFirstNewEssence() throws Exception {
+        when(essenceRepository.count()).thenReturn(0L);
+
         String view = mainResource.saveNewEssence(httpSession, principal, essence);
 
         verify(essence).setAccountId(eq(ACCOUNT_ID));
+        verify(essence).setAdmin(eq(true));
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testSaveNewEssence() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence);
+
+        verify(essence).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
         assertEquals("redirect:/", view);
     }
 

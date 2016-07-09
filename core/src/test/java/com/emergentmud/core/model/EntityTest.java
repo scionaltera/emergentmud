@@ -56,6 +56,19 @@ public class EntityTest {
     }
 
     @Test
+    public void testAdmin() throws Exception {
+        assertEquals(false, entity.isAdmin());
+
+        entity.setAdmin(true);
+
+        assertEquals(true, entity.isAdmin());
+
+        entity.setAdmin(false);
+
+        assertEquals(false, entity.isAdmin());
+    }
+
+    @Test
     public void testStompUsername() throws Exception {
         String stompUsername = "stompUsername";
 
