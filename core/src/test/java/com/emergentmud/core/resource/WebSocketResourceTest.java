@@ -248,10 +248,10 @@ public class WebSocketResourceTest {
     private List<CommandMetadata> generateCommandList() {
         List<CommandMetadata> metadataList = new ArrayList<>();
 
-        metadataList.add(new CommandMetadata("look", "lookCommand", 100));
-        metadataList.add(new CommandMetadata("say", "sayCommand", 200));
-        metadataList.add(new CommandMetadata("info", "infoCommand", 300));
-        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000));
+        metadataList.add(new CommandMetadata("look", "lookCommand", 100, false));
+        metadataList.add(new CommandMetadata("say", "sayCommand", 200, false));
+        metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
+        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
 
         return metadataList;
     }

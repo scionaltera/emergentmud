@@ -55,6 +55,17 @@ public class CommandMetadataTest {
     }
 
     @Test
+    public void testAdmin() throws Exception {
+        commandMetadata.setAdmin(true);
+
+        assertEquals(true, commandMetadata.isAdmin());
+
+        commandMetadata.setAdmin(false);
+
+        assertEquals(false, commandMetadata.isAdmin());
+    }
+
+    @Test
     public void testBeanName() throws Exception {
         commandMetadata.setBeanName("beanName");
 
