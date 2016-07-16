@@ -48,18 +48,18 @@ public class CommandLoader {
 
             List<CommandMetadata> metadataList = new ArrayList<>();
 
-            metadataList.add(new CommandMetadata("north", "northCommand", 10));
-            metadataList.add(new CommandMetadata("east", "eastCommand", 10));
-            metadataList.add(new CommandMetadata("south", "southCommand", 10));
-            metadataList.add(new CommandMetadata("west", "westCommand", 10));
-            metadataList.add(new CommandMetadata("look", "lookCommand", 100));
-            metadataList.add(new CommandMetadata("say", "sayCommand", 200));
-            metadataList.add(new CommandMetadata("shout", "shoutCommand", 205));
-            metadataList.add(new CommandMetadata("gossip", "gossipCommand", 210));
-            metadataList.add(new CommandMetadata("tell", "tellCommand", 215));
-            metadataList.add(new CommandMetadata("info", "infoCommand", 300));
-            metadataList.add(new CommandMetadata("map", "mapCommand", 400));
-            metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000));
+            metadataList.add(new CommandMetadata("north", "northCommand", 10, false));
+            metadataList.add(new CommandMetadata("east", "eastCommand", 10, false));
+            metadataList.add(new CommandMetadata("south", "southCommand", 10, false));
+            metadataList.add(new CommandMetadata("west", "westCommand", 10, false));
+            metadataList.add(new CommandMetadata("look", "lookCommand", 100, false));
+            metadataList.add(new CommandMetadata("say", "sayCommand", 200, false));
+            metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, false));
+            metadataList.add(new CommandMetadata("gossip", "gossipCommand", 210, false));
+            metadataList.add(new CommandMetadata("tell", "tellCommand", 215, false));
+            metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
+            metadataList.add(new CommandMetadata("map", "mapCommand", 400, false));
+            metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
 
             commandMetadataRepository.save(metadataList);
         }
