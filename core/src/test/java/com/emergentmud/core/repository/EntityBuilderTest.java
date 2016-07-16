@@ -76,6 +76,18 @@ public class EntityBuilderTest {
     }
 
     @Test
+    public void testWithAdmin() throws Exception {
+        Entity entity = mock(Entity.class);
+        Entity result = new EntityBuilder(entity)
+                .withAdmin(true)
+                .build();
+
+        verify(entity).setAdmin(eq(true));
+        verifyNoMoreInteractions(entity);
+        assertNotNull(result);
+    }
+
+    @Test
     public void testComplete() throws Exception {
         String id = "id";
         String name = "Unit";

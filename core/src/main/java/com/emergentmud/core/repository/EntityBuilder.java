@@ -43,6 +43,11 @@ public class EntityBuilder {
         return this;
     }
 
+    public EntityBuilder withAdmin(boolean admin) {
+        entity.setAdmin(admin);
+        return this;
+    }
+
     public Entity build() {
         return entity;
     }

@@ -140,6 +140,11 @@ public class MainResource {
             throw new NoAccountException(network, networkId);
         }
 
+        if (essenceRepository.count() == 0) {
+            LOGGER.info("Making {} into an administrator.", essence.getName());
+            essence.setAdmin(true);
+        }
+
         essence.setAccountId(account.getId());
         essence = essenceRepository.save(essence);
         LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
@@ -180,6 +185,7 @@ public class MainResource {
             LOGGER.info("Creating a new entity for {}", essence.getName());
             entity = new EntityBuilder()
                     .withName(essence.getName())
+                    .withAdmin(essence.isAdmin())
                     .build();
 
             entity = entityRepository.save(entity);
