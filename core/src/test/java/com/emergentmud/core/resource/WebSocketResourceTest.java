@@ -160,7 +160,7 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext, never()).getBean(anyString());
-        assertEquals(2, output.getOutput().size());
+        assertEquals("", output.getOutput().get(0));
     }
 
     @Test
@@ -172,7 +172,33 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext).getBean(eq("lookCommand"));
-        assertEquals(3, output.getOutput().size());
+        assertEquals("[green]Test output.", output.getOutput().get(0));
+    }
+
+    @Test
+    public void testOnInputNotAnAdmin() throws Exception {
+        UserInput input = mock(UserInput.class);
+
+        when(input.getInput()).thenReturn("info");
+
+        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
+
+        verify(applicationContext, never()).getBean(anyString());
+        assertEquals("Huh?", output.getOutput().get(0));
+    }
+
+    @Test
+    public void testOnInputIsAnAdmin() throws Exception {
+        UserInput input = mock(UserInput.class);
+
+        when(essence.isAdmin()).thenReturn(true);
+        when(input.getInput()).thenReturn("info");
+
+        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
+
+        verify(applicationContext).getBean(eq("infoCommand"));
+        verify(mockCommand).execute(any(GameOutput.class), eq(entity), eq(new String[] {}), eq(""));
+        assertEquals("[green]Test output.", output.getOutput().get(0));
     }
 
     @Test
@@ -190,7 +216,7 @@ public class WebSocketResourceTest {
                 eq(new String[] { "I", "love", "EmergentMUD!" }),
                 eq("I love EmergentMUD!")
         );
-        assertEquals(3, output.getOutput().size());
+        assertEquals("[green]Test output.", output.getOutput().get(0));
     }
 
     @Test
