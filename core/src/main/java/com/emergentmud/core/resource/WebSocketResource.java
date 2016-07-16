@@ -157,6 +157,7 @@ public class WebSocketResource {
             Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
                     .stream()
                     .filter(cm -> cm.getName().startsWith(cmd.toLowerCase().trim()))
+                    .filter(cm -> essence.isAdmin() || !cm.isAdmin())
                     .findFirst();
 
             if (optionalCommandMetadata.isPresent()) {
