@@ -64,6 +64,7 @@ public class CommandEditCommand implements Command {
 
                 metadata.setName(tokens[1]);
                 metadata.setBeanName(tokens[2]);
+                metadata.setAdmin(true); // all new commands default to admin-only as a safety measure
 
                 try {
                     metadata.setPriority(Integer.valueOf(tokens[3]));
@@ -96,6 +97,20 @@ public class CommandEditCommand implements Command {
                 commandMetadataRepository.save(metadata);
 
                 output.append("[yellow]Updated priority.");
+            } else if ("admin".equals(tokens[0])) {
+                if (tokens.length != 3) {
+                    usage(output);
+
+                    return output;
+                }
+
+                CommandMetadata metadata = commandMetadataRepository.findByName(tokens[1]);
+
+                metadata.setAdmin(Boolean.valueOf(tokens[2]));
+
+                commandMetadataRepository.save(metadata);
+
+                output.append("[yellow]Updated admin flag.");
             } else {
                 usage(output);
             }
@@ -113,5 +128,6 @@ public class CommandEditCommand implements Command {
         output.append("[yellow]list - List all commands.");
         output.append("[yellow]add &lt;command name&gt; &lt;bean name&gt; &lt;priority&gt; - Add a new command.");
         output.append("[yellow]priority &lt;command name&gt; &lt;priority&gt; - Set priority for a command.");
+        output.append("[yellow]admin &lt;command name&gt; &lt;true|false&gt; - Restrict a command to administrators.");
     }
 }

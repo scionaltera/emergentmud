@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CommandEditCommandTest {
-    private static final int USAGE_LENGTH = 4;
+    private static final int USAGE_LENGTH = 5;
 
     @Captor
     private ArgumentCaptor<CommandMetadata> commandMetadataArgumentCaptor;
@@ -143,6 +143,7 @@ public class CommandEditCommandTest {
         assertNotNull(commandMetadata);
         assertEquals("test", commandMetadata.getName());
         assertEquals("testCommand", commandMetadata.getBeanName());
+        assertEquals(true, commandMetadata.isAdmin());
         assertEquals((Integer)42, commandMetadata.getPriority());
     }
 
@@ -180,6 +181,43 @@ public class CommandEditCommandTest {
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
         verify(command).setPriority(eq(42));
+        verify(commandMetadataRepository).save(any(CommandMetadata.class));
+    }
+
+    @Test
+    public void testAdminWrongArgs() throws Exception {
+        String[] tokens = new String[] { "admin", "test" };
+        String raw = "admin test";
+
+        GameOutput result = commandEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(output, times(USAGE_LENGTH)).append(anyString());
+    }
+
+    @Test
+    public void testAdminTrue() throws Exception {
+        String[] tokens = new String[] { "admin", "test", "true" };
+        String raw = "admin test true";
+
+        GameOutput result = commandEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(commandMetadataRepository).findByName(eq("test"));
+        verify(command).setAdmin(eq(true));
+        verify(commandMetadataRepository).save(any(CommandMetadata.class));
+    }
+
+    @Test
+    public void testAdminFalse() throws Exception {
+        String[] tokens = new String[] { "admin", "test", "false" };
+        String raw = "admin test false";
+
+        GameOutput result = commandEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(commandMetadataRepository).findByName(eq("test"));
+        verify(command).setAdmin(eq(false));
         verify(commandMetadataRepository).save(any(CommandMetadata.class));
     }
 
