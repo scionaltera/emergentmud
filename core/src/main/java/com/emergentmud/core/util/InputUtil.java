@@ -21,13 +21,17 @@
 package com.emergentmud.core.util;
 
 public class InputUtil {
+    private InputUtil() {
+        // this method intentionally left blank
+    }
+
     public static String chopWords(String input) {
         return chopWords(input, 1);
     }
 
     public static String chopWords(String input, int words) {
         for (int i = 0; i < words; i++) {
-            input = input.replaceAll("^.*?\\s", "");
+            input = input.replaceAll("^.*?\\s+", "");
         }
 
         return input;
