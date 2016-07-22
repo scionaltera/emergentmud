@@ -60,6 +60,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
             metadataList.add(new CommandMetadata("map", "mapCommand", 400, false));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
+            metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, true));
 
             commandMetadataRepository.save(metadataList);
         }
