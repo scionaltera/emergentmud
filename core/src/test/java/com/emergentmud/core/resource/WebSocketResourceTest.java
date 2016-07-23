@@ -22,11 +22,13 @@ package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.CommandMetadataRepository;
+import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
@@ -73,6 +75,9 @@ public class WebSocketResourceTest {
     private CommandMetadataRepository commandMetadataRepository;
 
     @Mock
+    private EmoteMetadataRepository emoteMetadataRepository;
+
+    @Mock
     private OAuth2Authentication principal;
 
     @Mock
@@ -95,6 +100,7 @@ public class WebSocketResourceTest {
     private String httpSessionId = "httpSessionId";
     private Map<String, String> sessionMap;
     private List<CommandMetadata> commandList;
+    private List<EmoteMetadata> emoteList;
 
     private WebSocketResource webSocketResource;
 
@@ -104,6 +110,7 @@ public class WebSocketResourceTest {
 
         sessionMap = generateSessionMap();
         commandList = generateCommandList();
+        emoteList = generateEmoteList();
 
         when(principal.getDetails()).thenReturn(oauth2Details);
         when(principal.getName()).thenReturn(PRINCIPAL_USER);
@@ -121,6 +128,7 @@ public class WebSocketResourceTest {
             return entity;
         });
         when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commandList);
+        when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emoteList);
         when(applicationContext.getBean(anyString())).thenReturn(mockCommand);
         when(mockCommand.execute(any(), any(), any(), any())).thenAnswer(invocation -> {
             GameOutput output = (GameOutput)invocation.getArguments()[0];
@@ -138,7 +146,8 @@ public class WebSocketResourceTest {
                 sessionRepository,
                 essenceRepository,
                 entityRepository,
-                commandMetadataRepository
+                commandMetadataRepository,
+                emoteMetadataRepository
         );
     }
 
@@ -173,6 +182,18 @@ public class WebSocketResourceTest {
 
         verify(applicationContext).getBean(eq("lookCommand"));
         assertEquals("[green]Test output.", output.getOutput().get(0));
+    }
+
+    @Test
+    public void testOnEmote() throws Exception {
+        UserInput input = mock(UserInput.class);
+
+        when(input.getInput()).thenReturn("wink");
+
+        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
+
+        verify(applicationContext, never()).getBean(anyString());
+        assertEquals("[yellow]Emote wink exists.", output.getOutput().get(0));
     }
 
     @Test
@@ -278,6 +299,17 @@ public class WebSocketResourceTest {
         metadataList.add(new CommandMetadata("say", "sayCommand", 200, false));
         metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
         metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
+
+        return metadataList;
+    }
+
+    private List<EmoteMetadata> generateEmoteList() {
+        List<EmoteMetadata> metadataList = new ArrayList<>();
+
+        metadataList.add(new EmoteMetadata("nod", 100));
+        metadataList.add(new EmoteMetadata("wink", 100));
+        metadataList.add(new EmoteMetadata("smile", 100));
+        metadataList.add(new EmoteMetadata("sneeze", 100));
 
         return metadataList;
     }

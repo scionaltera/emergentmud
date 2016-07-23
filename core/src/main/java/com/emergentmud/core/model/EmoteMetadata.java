@@ -39,6 +39,15 @@ public class EmoteMetadata {
     private String toTarget;
     private String toRoom;
 
+    public EmoteMetadata() {
+        // this method intentionally left blank
+    }
+
+    public EmoteMetadata(String name, Integer priority) {
+        setName(name);
+        setPriority(priority);
+    }
+
     public String getId() {
         return id;
     }
