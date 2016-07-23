@@ -22,11 +22,13 @@ package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.CommandMetadataRepository;
+import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.joda.time.DateTime;
@@ -62,6 +64,7 @@ public class WebSocketResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
+    private EmoteMetadataRepository emoteMetadataRepository;
 
     @Inject
     public WebSocketResource(String applicationVersion,
@@ -70,7 +73,8 @@ public class WebSocketResource {
                              SessionRepository sessionRepository,
                              EssenceRepository essenceRepository,
                              EntityRepository entityRepository,
-                             CommandMetadataRepository commandMetadataRepository) {
+                             CommandMetadataRepository commandMetadataRepository,
+                             EmoteMetadataRepository emoteMetadataRepository) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
         this.applicationContext = applicationContext;
@@ -78,6 +82,7 @@ public class WebSocketResource {
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
+        this.emoteMetadataRepository = emoteMetadataRepository;
     }
 
     @SubscribeMapping("/queue/output")
@@ -166,7 +171,20 @@ public class WebSocketResource {
 
                 command.execute(output, entity, args, raw);
             } else {
-                output.append("Huh?");
+                List<EmoteMetadata> emoteMetadataList = emoteMetadataRepository.findAll(SORT);
+
+                Optional<EmoteMetadata> optionalEmoteMetadata = emoteMetadataList
+                        .stream()
+                        .filter(emote -> emote.getName().startsWith(cmd.toLowerCase().trim()))
+                        .findFirst();
+
+                if (optionalEmoteMetadata.isPresent()) {
+                    EmoteMetadata metadata = optionalEmoteMetadata.get();
+
+                    output.append("[yellow]Emote " + metadata.getName() + " exists.");
+                } else {
+                    output.append("Huh?");
+                }
             }
         }
 
