@@ -268,4 +268,43 @@ public class EmoteEditCommandTest {
         verify(emote).setToRoom(eq("nods."));
         verify(output).append(anyString());
     }
+
+    @Test
+    public void testDelete() throws Exception {
+        String[] tokens = new String[] { "delete", "nod" };
+        String raw = "delete nod";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(emoteMetadataRepository).findByName(eq("nod"));
+        verify(emoteMetadataRepository).delete(eq(emote));
+        verify(output).append(anyString());
+    }
+
+    @Test
+    public void testDeleteNoName() throws Exception {
+        String[] tokens = new String[] { "delete" };
+        String raw = "delete";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(emoteMetadataRepository, never()).findByName(anyString());
+        verify(emoteMetadataRepository, never()).delete(any(EmoteMetadata.class));
+        verify(output, times(USAGE_LENGTH)).append(anyString());
+    }
+
+    @Test
+    public void testDeleteMissing() throws Exception {
+        String[] tokens = new String[] { "delete", "waffle" };
+        String raw = "delete waffle";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(emoteMetadataRepository).findByName(eq("waffle"));
+        verify(emoteMetadataRepository, never()).delete(any(EmoteMetadata.class));
+        verify(output).append(anyString());
+    }
 }

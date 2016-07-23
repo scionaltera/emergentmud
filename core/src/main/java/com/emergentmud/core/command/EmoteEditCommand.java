@@ -121,6 +121,24 @@ public class EmoteEditCommand implements Command {
                 emoteMetadataRepository.save(metadata);
 
                 output.append("[yellow]Updated emote.");
+            } else if ("delete".equals(tokens[0])) {
+                if (tokens.length != 2) {
+                    usage(output);
+
+                    return output;
+                }
+
+                EmoteMetadata metadata = emoteMetadataRepository.findByName(tokens[1]);
+
+                if (metadata == null) {
+                    output.append("[yellow]No such emote found.");
+
+                    return output;
+                }
+
+                emoteMetadataRepository.delete(metadata);
+
+                output.append("[yellow]Deleted emote.");
             }
 
             return output;
