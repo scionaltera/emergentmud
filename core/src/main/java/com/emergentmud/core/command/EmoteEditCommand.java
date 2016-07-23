@@ -176,6 +176,7 @@ public class EmoteEditCommand implements Command {
         output.append("[yellow]show &lt;emote name&gt; - Show details of an emote.");
         output.append("[yellow]add &lt;emote name&gt; - Add a new emote.");
         output.append("[yellow]set &lt;emote name&gt; &lt;self|target|room&gt; &lt;message&gt; - Set a field on an emote.");
+        output.append("[yellow]priority &lt;emote name&gt; &lt;priority&gt; - Set priority for an emote.");
         output.append("[yellow]delete &lt;emote name&gt; - Delete an emote.");
     }
 }
