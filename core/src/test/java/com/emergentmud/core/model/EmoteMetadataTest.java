@@ -32,6 +32,14 @@ public class EmoteMetadataTest {
     }
 
     @Test
+    public void testConstructor() throws Exception {
+        EmoteMetadata metadata = new EmoteMetadata("wink", 75);
+
+        assertEquals("wink", metadata.getName());
+        assertEquals(75, (int)metadata.getPriority());
+    }
+
+    @Test
     public void testId() throws Exception {
         emoteMetadata.setId("id");
 
