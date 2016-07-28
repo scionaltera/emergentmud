@@ -21,42 +21,46 @@
 package com.emergentmud.core.config;
 
 import com.emergentmud.core.command.MoveCommand;
-import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import javax.inject.Inject;
 
 @Configuration
 public class CommandConfiguration {
     @Inject
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     @Inject
-    WorldManager worldManager;
+    private WorldManager worldManager;
 
     @Inject
-    RoomRepository roomRepository;
+    private EntityRepository entityRepository;
+
+    @Inject
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Bean(name = "northCommand")
     public MoveCommand northCommand() {
-        return new MoveCommand(0, 1, 0, applicationContext, worldManager, roomRepository);
+        return new MoveCommand(0, 1, 0, "north", "south", applicationContext, worldManager, entityRepository, simpMessagingTemplate);
     }
 
     @Bean(name = "eastCommand")
     public MoveCommand eastCommand() {
-        return new MoveCommand(1, 0, 0, applicationContext, worldManager, roomRepository);
+        return new MoveCommand(1, 0, 0, "east", "west", applicationContext, worldManager, entityRepository, simpMessagingTemplate);
     }
 
     @Bean(name = "southCommand")
     public MoveCommand southCommand() {
-        return new MoveCommand(0, -1, 0, applicationContext, worldManager, roomRepository);
+        return new MoveCommand(0, -1, 0, "south", "north", applicationContext, worldManager, entityRepository, simpMessagingTemplate);
     }
 
     @Bean(name = "westCommand")
     public MoveCommand westCommand() {
-        return new MoveCommand(-1, 0, 0, applicationContext, worldManager, roomRepository);
+        return new MoveCommand(-1, 0, 0, "west", "east", applicationContext, worldManager, entityRepository, simpMessagingTemplate);
     }
 }

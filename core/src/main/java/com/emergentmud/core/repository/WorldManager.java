@@ -63,7 +63,7 @@ public class WorldManager {
         return true;
     }
 
-    public void put(Entity entity, long x, long y, long z) {
+    public Room put(Entity entity, long x, long y, long z) {
         Room room = roomRepository.findByXAndYAndZ(x, y, z);
 
         if (room == null) {
@@ -74,6 +74,8 @@ public class WorldManager {
 
         entity.setRoom(room);
         entityRepository.save(entity);
+
+        return room;
     }
 
     public void remove(Entity entity) {
