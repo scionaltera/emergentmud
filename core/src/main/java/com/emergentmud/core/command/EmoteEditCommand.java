@@ -26,7 +26,6 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.util.InputUtil;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.connection.RedisServer;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
