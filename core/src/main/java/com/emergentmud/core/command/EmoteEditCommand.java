@@ -121,6 +121,26 @@ public class EmoteEditCommand implements Command {
                 emoteMetadataRepository.save(metadata);
 
                 output.append("[yellow]Updated emote.");
+            } else if ("priority".equals(tokens[0])) {
+                if (tokens.length != 3) {
+                    usage(output);
+
+                    return output;
+                }
+
+                EmoteMetadata metadata = emoteMetadataRepository.findByName(tokens[1]);
+
+                try {
+                    metadata.setPriority(Integer.valueOf(tokens[2]));
+                } catch (NumberFormatException ex) {
+                    output.append("[yellow]Priority must be an integer.");
+
+                    return output;
+                }
+
+                emoteMetadataRepository.save(metadata);
+
+                output.append("[yellow]Updated priority.");
             } else if ("delete".equals(tokens[0])) {
                 if (tokens.length != 2) {
                     usage(output);
@@ -155,5 +175,7 @@ public class EmoteEditCommand implements Command {
         output.append("[yellow]show &lt;emote name&gt; - Show details of an emote.");
         output.append("[yellow]add &lt;emote name&gt; - Add a new emote.");
         output.append("[yellow]set &lt;emote name&gt; &lt;self|target|room&gt; &lt;message&gt; - Set a field on an emote.");
+        output.append("[yellow]priority &lt;emote name&gt; &lt;priority&gt; - Set priority for an emote.");
+        output.append("[yellow]delete &lt;emote name&gt; - Delete an emote.");
     }
 }

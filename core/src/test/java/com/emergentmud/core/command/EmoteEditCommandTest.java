@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class EmoteEditCommandTest {
-    private static final int USAGE_LENGTH = 5;
+    private static final int USAGE_LENGTH = 7;
 
     @Captor
     private ArgumentCaptor<EmoteMetadata> emoteMetadataArgumentCaptor;
@@ -306,5 +306,42 @@ public class EmoteEditCommandTest {
         verify(emoteMetadataRepository).findByName(eq("waffle"));
         verify(emoteMetadataRepository, never()).delete(any(EmoteMetadata.class));
         verify(output).append(anyString());
+    }
+
+    @Test
+    public void testPriorityWrongArgs() throws Exception {
+        String[] tokens = new String[] { "priority", "nod" };
+        String raw = "priority nod";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(output, times(USAGE_LENGTH)).append(anyString());
+    }
+
+    @Test
+    public void testPriorityNonIntegerPriority() throws Exception {
+        String[] tokens = new String[] { "priority", "nod", "important" };
+        String raw = "priority nod important";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(emoteMetadataRepository).findByName(eq("nod"));
+        verify(emote, never()).setPriority(anyInt());
+        verify(emoteMetadataRepository, never()).save(any(EmoteMetadata.class));
+    }
+
+    @Test
+    public void testPriorityValid() throws Exception {
+        String[] tokens = new String[] { "priority", "nod", "42" };
+        String raw = "priority nod 42";
+
+        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+
+        assertNotNull(result);
+        verify(emoteMetadataRepository).findByName(eq("nod"));
+        verify(emote).setPriority(eq(42));
+        verify(emoteMetadataRepository).save(any(EmoteMetadata.class));
     }
 }
