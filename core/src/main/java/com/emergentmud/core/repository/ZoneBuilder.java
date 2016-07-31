@@ -75,8 +75,8 @@ public class ZoneBuilder {
                 limit++;
             }
 
-            LOGGER.info("Chance: {}", chance);
-            LOGGER.info("Assigning {} neighbors to ({}, {}, {})", limit, room.getX(), room.getY(), room.getZ());
+            LOGGER.trace("Chance: {}", chance);
+            LOGGER.trace("Assigning {} neighbors to ({}, {}, {})", limit, room.getX(), room.getY(), room.getZ());
 
             Collections.shuffle(DIRECTIONS);
 
@@ -93,7 +93,7 @@ public class ZoneBuilder {
                             room.getZ());
 
                     if (neighbor == null) {
-                        LOGGER.info("New neighbor: ({}, {}, {})", room.getX() + xMod, room.getY() + yMod, room.getZ());
+                        LOGGER.trace("New neighbor: ({}, {}, {})", room.getX() + xMod, room.getY() + yMod, room.getZ());
                         in.add(createRoom(rooms,
                                 room.getX() + xMod,
                                 room.getY() + yMod,
@@ -109,7 +109,7 @@ public class ZoneBuilder {
                 if (iterations < MAX_ITERATIONS) {
                     iterations++;
 
-                    LOGGER.info("Pass {} completed, but zone only has {} of {} rooms.", iterations, out.size(), ZONE_SIZE);
+                    LOGGER.debug("Pass {} completed, but zone only has {} of {} rooms.", iterations, out.size(), ZONE_SIZE);
                     in.addAll(out);
                     out.clear();
                     Collections.shuffle(in);
@@ -124,7 +124,7 @@ public class ZoneBuilder {
         zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
         Zone savedZone = zoneRepository.save(zone);
 
-        out.stream().forEach(room -> room.setZone(savedZone));
+        out.forEach(room -> room.setZone(savedZone));
         roomRepository.save(out);
 
         return zone;
