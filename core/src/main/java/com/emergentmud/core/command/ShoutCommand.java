@@ -25,8 +25,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -38,12 +37,12 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
     private RoomRepository roomRepository;
 
     @Inject
-    public ShoutCommand(SimpMessagingTemplate simpMessagingTemplate,
-                        RoomRepository roomRepository,
-                        EntityRepository entityRepository) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    public ShoutCommand(RoomRepository roomRepository,
+                        EntityRepository entityRepository,
+                        EntityUtil entityUtil) {
         this.roomRepository = roomRepository;
         this.entityRepository = entityRepository;
+        this.entityUtil = entityUtil;
     }
 
     @Override
@@ -64,7 +63,7 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
         List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
-        sendMessageToListeners(contents, entity, toZone);
+        entityUtil.sendMessageToListeners(contents, entity, toZone);
 
         return output;
     }

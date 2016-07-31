@@ -23,6 +23,7 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -30,10 +31,9 @@ import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -65,7 +65,7 @@ public class MainResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private WorldManager worldManager;
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private EntityUtil entityUtil;
 
     @Inject
     public MainResource(
@@ -75,14 +75,14 @@ public class MainResource {
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         WorldManager worldManager,
-                        SimpMessagingTemplate simpMessagingTemplate) {
+                        EntityUtil entityUtil) {
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
-        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.entityUtil = entityUtil;
     }
 
     @RequestMapping("/")
@@ -197,17 +197,20 @@ public class MainResource {
         if (entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
-            SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-            headerAccessor.setSessionId(entity.getStompSessionId());
-            headerAccessor.setLeaveMutable(true);
-
             GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
-
-            simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", out, headerAccessor.getMessageHeaders());
+            entityUtil.sendMessageToEntity(entity, out);
         }
 
+        Room room;
+
         if (worldManager.test(0L, 0L, 0L)) {
-            worldManager.put(entity, 0L, 0L, 0L);
+            room = worldManager.put(entity, 0L, 0L, 0L);
+
+            GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()))
+                    .append("")
+                    .append("> ");
+
+            entityUtil.sendMessageToRoom(room, entity, enterMessage);
         } else {
             LOGGER.error("Unable to create world's first zone!");
         }

@@ -20,29 +20,12 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-
-import java.util.List;
+import com.emergentmud.core.util.EntityUtil;
 
 public abstract class BaseCommunicationCommand {
-    protected SimpMessagingTemplate simpMessagingTemplate;
+    protected EntityUtil entityUtil;
     protected EntityRepository entityRepository;
-
-    protected void sendMessageToListeners(List<Entity> targets, Entity source, GameOutput message) {
-        targets.stream()
-                .filter(e -> !source.getId().equals(e.getId()))
-                .forEach(e -> {
-                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                    headerAccessor.setSessionId(e.getStompSessionId());
-                    headerAccessor.setLeaveMutable(true);
-
-                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
-                });
-    }
 
     protected String htmlEscape(String input) {
         return input
