@@ -104,8 +104,9 @@ public class WorldManagerTest {
 
         entity.setRoom(mock(Room.class));
 
-        worldManager.put(entity, 2L, 1L, 3L);
+        Room result = worldManager.put(entity, 2L, 1L, 3L);
 
+        assertNotNull(result);
         verify(entityRepository).save(eq(entity));
         verify(entity).setRoom(eq(room));
     }

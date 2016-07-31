@@ -20,24 +20,41 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class SayCommandTest extends BaseCommunicationCommandTest {
+    @Mock
+    protected GameOutput output;
+
+    @Mock
+    protected Room room;
+
+    @Mock
+    protected Entity entity;
+
+    @Captor
+    private ArgumentCaptor<GameOutput> outputCaptor;
+
+    @Mock
+    private EntityUtil entityUtil;
+
     private SayCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        worldContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
@@ -45,9 +62,8 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(worldContents);
 
-        command = new SayCommand(simpMessagingTemplate, entityRepository);
+        command = new SayCommand(entityUtil);
     }
 
     @Test
@@ -57,18 +73,11 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[cyan]You say 'Feed me a stray cat.[cyan]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[cyan]Testy says 'Feed me a stray cat.[cyan]'"));
     }
 
     @Test
@@ -78,18 +87,11 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[cyan]You say '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[cyan]Testy says '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
     }
 
     @Test

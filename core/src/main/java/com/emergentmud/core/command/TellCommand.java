@@ -23,20 +23,19 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
 @Component
 public class TellCommand extends BaseCommunicationCommand implements Command {
     @Inject
-    public TellCommand(SimpMessagingTemplate simpMessagingTemplate,
-                       EntityRepository entityRepository) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    public TellCommand(EntityRepository entityRepository,
+                       EntityUtil entityUtil) {
         this.entityRepository = entityRepository;
+        this.entityUtil = entityUtil;
     }
 
     @Override
@@ -69,7 +68,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
                 .append("")
                 .append("> ");
 
-        sendMessageToListeners(Collections.singletonList(target), entity, toTarget);
+        entityUtil.sendMessageToEntity(entity, toTarget);
 
         return output;
     }

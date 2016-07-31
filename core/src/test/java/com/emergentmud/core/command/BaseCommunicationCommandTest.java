@@ -37,27 +37,7 @@ import static org.mockito.Mockito.*;
 
 public abstract class BaseCommunicationCommandTest {
     @Mock
-    protected SimpMessagingTemplate simpMessagingTemplate;
-
-    @Mock
-    protected EntityRepository entityRepository;
-
-    @Mock
-    protected GameOutput output;
-
-    @Mock
-    protected Room room;
-
-    @Mock
-    protected Entity entity;
-
-    @Mock
     protected Entity stu;
-
-    @Captor
-    protected ArgumentCaptor<MessageHeaders> headerCaptor;
-
-    protected List<Entity> worldContents;
 
     protected List<Entity> generateRoomContents() {
         List<Entity> contents = new ArrayList<>();

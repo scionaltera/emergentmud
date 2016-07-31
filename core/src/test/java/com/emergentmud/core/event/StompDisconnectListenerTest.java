@@ -22,8 +22,10 @@ package com.emergentmud.core.event;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.*;
 public class StompDisconnectListenerTest {
     private EntityRepository entityRepository;
     private WorldManager worldManager;
+    private EntityUtil entityUtil;
     private OAuth2Authentication principal;
     private SessionDisconnectEvent event;
     private Entity entity;
@@ -48,6 +51,7 @@ public class StompDisconnectListenerTest {
     public void setUp() throws Exception {
         entityRepository = mock(EntityRepository.class);
         worldManager = mock(WorldManager.class);
+        entityUtil = mock(EntityUtil.class);
         principal = mock(OAuth2Authentication.class);
         event = mock(SessionDisconnectEvent.class);
         entity = mock(Entity.class);
@@ -67,7 +71,8 @@ public class StompDisconnectListenerTest {
 
         stompDisconnectListener = new StompDisconnectListener(
                 entityRepository,
-                worldManager
+                worldManager,
+                entityUtil
         );
     }
 
@@ -79,6 +84,21 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         );
+        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(worldManager).remove(eq(entity));
+    }
+
+    @Test
+    public void applicationEventNoRoom() throws Exception {
+        when(entity.getRoom()).thenReturn(null);
+
+        stompDisconnectListener.onApplicationEvent(event);
+
+        verify(entityRepository).findByStompSessionIdAndStompUsername(
+                eq(simpSessionId),
+                eq(socialUserName)
+        );
+        verify(entityUtil, never()).sendMessageToRoom(any(Room.class), any(Entity.class), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 

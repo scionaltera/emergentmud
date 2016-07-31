@@ -20,18 +20,40 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class TellCommandTest extends BaseCommunicationCommandTest {
+    @Mock
+    private EntityRepository entityRepository;
+
+    @Mock
+    private GameOutput output;
+
+    @Mock
+    private Room room;
+
+    @Mock
+    private Entity entity;
+
+    @Mock
+    private EntityUtil entityUtil;
+
+    @Captor
+    private ArgumentCaptor<GameOutput> outputCaptor;
+
     private TellCommand command;
 
     @Before
@@ -49,7 +71,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("testy"))).thenReturn(entity);
 
-        command = new TellCommand(simpMessagingTemplate, entityRepository);
+        command = new TellCommand(entityRepository, entityUtil);
     }
 
     @Test
@@ -59,12 +81,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));
-        verify(simpMessagingTemplate, never()).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                anyMapOf(String.class, Object.class)
-        );
+        verifyZeroInteractions(entityUtil);
     }
 
     @Test
@@ -74,12 +91,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));
-        verify(simpMessagingTemplate, never()).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                anyMapOf(String.class, Object.class)
-        );
+        verifyZeroInteractions(entityUtil);
     }
 
 
@@ -90,12 +102,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "frodo Feed me a stray cat.");
 
         verify(response).append(eq("You don't know of anyone by that name."));
-        verify(simpMessagingTemplate, never()).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                anyMapOf(String.class, Object.class)
-        );
+        verifyZeroInteractions(entityUtil);
     }
 
     @Test
@@ -105,12 +112,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "testy Feed me a stray cat.");
 
         verify(response).append(eq("You murmur quietly to yourself."));
-        verify(simpMessagingTemplate, never()).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                anyMapOf(String.class, Object.class)
-        );
+        verifyZeroInteractions(entityUtil);
     }
 
     @Test
@@ -120,18 +122,11 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Ahoy!");
 
         verify(response).append(eq("[red]You tell Stu 'Ahoy![red]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[red]Testy tells you 'Ahoy![red]'"));
     }
 
     @Test
@@ -141,18 +136,11 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Feed me a stray cat.");
 
         verify(response).append(eq("[red]You tell Stu 'Feed me a stray cat.[red]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[red]Testy tells you 'Feed me a stray cat.[red]'"));
     }
 
     @Test
@@ -162,18 +150,11 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu <script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[red]You tell Stu '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[red]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[red]Testy tells you '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[red]'"));
     }
 
     @Test

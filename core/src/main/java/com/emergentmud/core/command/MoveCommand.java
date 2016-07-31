@@ -23,13 +23,11 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 public class MoveCommand implements Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoveCommand.class);
@@ -37,8 +35,7 @@ public class MoveCommand implements Command {
     private long[] differential;
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
-    private EntityRepository entityRepository;
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private EntityUtil entityUtil;
     private String direction;
     private String opposite;
 
@@ -46,16 +43,14 @@ public class MoveCommand implements Command {
             long x, long y, long z, String direction, String opposite,
             ApplicationContext applicationContext,
             WorldManager worldManager,
-            EntityRepository entityRepository,
-            SimpMessagingTemplate simpMessagingTemplate) {
+            EntityUtil entityUtil) {
 
         differential = new long[] {x, y, z};
         this.direction = direction;
         this.opposite = opposite;
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
-        this.entityRepository = entityRepository;
-        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.entityUtil = entityUtil;
     }
 
     @Override
@@ -86,7 +81,7 @@ public class MoveCommand implements Command {
                     .append("")
                     .append("> ");
 
-            sendMessageToRoom(room, entity, exitMessage);
+            entityUtil.sendMessageToRoom(room, entity, exitMessage);
 
             worldManager.remove(entity);
 
@@ -97,25 +92,12 @@ public class MoveCommand implements Command {
                     .append("")
                     .append("> ");
 
-            sendMessageToRoom(room, entity, enterMessage);
+            entityUtil.sendMessageToRoom(room, entity, enterMessage);
 
             Command command = (Command)applicationContext.getBean("lookCommand");
             command.execute(output, entity, new String[0], "");
         }
 
         return output;
-    }
-
-    private void sendMessageToRoom(Room room, Entity entity, GameOutput message) {
-        entityRepository.findByRoom(room)
-                .stream()
-                .filter(e -> !e.equals(entity))
-                .forEach(e -> {
-                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
-                    headerAccessor.setSessionId(e.getStompSessionId());
-                    headerAccessor.setLeaveMutable(true);
-
-                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
-                });
     }
 }

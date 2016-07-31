@@ -21,8 +21,10 @@
 package com.emergentmud.core.event;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -33,12 +35,15 @@ import javax.inject.Inject;
 public class StompDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
     private EntityRepository entityRepository;
     private WorldManager worldManager;
+    private EntityUtil entityUtil;
 
     @Inject
     public StompDisconnectListener(EntityRepository entityRepository,
-                                   WorldManager worldManager) {
+                                   WorldManager worldManager,
+                                   EntityUtil entityUtil) {
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
+        this.entityUtil = entityUtil;
     }
 
     @Override
@@ -46,6 +51,14 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
         Entity entity = entityRepository.findByStompSessionIdAndStompUsername(event.getSessionId(), event.getUser().getName());
 
         if (entity != null) {
+            if (entity.getRoom() != null) {
+                GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()))
+                        .append("")
+                        .append("> ");
+
+                entityUtil.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
+            }
+
             worldManager.remove(entity);
         }
     }
