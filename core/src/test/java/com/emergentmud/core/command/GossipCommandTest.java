@@ -20,35 +20,51 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class GossipCommandTest extends BaseCommunicationCommandTest {
+    @Mock
+    private EntityRepository entityRepository;
+
+    @Mock
+    private GameOutput output;
+
+    @Mock
+    private Entity entity;
+
+    @Mock
+    private EntityUtil entityUtil;
+
+    @Captor
+    private ArgumentCaptor<GameOutput> outputCaptor;
+
     private GossipCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        worldContents = generateRoomContents();
+        List<Entity> worldContents = generateRoomContents();
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
         when(entityRepository.findByRoomIsNotNull()).thenReturn(worldContents);
 
-        command = new GossipCommand(simpMessagingTemplate, entityRepository);
+        command = new GossipCommand(entityRepository, entityUtil);
     }
 
     @Test
@@ -58,18 +74,11 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[green]You gossip 'Feed me a stray cat.[green]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[green]Testy gossips 'Feed me a stray cat.[green]'"));
     }
 
     @Test
@@ -79,18 +88,11 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[green]You gossip '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[green]'"));
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stuSimpUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture()
-        );
+        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stuSimpSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).equals("[green]Testy gossips '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[green]'"));
     }
 
     @Test

@@ -23,30 +23,20 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.support.MessageHeaderAccessor;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class MoveCommandTest {
-    @Captor
-    private ArgumentCaptor<MessageHeaders> messageHeadersArgumentCaptor;
-
     @Mock
     private ApplicationContext applicationContext;
 
@@ -54,10 +44,7 @@ public class MoveCommandTest {
     private WorldManager worldManager;
 
     @Mock
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    @Mock
-    private EntityRepository entityRepository;
+    private EntityUtil entityUtil;
 
     @Mock
     private GameOutput output;
@@ -70,6 +57,9 @@ public class MoveCommandTest {
 
     @Mock
     private Room room;
+
+    @Mock
+    private Room room2;
 
     @Mock
     private LookCommand lookCommand;
@@ -87,20 +77,23 @@ public class MoveCommandTest {
         when(entity.getRoom()).thenCallRealMethod();
         when(observer.getStompSessionId()).thenReturn("observerId");
         doCallRealMethod().when(entity).setRoom(any(Room.class));
-        when(room.getX()).thenCallRealMethod();
-        when(room.getY()).thenCallRealMethod();
-        when(room.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(room).setX(anyLong());
-        doCallRealMethod().when(room).setY(anyLong());
-        doCallRealMethod().when(room).setZ(anyLong());
 
-        when(entityRepository.findByRoom(any(Room.class))).thenReturn(Collections.singletonList(observer));
+        Stream.of(room, room2)
+                .forEach(r -> {
+                    when(r.getX()).thenCallRealMethod();
+                    when(r.getY()).thenCallRealMethod();
+                    when(r.getZ()).thenCallRealMethod();
+                    doCallRealMethod().when(r).setX(anyLong());
+                    doCallRealMethod().when(r).setY(anyLong());
+                    doCallRealMethod().when(r).setZ(anyLong());
+                });
 
         when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(true);
+        when(worldManager.put(any(Entity.class), eq(1L), eq(1L), eq(1L))).thenReturn(room2);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        moveCommand = new MoveCommand(1, 1, 1, "move", "unmove", applicationContext, worldManager, entityRepository, simpMessagingTemplate);
+        moveCommand = new MoveCommand(1, 1, 1, "move", "unmove", applicationContext, worldManager, entityUtil);
     }
 
     @Test
@@ -117,22 +110,8 @@ public class MoveCommandTest {
         verify(worldManager).put(eq(entity), eq(1L), eq(1L), eq(1L));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq(new String[0]), eq(""));
-        verify(entityRepository, times(2)).findByRoom(any(Room.class));
-        verify(simpMessagingTemplate, times(2)).convertAndSendToUser(
-                anyString(),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                messageHeadersArgumentCaptor.capture()
-        );
-
-        List<MessageHeaders> messageHeaders = messageHeadersArgumentCaptor.getAllValues();
-
-        for (int i = 0; i < 2; i++) {
-            SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(messageHeaders.get(i), SimpMessageHeaderAccessor.class);
-
-            assertEquals("observerId", accessor.getSessionId());
-            assertTrue(accessor.isMutable());
-        }
+        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityUtil).sendMessageToRoom(eq(room2), eq(entity), any(GameOutput.class));
     }
 
     @Test

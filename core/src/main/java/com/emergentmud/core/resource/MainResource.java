@@ -201,11 +201,8 @@ public class MainResource {
             entityUtil.sendMessageToEntity(entity, out);
         }
 
-        Room room;
-
         if (worldManager.test(0L, 0L, 0L)) {
-            room = worldManager.put(entity, 0L, 0L, 0L);
-
+            Room room = worldManager.put(entity, 0L, 0L, 0L);
             GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()))
                     .append("")
                     .append("> ");

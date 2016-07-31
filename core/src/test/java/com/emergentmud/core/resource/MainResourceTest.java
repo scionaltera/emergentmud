@@ -24,21 +24,20 @@ import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -77,7 +76,7 @@ public class MainResourceTest {
     private WorldManager worldManager;
 
     @Mock
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private EntityUtil entityUtil;
 
     @Mock
     private HttpSession httpSession;
@@ -90,6 +89,9 @@ public class MainResourceTest {
 
     @Captor
     private ArgumentCaptor<Map<String, String>> mapCaptor;
+
+    @Captor
+    private ArgumentCaptor<GameOutput> outputCaptor;
 
     private Account account;
     private Essence essence;
@@ -135,7 +137,7 @@ public class MainResourceTest {
                 essenceRepository,
                 entityRepository,
                 worldManager,
-                simpMessagingTemplate
+                entityUtil
         );
     }
 
@@ -231,13 +233,17 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
-        verifyZeroInteractions(simpMessagingTemplate);
+        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
         verify(model).addAttribute(eq("essence"), eq(essence));
         assertEquals("play", view);
+
+        GameOutput output = outputCaptor.getValue();
+
+        assertTrue(output.getOutput().get(0).startsWith("[yellow]"));
 
         Map<String, String> sessionMap = mapCaptor.getValue();
 
@@ -287,7 +293,7 @@ public class MainResourceTest {
 
         String view = mainResource.play("essence1", httpSession, principal, model);
 
-        verifyZeroInteractions(simpMessagingTemplate);
+        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(entityRepository).save(any(Entity.class));
         verify(essence1).setEntity(any(Entity.class));
         verify(essenceRepository).save(eq(essence1));
@@ -298,6 +304,10 @@ public class MainResourceTest {
         verify(model).addAttribute(eq("essence"), eq(essence1));
         assertEquals("play", view);
 
+        GameOutput output = outputCaptor.getValue();
+
+        assertTrue(output.getOutput().get(0).startsWith("[yellow]"));
+
         Map<String, String> sessionMap = mapCaptor.getValue();
 
         assertEquals(account.getId(), sessionMap.get("account"));
@@ -307,7 +317,6 @@ public class MainResourceTest {
 
     @Test
     public void testPlayReconnect() throws Exception {
-        ArgumentCaptor<MessageHeaders> headerCaptor = ArgumentCaptor.forClass(MessageHeaders.class);
         Essence essence0 = essences.get(0);
         Entity entity0 = essence0.getEntity();
 
@@ -316,11 +325,7 @@ public class MainResourceTest {
 
         String view = mainResource.play("essence0", httpSession, principal, model);
 
-        verify(simpMessagingTemplate).convertAndSendToUser(
-                eq("stompUsername"),
-                eq("/queue/output"),
-                any(GameOutput.class),
-                headerCaptor.capture());
+        verify(entityUtil).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
@@ -328,11 +333,9 @@ public class MainResourceTest {
         verify(model).addAttribute(eq("essence"), eq(essence));
         assertEquals("play", view);
 
-        MessageHeaders headers = headerCaptor.getValue();
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.getAccessor(headers, SimpMessageHeaderAccessor.class);
+        GameOutput output = outputCaptor.getValue();
 
-        assertEquals("stompSessionId", accessor.getSessionId());
-        assertTrue(accessor.isMutable());
+        assertTrue(output.getOutput().get(0).startsWith("[red]"));
     }
 
     @Test

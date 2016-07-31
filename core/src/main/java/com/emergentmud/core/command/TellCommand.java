@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
 @Component
 public class TellCommand extends BaseCommunicationCommand implements Command {
@@ -69,7 +68,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
                 .append("")
                 .append("> ");
 
-        entityUtil.sendMessageToListeners(Collections.singletonList(target), entity, toTarget);
+        entityUtil.sendMessageToEntity(entity, toTarget);
 
         return output;
     }
