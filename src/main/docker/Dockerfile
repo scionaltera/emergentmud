@@ -1,5 +1,3 @@
-#! /bin/bash
-
 #    EmergentMUD - A modern MUD with a procedurally generated world.
 #    Copyright (C) 2016 BoneVM, LLC
 #
@@ -18,17 +16,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cd core
-./gradlew clean buildDocker -x test
-cd ..
-
-if [ $? -eq 0 ]
-then
-    docker-compose stop core
-    docker-compose rm -f core
-
-    docker-compose up -d
-    docker-compose logs -f
-else
-    echo There were build errors.
-fi
+FROM ingensi/oracle-jdk
+MAINTAINER Peter Keeler <scion@emergentmud.com>
+EXPOSE 8080
+COPY emergentmud-*.jar /opt/mud/app.jar
+CMD ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]

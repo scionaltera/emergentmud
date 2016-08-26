@@ -26,12 +26,12 @@ services:
     image: mongo
     ports:
      - "27017"
-  core:
-    image: com.emergentmud/core:latest
+  emergentmud:
+    image: com.emergentmud/emergentmud:latest
     ports:
      - "8080:8080"
      - "5005:5005"
     links:
      - redis
      - mongo
-    env_file: core-secrets.env
+    env_file: secrets.env

@@ -19,6 +19,8 @@
 FROM ingensi/oracle-jdk
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
-VOLUME /opt/mud
-COPY core-*.jar /opt/mud/app.jar
+COPY . /opt/mud/
+RUN cd /opt/mud \
+&& ./gradlew clean build \
+&& cp -v build/libs/emergentmud*.jar ./app.jar
 CMD ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
