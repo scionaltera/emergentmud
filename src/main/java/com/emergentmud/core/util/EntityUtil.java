@@ -64,6 +64,17 @@ public class EntityUtil {
                 });
     }
 
+
+    public void sendMessageToListeners(List<Entity> targets, GameOutput message) {
+        targets.forEach(e -> {
+                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
+                    headerAccessor.setSessionId(e.getStompSessionId());
+                    headerAccessor.setLeaveMutable(true);
+
+                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
+                });
+    }
+
     public void sendMessageToListeners(List<Entity> targets, Entity source, GameOutput message) {
         targets.stream()
                 .filter(e -> !source.getId().equals(e.getId()))
