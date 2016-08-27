@@ -34,4 +34,5 @@ public interface EntityRepository extends MongoRepository<Entity, String> {
     List<Entity> findByRoom(Room room);
     List<Entity> findByRoomIn(List<Room> rooms);
     List<Entity> findByRoomIsNotNull();
+    List<Entity> findByAdminAndRoomIsNotNull(boolean admin);
 }
