@@ -79,6 +79,10 @@ public class WorldManager {
     }
 
     public void remove(Entity entity) {
+        if (entity.getRoom() == null) {
+            return;
+        }
+
         LOGGER.trace("Remove {} from room ({}, {}, {})",
                 entity.getName(),
                 entity.getRoom().getX(),
