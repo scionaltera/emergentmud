@@ -167,6 +167,16 @@ public class WorldManagerTest {
     }
 
     @Test
+    public void testRemoveNoRoom() throws Exception {
+        Entity entity = mock(Entity.class);
+
+        worldManager.remove(entity);
+
+        verify(entity).getRoom();
+        verifyZeroInteractions(entityRepository);
+    }
+
+    @Test
     public void testRemoveNonExistent() throws Exception {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
