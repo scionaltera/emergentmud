@@ -39,8 +39,6 @@ google:
     userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
     authenticationScheme: query
     scope: profile
-    pre-established-redirect-uri: http://www.emergentmud.com:8080/login/google
-    registered-redirect-uri: http://www.emergentmud.com:8080/login/google
     use-current-uri: false
   resource:
     userInfoUri: https://www.googleapis.com/plus/v1/people/me
