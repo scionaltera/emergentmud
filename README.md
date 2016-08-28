@@ -60,25 +60,25 @@ Open a new file called `secrets.env` in your directory. The file should look som
 Open a new file called `docker-compose.yaml` in your directory. The file should look something like this:
 
 ```
-version: "2"
-services:
-  redis:
-    image: redis
-    ports:
-     - "6379:6379"
-  mongo:
-    image: mongo
-    ports:
-     - "27017"
-  emergentmud:
-    image: scionaltera/emergentmud:latest
-    ports:
-     - "8080:8080"
-     - "5005:5005"
-    links:
-     - redis
-     - mongo
-    env_file: secrets.env
+version: "2"  
+services:  
+  redis:  
+    image: redis  
+    ports:  
+     - "6379:6379"  
+  mongo:  
+    image: mongo  
+    ports:  
+     - "27017"  
+  emergentmud:  
+    image: scionaltera/emergentmud:latest  
+    ports:  
+     - "8080:8080"  
+     - "5005:5005"  
+    links:  
+     - redis  
+     - mongo  
+    env_file: secrets.env  
  ```
 The configuration for docker-compose tells it which services to start up, which ports they use, and how they link together. The final step to get everything started is to run `docker-compose up`. You should see it download and extract all the Docker images, then the logs as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
 
