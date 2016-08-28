@@ -60,7 +60,7 @@ Open a new file called `secrets.env` in your directory. The file should look som
 Open a new file called `docker-compose.yaml` in your directory. The file should look something like this:
 
 ```
-#!java
+#!yaml
 
 version: "2"
 services:
