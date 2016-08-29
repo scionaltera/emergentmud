@@ -123,9 +123,7 @@ If you would like to contribute to the project, please feel free to submit a pul
 ## Contact
 So far the dev team consists of just me. I am not looking for partners or MUD staff at this time but I welcome discussion about the future direction of EmergentMUD and I welcome pull requests and forks. I'd love to know if you have used any of my code for your own project. The best motivation for me to continue work on the project is to know that other people are interested and making use of it.
 
-The best ways to contact me about this project are to message me on [Telegram](http://telegram.me/scionaltera) or to hop onto the [MUD](https://www.emergentmud.com) and see if I'm hanging around there. You can also email me if you prefer.
-
-<script type='text/javascript'>var a = new Array('ud.','eme','on@','sci','rge','ntm','com');document.write("<a href='mailto:"+a[3]+a[2]+a[1]+a[4]+a[5]+a[0]+a[6]+"'>"+a[3]+a[2]+a[1]+a[4]+a[5]+a[0]+a[6]+"</a>");</script>
+The best ways to contact me about this project are to message me on [Telegram](http://telegram.me/scionaltera) or just hop onto the [MUD](https://www.emergentmud.com) and see if I'm hanging around there. If you'd prefer to email you can make an educated guess (it's something pretty obvious at emergentmud dot com) or send me a message through Bitbucket and we can go from there.
 
 ## License
 EmergentMUD is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE](http://www.gnu.org/licenses/agpl.txt). This license ensures that EmergentMUD and all derivative works will always be free open source for everyone to enjoy, distribute and modify. The Affero license stipulates that you must be able to provide a copy of your source code to **anyone who plays your game**.
