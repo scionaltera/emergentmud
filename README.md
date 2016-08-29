@@ -109,9 +109,11 @@ To start up the site after you set up the env file, you just need to run `./grad
 ### Running the Project
 The first time you run `docker-compose up` will take some time because it needs to download the Redis and MongoDB containers. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at http://localhost:8080 (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
 
-### Production Deployments
+### Considerations for Production Deployments
 #### Secrets
-I recommend registering both a production and a test app in Facebook and Google. Facebook has built in functionality for doing this, while for Google you just need to generate two sets of credentials for the application. Put one `secrets.env` on your production box and the other in your dev environment, and you're all set.
+I recommend registering both a production and a test app in Facebook and Google. Things like allowed redirect URIs and analytics can get difficult if you don't keep dev separate from production.
+
+Facebook has built in functionality for creating a "test" version of your application in their console, while for Google you just need to generate two sets of credentials for your application. Put one `secrets.env` on your production box and the other in your dev environment, and you're all set.
 
 #### Data Stores
 The Docker containers for the Redis and MongoDB data stores are sufficient for development but are **not configured for security or performance** at all. They are just the default containers off the web. On my machine they both [complain about Transparent Huge Pages being enabled](https://www.digitalocean.com/company/blog/transparent-huge-pages-and-alternative-memory-allocators/) and will most likely gobble up large amounts of memory and eventually crash if you just leave them running long term.
@@ -119,6 +121,13 @@ The Docker containers for the Redis and MongoDB data stores are sufficient for d
 If you plan to run EmergentMUD for real, it would be a good idea to carefully configure your Redis and MongoDB instances according to the best practices spelled out in their documentation. You should also consider running them as clusters so they are highly available. How to do all of this is well out of scope for this document, but there are lots of resources on the internet that will tell you how to do it if you are curious.
 
 My plan for a production deployment of EmergentMUD is to build customized Docker containers for the data stores, based on the ones in use today but with an extra layer that applies the configuration changes that I need for deployment. That way I can still run my production cluster of services using `docker-compose` and I could even run my properly tuned data stores during development. Today, however, I'm just running the off-the-shelf images until they become a problem.
+
+#### Reverse Proxy
+It is important to understand that OAuth2 is **not secure without HTTPS**. That means that for any production deployment you *must* purchase an **SSL certificate** and configure a SSL enabled reverse proxy in front of your copy of EmergentMUD.
+
+![Service Architecture](https://bitbucket.org/repo/LBXMzk/images/96926331-em-docker-compose.png)
+
+What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe.
 
 ## Contributing
 If you would like to contribute to the project, please feel free to submit a pull request. For the best chance of success getting your pull request merged, please do the following few things:
