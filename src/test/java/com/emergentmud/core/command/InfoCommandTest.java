@@ -21,11 +21,15 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -37,8 +41,14 @@ public class InfoCommandTest {
     @Mock
     private Entity entity;
 
-    private String[] tokens = new String[0];
-    private String raw = "";
+    @Mock
+    private Entity target;
+
+    @Mock
+    private Room room;
+
+    @Mock
+    private EntityRepository entityRepository;
 
     private InfoCommand infoCommand;
 
@@ -46,18 +56,60 @@ public class InfoCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        infoCommand = new InfoCommand();
+        when(entity.getRoom()).thenReturn(room);
+        when(entity.getName()).thenReturn("Scion");
+        when(target.getName()).thenReturn("Bnarg");
+
+        infoCommand = new InfoCommand(entityRepository);
+    }
+
+    @Test
+    public void testTooManyArgs() throws Exception {
+        GameOutput result = infoCommand.execute(output, entity, new String[] { "unexpected", "args" }, "unexpected args");
+
+        assertNotNull(result);
+        verifyZeroInteractions(entity);
     }
 
     @Test
     public void testExecute() throws Exception {
-        GameOutput result = infoCommand.execute(output, entity, tokens, raw);
+        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
+
+        GameOutput result = infoCommand.execute(output, entity, new String[] {}, "");
 
         assertNotNull(result);
         verify(entity).getId();
         verify(entity).getName();
         verify(entity).getStompUsername();
         verify(entity).getStompSessionId();
+        verify(output, atLeastOnce()).append(anyString());
+    }
+
+    @Test
+    public void testExecuteTarget() throws Exception {
+        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
+
+        GameOutput result = infoCommand.execute(output, entity, new String[] { "bnarg" }, "bnarg");
+
+        assertNotNull(result);
+        verify(target).getId();
+        verify(target, times(2)).getName();
+        verify(target).getStompUsername();
+        verify(target).getStompSessionId();
+        verify(output, atLeastOnce()).append(anyString());
+    }
+
+    @Test
+    public void testExecuteInvalidTarget() throws Exception {
+        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
+
+        GameOutput result = infoCommand.execute(output, entity, new String[] { "morgan" }, "morgan");
+
+        assertNotNull(result);
+        verify(target).getName();
+        verify(entity).getName();
+        verify(entity).getRoom();
+        verifyNoMoreInteractions(target, entity);
         verify(output, atLeastOnce()).append(anyString());
     }
 }
