@@ -44,11 +44,16 @@ A few of the things on the [roadmap to v1.0](https://bitbucket.org/scionaltera/e
 
 ## Running Locally
 ### Required Tools
-If you want to run a copy of EmergentMUD locally, you just need to have Docker and Docker Compose installed. Make an empty directory somewhere on your computer. You'll need to create two files in that directory: `secrets.env` and `docker-compose.yaml`.
+If you want to run a copy of EmergentMUD locally from the Docker image, need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
 
-Open a new file called `secrets.env` in your directory. The file should look something like [this example](https://bitbucket.org/scionaltera/emergentmud/src/0277160aa1593b07b03c2cad87b305ef509cf39e/secrets.env.sample?fileviewer=file-view-default) except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such.
+These instructions assume that you are somewhat familiar with using the command line or terminal for typing commands in on your machine, that you have a working network connection, a programmer's text editor such as `vim` or `Sublime Text`, a web browser, and that you are comfortable with installing software.
 
-Open a new file called `docker-compose.yaml` in your directory. The file should look something like this:
+### Required Configuration
+Make an empty directory somewhere on your computer, where you want the MUD's config files to live. You'll need to create two new text files in that directory: `secrets.env` and `docker-compose.yaml`.
+
+The first file is called `secrets.env`. The file should look like [secrets.env.sample](https://bitbucket.org/scionaltera/emergentmud/src) in the git repository except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such.
+
+The second file is called `docker-compose.yaml`. The file should look something like this:
 
 ```yaml
 version: "2"
@@ -72,8 +77,10 @@ services:
     env_file: secrets.env
 ```
 
+### Starting the Server
+The `docker-compose.yaml` file tells Docker Compose which services to start up, which ports they use, and how they link together. `secrets.env` contains environment variables that allow your particular copy of EmergentMUD to integrate with Facebook and Google and let people log in to the server using their social media accounts.
 
-The configuration for docker-compose tells it which services to start up, which ports they use, and how they link together. The final step to get everything started is to run `docker-compose up`. You should see it download and extract all the Docker images, then the logs as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
+The command to get everything started is to run `docker-compose up`. You should see it download and extract all the Docker images, then the logs as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
 
 ## Local Development
 ### Terminology
@@ -103,6 +110,10 @@ To start up the site after you set up the env file, you just need to run `./grad
 The first time you run `docker-compose up` will take some time because it needs to download the Redis and MongoDB containers. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at http://localhost:8080 (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
 
 ### Production Deployments
+#### Secrets
+I recommend registering both a production and a test app in Facebook and Google. Facebook has built in functionality for doing this, while for Google you just need to generate two sets of credentials for the application. Put one `secrets.env` on your production box and the other in your dev environment, and you're all set.
+
+#### Data Stores
 The Docker containers for the Redis and MongoDB data stores are sufficient for development but are **not configured for security or performance** at all. They are just the default containers off the web. On my machine they both [complain about Transparent Huge Pages being enabled](https://www.digitalocean.com/company/blog/transparent-huge-pages-and-alternative-memory-allocators/) and will most likely gobble up large amounts of memory and eventually crash if you just leave them running long term.
 
 If you plan to run EmergentMUD for real, it would be a good idea to carefully configure your Redis and MongoDB instances according to the best practices spelled out in their documentation. You should also consider running them as clusters so they are highly available. How to do all of this is well out of scope for this document, but there are lots of resources on the internet that will tell you how to do it if you are curious.
