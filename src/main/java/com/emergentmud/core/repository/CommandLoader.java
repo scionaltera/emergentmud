@@ -57,6 +57,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, false));
             metadataList.add(new CommandMetadata("gossip", "gossipCommand", 210, false));
             metadataList.add(new CommandMetadata("tell", "tellCommand", 215, false));
+            metadataList.add(new CommandMetadata("who", "whoCommand", 220, false));
             metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
             metadataList.add(new CommandMetadata("map", "mapCommand", 400, false));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
