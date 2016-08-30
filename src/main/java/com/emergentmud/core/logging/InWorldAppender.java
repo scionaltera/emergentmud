@@ -46,7 +46,7 @@ public class InWorldAppender<T> extends AppenderBase<T> {
             return;
         }
 
-        GameOutput logMessage = new GameOutput(String.format("[magenta]%s'", eventObject))
+        GameOutput logMessage = new GameOutput(String.format("[dmagenta]%s'", eventObject))
                 .append("")
                 .append("> ");
 
