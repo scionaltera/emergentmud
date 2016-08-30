@@ -1,5 +1,5 @@
 [![AGPL License](https://img.shields.io/badge/license-AGPL-green.svg "AGPL License")](http://www.gnu.org/licenses/agpl.txt)
-![Project Version](https://img.shields.io/badge/version-0.1.0-green.svg "Project Version")
+[![Website](https://img.shields.io/website-up-down-green-red/https/emergentmud.com.svg?maxAge=2592000)](https://emergentmud.com)
 [![Codeship Status for scionaltera/emergentmud](https://img.shields.io/codeship/14384cd0-e8c6-0133-1109-0a601490f276/master.svg?maxAge=2592000)](https://codeship.com/projects/147332)
 [![Dev Blog](https://img.shields.io/badge/devblog-active-green.svg "Dev Blog")](http://blog.emergentmud.com)
 [![Project Tracker](https://img.shields.io/badge/tracker-taiga-green.svg "Dev Blog")](https://tree.taiga.io/project/scionaltera-emergentmud/)  
