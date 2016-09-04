@@ -25,7 +25,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import redis.clients.jedis.JedisShardInfo;
 
-@EnableRedisHttpSession
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 43200)
 public class SessionConfiguration {
     @Value("${redis.hostname}")
     private String redisHost;
