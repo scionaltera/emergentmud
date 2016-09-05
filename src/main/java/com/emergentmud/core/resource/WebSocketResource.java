@@ -109,6 +109,7 @@ public class WebSocketResource {
         output.append("[dwhite]EmergentMUD is licensed under the <a class=\"green\" target=\"_blank\" " +
                 "href=\"http://www.gnu.org/licenses/agpl-3.0.en.html\">GNU Affero General Public License</a>.");
         output.append("[dwhite]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
+        output.append("[red]EmergentMUD is in early stages of development. Reboots and database wipes may occur without warning!");
         output.append("[dwhite]EmergentMUD is <a class=\"green\" target=\"_blank\" " +
                 "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
                 "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
