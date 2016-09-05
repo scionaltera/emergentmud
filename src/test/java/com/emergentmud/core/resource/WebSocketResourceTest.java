@@ -157,7 +157,7 @@ public class WebSocketResourceTest {
 
         verify(entity).setStompUsername(eq(PRINCIPAL_USER));
         verify(entity).setStompSessionId(eq("simpSessionId"));
-        assertEquals(18, output.getOutput().size());
+        assertEquals(17, output.getOutput().size());
     }
 
     @Test

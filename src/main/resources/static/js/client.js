@@ -71,6 +71,7 @@ function connect() {
     stompClient.connect({},
     function(frame) {
         console.log('Connected: ' + frame);
+        showOutput(["[green]Connected to server."]);
 
         stompClient.subscribe('/user/queue/output', function(message) {
             var msg = JSON.parse(message.body);
