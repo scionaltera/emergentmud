@@ -51,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 description">
+        <div class="col-md-10 col-md-offset-1 description">
             <p>EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It will be a modern game with an old school feel. Just like most other MUDs back in the 90s, you will play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.</p>
             <p>EmergentMUD is a brand new project and the groundwork is still in its very first stages of development. This is the actively running server for demonstration purposes. If you are interested in seeing what the current state of the MUD looks like, please drop in and take a look around. Please be aware that the version is fixed at v0.1.0-SNAPSHOT for a reason: while I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.</p>
             <p>That being said, I do welcome visitors and would love for people to drop in and look around.</p>
@@ -70,5 +70,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-57cd31b577134d6f"></script>
 </body>
 </html>
