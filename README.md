@@ -8,12 +8,12 @@
 [![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 
 # Vision
-EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It's a modern game with an old school feel. Just like most other MUDs back in the 90s, you play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You can get immersed in this world in ways that you never could on traditional MUDs.
+EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It will be a modern game with an old school feel. Just like most other MUDs back in the 90s, you will play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.
 
 # Current State
-EmergentMUD is a brand new project and the groundwork is still in its very first stages of development. There is an [actively running server](https://www.emergentmud.com) for demonstration purposes if you are interested in seeing what the current state of the MUD looks like. Please be aware that the version is fixed at v0.1.0-SNAPSHOT for a reason: while I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
+EmergentMUD is a brand new project and the groundwork is still in its very first stages of development. This is the actively running server for demonstration purposes. If you are interested in seeing what the current state of the MUD looks like, please drop in and take a look around. Please be aware that the version is fixed at v0.1.0-SNAPSHOT for a reason: while I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
 
-That being said, I do welcome visitors and would love for people to drop in and look around. If I'm around I'd love to talk shop.
+That being said, I do welcome visitors and would love for people to drop in and look around.
 
 The following major features are already complete:
 
@@ -44,7 +44,7 @@ A few of the things on the [roadmap to v1.0](https://bitbucket.org/scionaltera/e
 
 # Running Locally
 ## Required Tools
-If you want to run a copy of EmergentMUD locally from the Docker image, need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
+If you want to run a copy of EmergentMUD locally from the Docker image, you need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
 
 These instructions assume that you are somewhat familiar with using the command line or terminal for typing commands in on your machine, that you have a working network connection, a programmer's text editor such as `vim` or `Sublime Text`, a web browser, and that you are comfortable with installing software.
 
