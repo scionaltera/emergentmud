@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 BoneVM, LLC
+ * Copyright (C) 2016 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -105,7 +105,7 @@ public class WebSocketResource {
         output.append("[dwhite] | _|| '  \\/ -_) '_/ _` / -_) ' \\  _| |\\/| | |_| | |) |".replace(" ", "&nbsp;"));
         output.append("[white] |___|_|_|_\\___|_| \\__, \\___|_||_\\__|_|  |_|\\___/|___/ ".replace(" ", "&nbsp;"));
         output.append("[white]                   |___/                               ".replace(" ", "&nbsp;"));
-        output.append("[white]Copyright &copy; 2016 BoneVM, LLC.");
+        output.append("[white]Copyright &copy; 2016 Peter Keeler.");
         output.append("[dwhite]EmergentMUD is licensed under the <a class=\"green\" target=\"_blank\" " +
                 "href=\"http://www.gnu.org/licenses/agpl-3.0.en.html\">GNU Affero General Public License</a>.");
         output.append("[dwhite]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
