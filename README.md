@@ -44,7 +44,7 @@ A few of the things on the [roadmap to v1.0](https://bitbucket.org/scionaltera/e
 
 # Running Locally
 ## Required Tools
-If you want to run a copy of EmergentMUD locally from the Docker image, need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
+If you want to run a copy of EmergentMUD locally from the Docker image, you need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
 
 These instructions assume that you are somewhat familiar with using the command line or terminal for typing commands in on your machine, that you have a working network connection, a programmer's text editor such as `vim` or `Sublime Text`, a web browser, and that you are comfortable with installing software.
 
