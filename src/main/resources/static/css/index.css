@@ -30,6 +30,10 @@ body {
     font-size: 72px;
 }
 
+.links {
+    margin-bottom: 15px;
+}
+
 .social-btn {
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }
