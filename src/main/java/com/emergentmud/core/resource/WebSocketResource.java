@@ -98,7 +98,7 @@ public class WebSocketResource {
         entity.setStompSessionId(simpSessionId);
         entity = entityRepository.save(entity);
 
-        GameOutput output = new GameOutput("[green]Connected to server.");
+        GameOutput output = new GameOutput();
 
         output.append("[black]  ___                            _   __  __ _   _ ___  ".replace(" ", "&nbsp;"));
         output.append("[dwhite] | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \\/  | | | |   \\ ".replace(" ", "&nbsp;"));
