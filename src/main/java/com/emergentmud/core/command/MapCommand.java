@@ -42,7 +42,7 @@ public class MapCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         Room center = entity.getRoom();
 
         for (long y = center.getY() + MAP_EXTENT_Y, i = 0; y >= center.getY() - MAP_EXTENT_Y; y--, i++) {

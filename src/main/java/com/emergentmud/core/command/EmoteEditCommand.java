@@ -42,14 +42,13 @@ public class EmoteEditCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
                 output.append("[yellow]Priority\tName");
                 output.append("[yellow]--------------");
 
                 emoteMetadataRepository.findAll(SORT)
-                        .stream()
                         .forEach(emote -> output.append(String.format("[yellow]%d\t%s",
                                 emote.getPriority(),
                                 emote.getName())));

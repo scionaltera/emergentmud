@@ -50,6 +50,8 @@ public class InfoCommandTest {
     @Mock
     private EntityRepository entityRepository;
 
+    private String cmd = "info";
+
     private InfoCommand infoCommand;
 
     @Before
@@ -65,7 +67,7 @@ public class InfoCommandTest {
 
     @Test
     public void testTooManyArgs() throws Exception {
-        GameOutput result = infoCommand.execute(output, entity, new String[] { "unexpected", "args" }, "unexpected args");
+        GameOutput result = infoCommand.execute(output, entity, cmd, new String[] { "unexpected", "args" }, "unexpected args");
 
         assertNotNull(result);
         verifyZeroInteractions(entity);
@@ -75,7 +77,7 @@ public class InfoCommandTest {
     public void testExecute() throws Exception {
         when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
 
-        GameOutput result = infoCommand.execute(output, entity, new String[] {}, "");
+        GameOutput result = infoCommand.execute(output, entity, cmd, new String[] {}, "");
 
         assertNotNull(result);
         verify(entity).getId();
@@ -89,7 +91,7 @@ public class InfoCommandTest {
     public void testExecuteTarget() throws Exception {
         when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
 
-        GameOutput result = infoCommand.execute(output, entity, new String[] { "bnarg" }, "bnarg");
+        GameOutput result = infoCommand.execute(output, entity, cmd, new String[] { "bnarg" }, "bnarg");
 
         assertNotNull(result);
         verify(target).getId();
@@ -103,7 +105,7 @@ public class InfoCommandTest {
     public void testExecuteInvalidTarget() throws Exception {
         when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
 
-        GameOutput result = infoCommand.execute(output, entity, new String[] { "morgan" }, "morgan");
+        GameOutput result = infoCommand.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
         assertNotNull(result);
         verify(target).getName();

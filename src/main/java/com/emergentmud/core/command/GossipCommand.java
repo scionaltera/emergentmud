@@ -40,7 +40,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (StringUtils.isEmpty(raw)) {
             output.append("What would you like to gossip?");
 

@@ -39,7 +39,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (StringUtils.isEmpty(raw) || tokens.length < 2) {
             output.append("Usage: TELL &lt;target&gt; &lt;message&gt;");
 

@@ -31,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -56,6 +55,7 @@ public class LookCommandTest {
     private String[] tokens = new String[0];
     private String raw = "";
     private List<Entity> contents = new ArrayList<>();
+    private String cmd = "look";
 
     private LookCommand lookCommand;
 
@@ -88,7 +88,7 @@ public class LookCommandTest {
 
     @Test
     public void testLookVoid() throws Exception {
-        GameOutput result = lookCommand.execute(output, entity, tokens, raw);
+        GameOutput result = lookCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output).append(anyString());
@@ -107,7 +107,7 @@ public class LookCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        GameOutput result = lookCommand.execute(output, entity, tokens, raw);
+        GameOutput result = lookCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());
@@ -118,8 +118,7 @@ public class LookCommandTest {
         verify(roomRepository).findByXAndYAndZ(eq(0L), eq(-1L), eq(0L));
         verify(roomRepository).findByXAndYAndZ(eq(-1L), eq(0L), eq(0L));
 
-        contents.stream()
-                .forEach(e -> {
+        contents.forEach(e -> {
                     if (!"Tester1".equals(e.getId())) {
                         verify(e, atLeastOnce()).getId();
                         verify(e).getName();

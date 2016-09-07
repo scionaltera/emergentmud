@@ -130,7 +130,7 @@ public class WebSocketResourceTest {
         when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commandList);
         when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emoteList);
         when(applicationContext.getBean(anyString())).thenReturn(mockCommand);
-        when(mockCommand.execute(any(), any(), any(), any())).thenAnswer(invocation -> {
+        when(mockCommand.execute(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             GameOutput output = (GameOutput)invocation.getArguments()[0];
 
             output.append("[green]Test output.");
@@ -218,7 +218,7 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext).getBean(eq("infoCommand"));
-        verify(mockCommand).execute(any(GameOutput.class), eq(entity), eq(new String[] {}), eq(""));
+        verify(mockCommand).execute(any(GameOutput.class), eq(entity), eq("info"), eq(new String[] {}), eq(""));
         assertEquals("[green]Test output.", output.getOutput().get(0));
     }
 
@@ -234,6 +234,7 @@ public class WebSocketResourceTest {
         verify(mockCommand).execute(
                 any(GameOutput.class),
                 any(Entity.class),
+                eq("say"),
                 eq(new String[] { "I", "love", "EmergentMUD!" }),
                 eq("I love EmergentMUD!")
         );
