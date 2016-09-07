@@ -52,6 +52,8 @@ public class WhoCommandTest {
     @Spy
     private GameOutput output;
 
+    private String cmd = "who";
+
     private WhoCommand whoCommand;
 
     @Before
@@ -67,7 +69,7 @@ public class WhoCommandTest {
 
         when(entityRepository.findByRoomIsNotNull()).thenReturn(online);
 
-        GameOutput response = whoCommand.execute(output, self, new String[] {}, "");
+        GameOutput response = whoCommand.execute(output, self, cmd, new String[] {}, "");
 
         verify(entityRepository).findByRoomIsNotNull();
         verify(self).getName();
@@ -81,7 +83,7 @@ public class WhoCommandTest {
 
         when(entityRepository.findByRoomIsNotNull()).thenReturn(online);
 
-        GameOutput response = whoCommand.execute(output, self, new String[] {}, "");
+        GameOutput response = whoCommand.execute(output, self, cmd, new String[] {}, "");
 
         verify(entityRepository).findByRoomIsNotNull();
         verify(self).getName();

@@ -120,7 +120,7 @@ public class WebSocketResource {
         output.append("");
 
         Command command = (Command)applicationContext.getBean("lookCommand");
-        command.execute(output, entity, new String[0], "");
+        command.execute(output, entity, "look", new String[0], "");
 
         output.append("");
         output.append("> ");
@@ -170,7 +170,7 @@ public class WebSocketResource {
                 CommandMetadata metadata = optionalCommandMetadata.get();
                 Command command = (Command) applicationContext.getBean(metadata.getBeanName());
 
-                command.execute(output, entity, args, raw);
+                command.execute(output, entity, cmd, args, raw);
             } else {
                 List<EmoteMetadata> emoteMetadataList = emoteMetadataRepository.findAll(SORT);
 

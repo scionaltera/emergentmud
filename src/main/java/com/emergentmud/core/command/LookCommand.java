@@ -42,7 +42,7 @@ public class LookCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (entity.getRoom() == null) {
             output.append("[black]You are floating in a formless void.");
         } else {

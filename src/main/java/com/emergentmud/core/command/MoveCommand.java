@@ -54,7 +54,7 @@ public class MoveCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         Room room = entity.getRoom();
 
         if (room == null) {
@@ -94,8 +94,8 @@ public class MoveCommand implements Command {
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);
 
-            Command command = (Command)applicationContext.getBean("lookCommand");
-            command.execute(output, entity, new String[0], "");
+            Command look = (Command)applicationContext.getBean("lookCommand");
+            look.execute(output, entity, "look", new String[0], "");
         }
 
         return output;

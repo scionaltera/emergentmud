@@ -52,6 +52,8 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
+    private String cmd = "gossip";
+
     private GossipCommand command;
 
     @Before
@@ -69,7 +71,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testGossipSomething() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
@@ -83,7 +85,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testGossipSomethingWithSymbols() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
@@ -97,7 +99,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testSayNothing() throws Exception {
-        GameOutput response = command.execute(output, entity, new String[] {}, "");
+        GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to gossip?"));
     }

@@ -41,14 +41,13 @@ public class CommandEditCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
                 output.append("[yellow]Priority\tName\tAdmin");
                 output.append("[yellow]---------------------");
 
                 commandMetadataRepository.findAll(SORT)
-                        .stream()
                         .forEach(cm -> output.append(String.format("[yellow]%d\t%s\t%s",
                                 cm.getPriority(),
                                 cm.getName(),

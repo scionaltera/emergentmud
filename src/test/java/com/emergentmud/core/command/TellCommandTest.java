@@ -54,6 +54,8 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
+    private String cmd = "tell";
+
     private TellCommand command;
 
     @Before
@@ -76,7 +78,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellNoArgs() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { },
                 "");
 
@@ -86,7 +88,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellWithoutMessage() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu" },
                 "stu");
 
@@ -97,7 +99,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellWithNonexistentTarget() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "frodo", "Feed", "me", "a", "stray", "cat." },
                 "frodo Feed me a stray cat.");
 
@@ -107,7 +109,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellSelf() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "testy", "Feed", "me", "a", "stray", "cat." },
                 "testy Feed me a stray cat.");
 
@@ -117,7 +119,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellWithSingleWordMessage() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "Ahoy!" },
                 "stu Ahoy!");
 
@@ -131,7 +133,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellSomething() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "Feed", "me", "a", "stray", "cat." },
                 "stu Feed me a stray cat.");
 
@@ -145,7 +147,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testTellSomethingWithSymbols() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "stu <script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
@@ -159,7 +161,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testSayNothing() throws Exception {
-        GameOutput response = command.execute(output, entity, new String[] {}, "");
+        GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));
     }
