@@ -41,8 +41,8 @@ public class QuitCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
-        if (!"now".toLowerCase().equals(raw)) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
+        if (!"quit".equals(command.toLowerCase()) || !"now".equals(raw.toLowerCase())) {
             output.append("Usage: QUIT &lt;now&gt;");
             output.append("Please note that you must type out \"quit now\" in full to avoid doing it accidentally.");
 

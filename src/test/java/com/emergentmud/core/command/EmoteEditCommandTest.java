@@ -56,6 +56,7 @@ public class EmoteEditCommandTest {
     private EmoteMetadata emote;
 
     private List<EmoteMetadata> emotes = new ArrayList<>();
+    private String cmd = "emoteedit";
 
     private EmoteEditCommand emoteEditCommand;
 
@@ -78,7 +79,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[0];
         String raw = "";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verifyZeroInteractions(emoteMetadataRepository);
@@ -90,14 +91,13 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "list" };
         String raw = "list";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
         verify(emoteMetadataRepository).findAll(eq(CommandEditCommand.SORT));
 
-        emotes.stream()
-                .forEach(emote -> {
+        emotes.forEach(emote -> {
                     verify(emote).getPriority();
                     verify(emote).getName();
                 });
@@ -108,7 +108,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "show", "nod" };
         String raw = "show nod";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(4)).append(anyString());
@@ -120,7 +120,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "show", "waffle" };
         String raw = "show waffle";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output).append(anyString());
@@ -132,7 +132,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "show" };
         String raw = "show";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(USAGE_LENGTH)).append(anyString());
@@ -144,7 +144,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "add" };
         String raw = "add";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verifyZeroInteractions(emoteMetadataRepository);
@@ -156,7 +156,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "add", "nod" };
         String raw = "add nod";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).save(emoteMetadataArgumentCaptor.capture());
@@ -174,7 +174,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set" };
         String raw = "set";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository, never()).findByName(anyString());
@@ -187,7 +187,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "waffle", "self", "foo" };
         String raw = "set waffle self foo";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("waffle"));
@@ -200,7 +200,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "nod", "self" };
         String raw = "set nod self";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository, never()).findByName(anyString());
@@ -213,7 +213,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "nod", "flarp", "You", "flarp." };
         String raw = "set nod flarp You flarp.";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -226,7 +226,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "nod", "self", "You", "nod." };
         String raw = "set nod self You nod.";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -242,7 +242,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "nod", "target", "nods." };
         String raw = "set nod target nods.";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -258,7 +258,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "set", "nod", "room", "nods." };
         String raw = "set nod room nods.";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -274,7 +274,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "delete", "nod" };
         String raw = "delete nod";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -287,7 +287,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "delete" };
         String raw = "delete";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository, never()).findByName(anyString());
@@ -300,7 +300,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "delete", "waffle" };
         String raw = "delete waffle";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("waffle"));
@@ -313,7 +313,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "priority", "nod" };
         String raw = "priority nod";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(USAGE_LENGTH)).append(anyString());
@@ -324,7 +324,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "priority", "nod", "important" };
         String raw = "priority nod important";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
@@ -337,7 +337,7 @@ public class EmoteEditCommandTest {
         String[] tokens = new String[] { "priority", "nod", "42" };
         String raw = "priority nod 42";
 
-        GameOutput result = emoteEditCommand.execute(output, entity, tokens, raw);
+        GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));

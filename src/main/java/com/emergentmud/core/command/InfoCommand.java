@@ -38,7 +38,7 @@ public class InfoCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         Entity target;
 
         if (tokens.length == 0) {

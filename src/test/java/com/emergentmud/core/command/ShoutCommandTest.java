@@ -58,6 +58,8 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
+    private String cmd = "shout";
+
     private ShoutCommand command;
 
     @Before
@@ -76,7 +78,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testShoutSomething() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
@@ -90,7 +92,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testShoutSomethingWithSymbols() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
@@ -104,7 +106,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testShoutNothing() throws Exception {
-        GameOutput response = command.execute(output, entity, new String[] {}, "");
+        GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to shout?"));
     }

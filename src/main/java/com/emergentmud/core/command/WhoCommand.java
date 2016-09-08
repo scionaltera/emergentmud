@@ -38,7 +38,7 @@ public class WhoCommand implements Command {
     }
 
     @Override
-    public GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw) {
+    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         List<Entity> online = entityRepository.findByRoomIsNotNull();
 
         output.append("[dwhite]Who is online:");

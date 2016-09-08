@@ -50,6 +50,8 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     @Mock
     private EntityUtil entityUtil;
 
+    private String cmd = "say";
+
     private SayCommand command;
 
     @Before
@@ -68,7 +70,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testSaySomething() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
@@ -82,7 +84,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testSaySomethingWithSymbols() throws Exception {
-        GameOutput response = command.execute(output, entity,
+        GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
@@ -96,7 +98,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testSayNothing() throws Exception {
-        GameOutput response = command.execute(output, entity, new String[] {}, "");
+        GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to say?"));
     }

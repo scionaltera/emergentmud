@@ -24,5 +24,5 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 
 public interface Command {
-    GameOutput execute(GameOutput output, Entity entity, String[] tokens, String raw);
+    GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw);
 }

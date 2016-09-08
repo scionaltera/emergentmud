@@ -64,8 +64,9 @@ public class MoveCommandTest {
     @Mock
     private LookCommand lookCommand;
 
-    private String[] tokens = new String[] { "e" };
-    private String raw = "e";
+    private String[] tokens = new String[] {};
+    private String raw = "";
+    private String cmd = "e";
 
     private MoveCommand moveCommand;
 
@@ -103,13 +104,13 @@ public class MoveCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        GameOutput result = moveCommand.execute(output, entity, tokens, raw);
+        GameOutput result = moveCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(worldManager).remove(eq(entity));
         verify(worldManager).put(eq(entity), eq(1L), eq(1L), eq(1L));
         verify(applicationContext).getBean(eq("lookCommand"));
-        verify(lookCommand).execute(eq(output), eq(entity), eq(new String[0]), eq(""));
+        verify(lookCommand).execute(eq(output), eq(entity), eq("look"), eq(new String[0]), eq(""));
         verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
         verify(entityUtil).sendMessageToRoom(eq(room2), eq(entity), any(GameOutput.class));
     }
@@ -123,7 +124,7 @@ public class MoveCommandTest {
 
         when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(false);
 
-        GameOutput result = moveCommand.execute(output, entity, tokens, raw);
+        GameOutput result = moveCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(worldManager, never()).remove(eq(entity));
@@ -132,7 +133,7 @@ public class MoveCommandTest {
 
     @Test
     public void testMoveInVoid() throws Exception {
-        moveCommand.execute(output, entity, tokens, raw);
+        moveCommand.execute(output, entity, cmd, tokens, raw);
 
         verifyZeroInteractions(worldManager);
         verifyZeroInteractions(applicationContext);
