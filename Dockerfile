@@ -29,4 +29,4 @@ RUN mkdir -p /opt/mud \
 && cp -v build/libs/emergentmud*.jar /opt/mud/app.jar \
 && cd /opt/mud \
 && rm -rf /tmp/* /var/cache/apk/* /opt/build ~/.m2 ~/.gradle
-CMD ["$JAVA_HOME/jre/bin/java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["/usr/bin/java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
