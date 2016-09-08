@@ -16,8 +16,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ingensi/oracle-jdk
+FROM develar/java:8u45
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
 COPY emergentmud-*.jar /opt/mud/app.jar
-CMD ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]

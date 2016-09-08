@@ -16,11 +16,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ingensi/oracle-jdk
+FROM frolvlad/alpine-oraclejdk8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
-COPY . /opt/mud/
-RUN cd /opt/mud \
+COPY . /opt/build/
+RUN mkdir -p /opt/mud \
+&& cd /opt/build \
+&& apk update \
+&& apk upgrade \
+&& apk add --no-cache bash \
 && ./gradlew clean build \
-&& cp -v build/libs/emergentmud*.jar ./app.jar
-CMD ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+&& cp -v build/libs/emergentmud*.jar /opt/mud/app.jar \
+&& cd /opt/mud \
+&& rm -rf /tmp/* /var/cache/apk/* /opt/build ~/.m2 ~/.gradle
+CMD ["$JAVA_HOME/jre/bin/java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
