@@ -18,10 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.config;
 
-import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.repository.PolygonalZoneBuilder;
+import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.ZoneBuilder;
+import com.emergentmud.core.repository.ZoneRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public interface ZoneBuilder {
-    Zone build(Long x, Long y, Long z);
+import javax.inject.Inject;
+
+@Configuration
+public class WorldConfiguration {
+    @Inject
+    private RoomRepository roomRepository;
+
+    @Inject
+    private ZoneRepository zoneRepository;
+
+    @Bean
+    public ZoneBuilder zoneBuilder() {
+        return new PolygonalZoneBuilder(zoneRepository, roomRepository);
+    }
 }

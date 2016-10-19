@@ -50,7 +50,7 @@ public class ZoneBuilderTest {
     @Captor
     private ArgumentCaptor<List<Room>> roomListCaptor;
 
-    private ZoneBuilder zoneBuilder;
+    private DrunkWalkZoneBuilder zoneBuilder;
 
     public ZoneBuilderTest() {
         MockitoAnnotations.initMocks(this);
@@ -81,7 +81,7 @@ public class ZoneBuilderTest {
             }
         });
 
-        zoneBuilder = new ZoneBuilder(zoneRepository, roomRepository);
+        zoneBuilder = new DrunkWalkZoneBuilder(zoneRepository, roomRepository);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class ZoneBuilderTest {
 
         List<Room> roomList = roomListCaptor.getValue();
 
-        assertEquals(ZoneBuilder.ZONE_SIZE, roomList.size());
+        assertEquals(DrunkWalkZoneBuilder.ZONE_SIZE, roomList.size());
         roomList.stream().forEach(room -> assertEquals(zone, room.getZone()));
     }
 
