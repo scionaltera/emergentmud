@@ -122,10 +122,12 @@ public class DrunkWalkZoneBuilder implements ZoneBuilder {
         }
 
         Zone zone = new Zone();
-        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
-        Zone savedZone = zoneRepository.save(zone);
+        zone = zoneRepository.save(zone);
 
-        out.forEach(room -> room.setZone(savedZone));
+        for (Room room : out) {
+            room.setZone(zone);
+        }
+
         roomRepository.save(out);
 
         return zone;

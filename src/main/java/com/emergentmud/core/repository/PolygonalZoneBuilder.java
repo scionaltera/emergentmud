@@ -108,11 +108,9 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         corners.clear();
 
         Zone zone = new Zone();
-        Zone savedZone;
+        zone = zoneRepository.save(zone);
 
-        zone.setColor(new int[] {RANDOM.nextInt(256), RANDOM.nextInt(256), RANDOM.nextInt(256)});
-        savedZone = zoneRepository.save(zone);
-
+        LOGGER.info("Generating points...");
         Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, RANDOM, null);
         voronoi = relaxPoints(voronoi);
 
@@ -164,7 +162,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 room.setX(scanX);
                 room.setY((map.getHeight() - 1) - scanY);
                 room.setZ(0L);
-                room.setZone(savedZone);
+                room.setZone(zone);
                 room.setColor(pixels[(int)(scanY * map.getWidth() + scanX)]);
 
                 rooms.add(room);
