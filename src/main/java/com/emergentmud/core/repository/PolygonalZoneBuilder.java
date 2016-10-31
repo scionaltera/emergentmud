@@ -42,13 +42,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Component
 public class PolygonalZoneBuilder implements ZoneBuilder {
@@ -61,32 +62,25 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
         OCEAN(0x44447a), LAKE(0x336699), BEACH(0xa09077), SNOW(0xffffff),
         TUNDRA(0xbbbbaa), BARE(0x888888), SCORCHED(0x555555), TAIGA(0x99aa77),
-        SHURBLAND(0x889977), TEMPERATE_DESERT(0xc9d29b),
-        TEMPERATE_RAIN_FOREST(0x448855), TEMPERATE_DECIDUOUS_FOREST(0x679459),
-        GRASSLAND(0x88aa55), SUBTROPICAL_DESERT(0xd2b98b), SHRUBLAND(0x889977),
+        SHRUBLAND(0x889977), TEMPERATE_DESERT(0xc9d29b), TEMPERATE_RAIN_FOREST(0x448855),
+        TEMPERATE_DECIDUOUS_FOREST(0x679459), GRASSLAND(0x88aa55), SUBTROPICAL_DESERT(0xd2b98b),
         ICE(0x99ffff), MARSH(0x2f6666), TROPICAL_RAIN_FOREST(0x337755),
-        TROPICAL_SEASONAL_FOREST(0x559944), COAST(0x33335a),
-        LAKESHORE(0x225588), RIVER(0x225588);
+        TROPICAL_SEASONAL_FOREST(0x559944), RIVER(0x225588);
         public Color color;
 
         ColorData(int color) {
             this.color = new Color(color);
         }
     }
-    private static Color OCEAN = ColorData.OCEAN.color;
-    private static Color LAKE = ColorData.LAKE.color;
-    private static Color BEACH = ColorData.BEACH.color;
-    private static Color RIVER = ColorData.RIVER.color;
 
     private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
 
-    private final ArrayList<Edge> edges = new ArrayList<>();
-    private final ArrayList<Center> centers = new ArrayList<>();
-    private final ArrayList<Corner> corners = new ArrayList<>();
+    private final List<Edge> edges = new ArrayList<>();
+    private final List<Center> centers = new ArrayList<>();
+    private final List<Corner> corners = new ArrayList<>();
     private Rectangle bounds;
 
-    private double ISLAND_FACTOR = 1.07; // 1.0 means no small islands; 2.0 leads to a lot
     private final int bumps;
     private final double startAngle;
     private final double dipAngle;
@@ -250,15 +244,13 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         final BufferedImage img = new BufferedImage((int)bounds.width, (int)bounds.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = img.createGraphics();
 
-        paint(graphics, true, true, false, false, false, false);
+        paint(graphics, true, true, false, false, false);
 
         return img;
     }
 
     //also records the area of each voronoi cell
-    private void paint(Graphics2D g, boolean drawBiomes, boolean drawRivers, boolean drawSites, boolean drawCorners, boolean drawDelaunay, boolean drawVoronoi) {
-        final int numSites = centers.size();
-
+    private void paint(Graphics2D g, boolean drawBiomes, boolean drawRivers, boolean drawSites, boolean drawCorners, boolean drawDelaunay) {
         Graphics2D pixelCenterGraphics = pixelCenterMap.createGraphics();
 
         //draw via triangles
@@ -275,23 +267,19 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             }
             if (drawRivers && e.river > 0) {
                 g.setStroke(new BasicStroke(1 + (int) Math.sqrt(e.river * 2)));
-                g.setColor(RIVER);
+                g.setColor(ColorData.RIVER.color);
                 g.drawLine((int) e.v0.loc.x, (int) e.v0.loc.y, (int) e.v1.loc.x, (int) e.v1.loc.y);
             }
         }
 
         if (drawSites) {
             g.setColor(Color.RED);
-            centers.forEach((s) -> {
-                g.fillOval((int) (s.loc.x - 2), (int) (s.loc.y - 2), 4, 4);
-            });
+            centers.forEach((s) -> g.fillOval((int) (s.loc.x - 2), (int) (s.loc.y - 2), 4, 4));
         }
 
         if (drawCorners) {
             g.setColor(Color.WHITE);
-            corners.forEach((c) -> {
-                g.fillOval((int) (c.loc.x - 2), (int) (c.loc.y - 2), 4, 4);
-            });
+            corners.forEach((c) -> g.fillOval((int) (c.loc.x - 2), (int) (c.loc.y - 2), 4, 4));
         }
         g.setColor(Color.DARK_GRAY);
         g.drawRect((int) bounds.x, (int) bounds.y, (int) bounds.width - 1, (int) bounds.height - 1);
@@ -307,7 +295,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         for (Center n : c.neighbors) {
             Edge e = edgeWithCenters(c, n);
 
-            if (e.v0 == null) {
+            if (e == null || e.v0 == null) {
                 //outermost voronoi edges aren't stored in the graph
                 continue;
             }
@@ -390,17 +378,6 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         return Math.abs(d1 - d2) <= diff;
     }
 
-    private List<Point> generatePoints(int count) {
-        LOGGER.info("Generating points...");
-        List<Point> points = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            points.add(new Point(RANDOM.nextDouble() * EXTENT, RANDOM.nextDouble() * EXTENT));
-        }
-
-        return points;
-    }
-
     /**
      * Lloyd's Relaxation. The random number generator tends to make clumps of points
      * and this will smooth them out so they're more evenly distributed.
@@ -430,28 +407,19 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         return new Voronoi((ArrayList<Point>)points, null, voronoi.get_plotBounds());
     }
 
-    private ArrayList<Corner> landCorners() {
-        final ArrayList<Corner> list = new ArrayList();
-        for (Corner c : corners) {
-            if (!c.ocean && !c.coast) {
-                list.add(c);
-            }
-        }
-        return list;
+    private List<Corner> landCorners() {
+        return corners.stream().filter(c -> !c.ocean && !c.coast).collect(Collectors.toList());
     }
 
-    private void redistributeElevations(ArrayList<Corner> landCorners) {
+    private void redistributeElevations(List<Corner> landCorners) {
         LOGGER.info("Redistributing elevations...");
-        Collections.sort(landCorners, new Comparator<Corner>() {
-            @Override
-            public int compare(Corner o1, Corner o2) {
-                if (o1.elevation > o2.elevation) {
-                    return 1;
-                } else if (o1.elevation < o2.elevation) {
-                    return -1;
-                }
-                return 0;
+        Collections.sort(landCorners, (o1, o2) -> {
+            if (o1.elevation > o2.elevation) {
+                return 1;
+            } else if (o1.elevation < o2.elevation) {
+                return -1;
             }
+            return 0;
         });
 
         final double SCALE_FACTOR = 1.1;
@@ -462,16 +430,12 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             landCorners.get(i).elevation = x;
         }
 
-        for (Corner c : corners) {
-            if (c.ocean || c.coast) {
-                c.elevation = 0.0;
-            }
-        }
+        corners.stream().filter(c -> c.ocean || c.coast).forEach(c -> c.elevation = 0.0);
     }
 
     private void assignOceanCoastAndLand() {
         LOGGER.info("Assigning ocean and land...");
-        LinkedList<Center> queue = new LinkedList();
+        Deque<Center> queue = new ArrayDeque<>();
         final double waterThreshold = .3;
         for (final Center center : centers) {
             int numWater = 0;
@@ -488,12 +452,10 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         }
         while (!queue.isEmpty()) {
             final Center center = queue.pop();
-            for (final Center n : center.neighbors) {
-                if (n.water && !n.ocean) {
-                    n.ocean = true;
-                    queue.add(n);
-                }
-            }
+            center.neighbors.stream().filter(n -> n.water && !n.ocean).forEach(n -> {
+                n.ocean = true;
+                queue.add(n);
+            });
         }
         for (Center center : centers) {
             boolean oceanNeighbor = false;
@@ -520,7 +482,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     private void assignCornerElevations() {
         LOGGER.info("Assigning corner elevations...");
-        LinkedList<Corner> queue = new LinkedList();
+        Deque<Corner> queue = new ArrayDeque<>();
         for (Corner c : corners) {
             c.water = isWater(c.loc);
             if (c.border) {
@@ -561,6 +523,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 || Math.abs(angle - dipAngle - 2 * Math.PI) < dipWidth) {
             r1 = r2 = 0.2;
         }
+        double ISLAND_FACTOR = 1.07;
         return !(length < r1 || (length > r1 * ISLAND_FACTOR && length < r2));
 
         //return false;
@@ -594,12 +557,8 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 newP[c.index] = new Point(x / c.touches.size(), y / c.touches.size());
             }
         }
-        corners.forEach((c) -> {
-            c.loc = newP[c.index];
-        });
-        edges.stream().filter((e) -> (e.v0 != null && e.v1 != null)).forEach((e) -> {
-            e.setVornoi(e.v0, e.v1);
-        });
+        corners.forEach((c) -> c.loc = newP[c.index]);
+        edges.stream().filter((e) -> (e.v0 != null && e.v1 != null)).forEach((e) -> e.setVornoi(e.v0, e.v1));
     }
 
     private void buildGraph(Voronoi v) {
@@ -751,7 +710,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                     break;
                 }
                 Edge edge = lookupEdgeFromCorner(c, c.downslope);
-                if (!edge.v0.water || !edge.v1.water) {
+                if (edge != null && (!edge.v0.water || !edge.v1.water)) {
                     edge.river++;
                     c.river++;
                     c.downslope.river++;  // TODO: fix double count
@@ -772,7 +731,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     private void assignCornerMoisture() {
         LOGGER.info("Assigning corner moisture...");
-        LinkedList<Corner> queue = new LinkedList();
+        Deque<Corner> queue = new ArrayDeque<>();
         for (Corner c : corners) {
             if ((c.water || c.river > 0) && !c.ocean) {
                 c.moisture = c.river > 0 ? Math.min(3.0, (0.2 * c.river)) : 1.0;
@@ -794,25 +753,18 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         }
 
         // Salt water
-        for (Corner c : corners) {
-            if (c.ocean || c.coast) {
-                c.moisture = 1.0;
-            }
-        }
+        corners.stream().filter(c -> c.ocean || c.coast).forEach(c -> c.moisture = 1.0);
     }
 
-    private void redistributeMoisture(ArrayList<Corner> landCorners) {
+    private void redistributeMoisture(List<Corner> landCorners) {
         LOGGER.info("Redistributing moisture...");
-        Collections.sort(landCorners, new Comparator<Corner>() {
-            @Override
-            public int compare(Corner o1, Corner o2) {
-                if (o1.moisture > o2.moisture) {
-                    return 1;
-                } else if (o1.moisture < o2.moisture) {
-                    return -1;
-                }
-                return 0;
+        Collections.sort(landCorners, (o1, o2) -> {
+            if (o1.moisture > o2.moisture) {
+                return 1;
+            } else if (o1.moisture < o2.moisture) {
+                return -1;
             }
+            return 0;
         });
         for (int i = 0; i < landCorners.size(); i++) {
             landCorners.get(i).moisture = (double) i / landCorners.size();
