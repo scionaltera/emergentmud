@@ -25,45 +25,33 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
-package com.hoten.delaunay.voronoi.nodename.as3delaunay;
+package com.hoten.delaunay.voronoi;
 
 import com.hoten.delaunay.geom.Point;
 import java.util.ArrayList;
 
-public final class Polygon {
+/**
+ * Center.java
+ *
+ * @author Connor
+ */
+public class Center {
 
-    private ArrayList<Point> _vertices;
+    public int index;
+    public Point loc;
+    public ArrayList<Corner> corners = new ArrayList();//good
+    public ArrayList<Center> neighbors = new ArrayList();//good
+    public ArrayList<Edge> borders = new ArrayList();
+    public boolean border, ocean, water, coast;
+    public double elevation;
+    public double moisture;
+    public Enum biome;
+    public double area;
 
-    public Polygon(ArrayList<Point> vertices) {
-        _vertices = vertices;
+    public Center() {
     }
 
-    public double area() {
-        return Math.abs(signedDoubleArea() * 0.5);
-    }
-
-    public Winding winding() {
-        double signedDoubleArea = signedDoubleArea();
-        if (signedDoubleArea < 0) {
-            return Winding.CLOCKWISE;
-        }
-        if (signedDoubleArea > 0) {
-            return Winding.COUNTERCLOCKWISE;
-        }
-        return Winding.NONE;
-    }
-
-    private double signedDoubleArea() {
-        int index, nextIndex;
-        int n = _vertices.size();
-        Point point, next;
-        double signedDoubleArea = 0;
-        for (index = 0; index < n; ++index) {
-            nextIndex = (index + 1) % n;
-            point = _vertices.get(index);
-            next = _vertices.get(nextIndex);
-            signedDoubleArea += point.x * next.y - next.x * point.y;
-        }
-        return signedDoubleArea;
+    public Center(Point loc) {
+        this.loc = loc;
     }
 }
