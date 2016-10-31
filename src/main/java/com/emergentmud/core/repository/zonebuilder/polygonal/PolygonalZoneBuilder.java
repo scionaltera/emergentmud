@@ -21,10 +21,13 @@
  * implementation available here: https://github.com/Hoten/Java-Delaunay
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.zonebuilder.polygonal;
 
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.ZoneBuilder;
+import com.emergentmud.core.repository.ZoneRepository;
 import com.hoten.delaunay.geom.Point;
 import com.hoten.delaunay.geom.Rectangle;
 import com.hoten.delaunay.voronoi.Center;
@@ -48,6 +51,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -58,23 +62,10 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private static final int SEED = 92948;
     private static final int EXTENT = 2000;
     private static final int SITES = 30000;
-    private enum ColorData {
-
-        OCEAN(0x44447a), LAKE(0x336699), BEACH(0xa09077), SNOW(0xffffff),
-        TUNDRA(0xbbbbaa), BARE(0x888888), SCORCHED(0x555555), TAIGA(0x99aa77),
-        SHRUBLAND(0x889977), TEMPERATE_DESERT(0xc9d29b), TEMPERATE_RAIN_FOREST(0x448855),
-        TEMPERATE_DECIDUOUS_FOREST(0x679459), GRASSLAND(0x88aa55), SUBTROPICAL_DESERT(0xd2b98b),
-        ICE(0x99ffff), MARSH(0x2f6666), TROPICAL_RAIN_FOREST(0x337755),
-        TROPICAL_SEASONAL_FOREST(0x559944), RIVER(0x225588);
-        public Color color;
-
-        ColorData(int color) {
-            this.color = new Color(color);
-        }
-    }
 
     private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
+    private Map<String, Biome> biomes;
 
     private final List<Edge> edges = new ArrayList<>();
     private final List<Center> centers = new ArrayList<>();
@@ -89,9 +80,10 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private BufferedImage pixelCenterMap;
 
     @Inject
-    public PolygonalZoneBuilder(ZoneRepository zoneRepository, RoomRepository roomRepository) {
+    public PolygonalZoneBuilder(Map<String, Biome> biomes, ZoneRepository zoneRepository, RoomRepository roomRepository) {
         this.zoneRepository = zoneRepository;
         this.roomRepository = roomRepository;
+        this.biomes = biomes;
 
         RANDOM.setSeed(SEED);
 
@@ -176,64 +168,64 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         return zone;
     }
 
-    private Color getColor(Enum biome) {
-        if (biome == null || ((ColorData)biome).color == null) {
+    private Color getColor(Biome biome) {
+        if (biome == null) {
             return Color.MAGENTA;
         }
 
-        return ((ColorData) biome).color;
+        return (biome.getColor());
     }
 
-    private Enum getBiome(Center p) {
+    private Biome getBiome(Center p) {
         if (p.ocean) {
-            return ColorData.OCEAN;
+            return biomes.get("oceanBiome");
         } else if (p.water) {
             if (p.elevation < 0.1) {
-                return ColorData.MARSH;
+                return biomes.get("marshBiome");
             }
             if (p.elevation > 0.8) {
-                return ColorData.ICE;
+                return biomes.get("iceBiome");
             }
-            return ColorData.LAKE;
+            return biomes.get("lakeBiome");
         } else if (p.coast) {
-            return ColorData.BEACH;
+            return biomes.get("beachBiome");
         } else if (p.elevation > 0.8) {
             if (p.moisture > 0.50) {
-                return ColorData.SNOW;
+                return biomes.get("snowBiome");
             } else if (p.moisture > 0.33) {
-                return ColorData.TUNDRA;
+                return biomes.get("tundraBiome");
             } else if (p.moisture > 0.16) {
-                return ColorData.BARE;
+                return biomes.get("bareBiome");
             } else {
-                return ColorData.SCORCHED;
+                return biomes.get("scorchedBiome");
             }
         } else if (p.elevation > 0.6) {
             if (p.moisture > 0.66) {
-                return ColorData.TAIGA;
+                return biomes.get("taigaBiome");
             } else if (p.moisture > 0.33) {
-                return ColorData.SHRUBLAND;
+                return biomes.get("shrublandBiome");
             } else {
-                return ColorData.TEMPERATE_DESERT;
+                return biomes.get("temperateDesertBiome");
             }
         } else if (p.elevation > 0.3) {
             if (p.moisture > 0.83) {
-                return ColorData.TEMPERATE_RAIN_FOREST;
+                return biomes.get("temperateRainforestBiome");
             } else if (p.moisture > 0.50) {
-                return ColorData.TEMPERATE_DECIDUOUS_FOREST;
+                return biomes.get("temperateDeciduousForestBiome");
             } else if (p.moisture > 0.16) {
-                return ColorData.GRASSLAND;
+                return biomes.get("grasslandBiome");
             } else {
-                return ColorData.TEMPERATE_DESERT;
+                return biomes.get("temperateDesertBiome");
             }
         } else {
             if (p.moisture > 0.66) {
-                return ColorData.TROPICAL_RAIN_FOREST;
+                return biomes.get("tropicalRainforestBiome");
             } else if (p.moisture > 0.33) {
-                return ColorData.TROPICAL_SEASONAL_FOREST;
+                return biomes.get("tropicalSeasonalForestBiome");
             } else if (p.moisture > 0.16) {
-                return ColorData.GRASSLAND;
+                return biomes.get("grasslandBiome");
             } else {
-                return ColorData.SUBTROPICAL_DESERT;
+                return biomes.get("subtropicalDesertBiome");
             }
         }
     }
@@ -265,7 +257,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             }
             if (drawRivers && e.river > 0) {
                 g.setStroke(new BasicStroke(1 + (int) Math.sqrt(e.river * 2)));
-                g.setColor(ColorData.RIVER.color);
+                g.setColor(biomes.get("riverBiome").getColor());
                 g.drawLine((int) e.v0.loc.x, (int) e.v0.loc.y, (int) e.v1.loc.x, (int) e.v1.loc.y);
             }
         }
@@ -402,7 +394,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             p.y = y;
         });
 
-        return new Voronoi((ArrayList<Point>)points, null, voronoi.get_plotBounds());
+        return new Voronoi(points, null, voronoi.get_plotBounds());
     }
 
     private List<Corner> landCorners() {
@@ -562,7 +554,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private void buildGraph(Voronoi v) {
         LOGGER.info("Building graph...");
         final HashMap<Point, Center> pointCenterMap = new HashMap<>();
-        final ArrayList<Point> points = v.siteCoords();
+        final List<Point> points = v.siteCoords();
         points.forEach((p) -> {
             Center c = new Center();
             c.loc = p;
@@ -574,7 +566,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         //bug fix
         centers.forEach(c -> v.region(c.loc));
 
-        final ArrayList<com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge> libedges = v.edges();
+        final List<com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge> libedges = v.edges();
         final HashMap<Integer, Corner> pointCornerMap = new HashMap<>();
 
         for (com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge libedge : libedges) {
@@ -657,13 +649,13 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     }
 
     // Helper functions for the following for loop; ideally these would be inlined
-    private void addToCornerList(ArrayList<Corner> list, Corner c) {
+    private void addToCornerList(List<Corner> list, Corner c) {
         if (c != null && !list.contains(c)) {
             list.add(c);
         }
     }
 
-    private void addToCenterList(ArrayList<Center> list, Center c) {
+    private void addToCenterList(List<Center> list, Center c) {
         if (c != null && !list.contains(c)) {
             list.add(c);
         }

@@ -18,10 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.zonebuilder;
 
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.ZoneRepository;
+import com.emergentmud.core.repository.zonebuilder.DrunkWalkZoneBuilder;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;

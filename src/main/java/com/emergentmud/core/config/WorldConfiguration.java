@@ -20,7 +20,8 @@
 
 package com.emergentmud.core.config;
 
-import com.emergentmud.core.repository.PolygonalZoneBuilder;
+import com.emergentmud.core.repository.zonebuilder.polygonal.Biome;
+import com.emergentmud.core.repository.zonebuilder.polygonal.PolygonalZoneBuilder;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 @Configuration
 public class WorldConfiguration {
@@ -37,8 +39,11 @@ public class WorldConfiguration {
     @Inject
     private ZoneRepository zoneRepository;
 
+    @Inject
+    private Map<String, Biome> biomes;
+
     @Bean
     public ZoneBuilder zoneBuilder() {
-        return new PolygonalZoneBuilder(zoneRepository, roomRepository);
+        return new PolygonalZoneBuilder(biomes, zoneRepository, roomRepository);
     }
 }

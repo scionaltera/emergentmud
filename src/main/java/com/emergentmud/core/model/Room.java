@@ -20,8 +20,6 @@
 
 package com.emergentmud.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -33,8 +31,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
         @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
 })
 public class Room {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Room.class);
-
     @Id
     private String id;
 
@@ -98,13 +94,6 @@ public class Room {
         this.color[1] = (color >>> 8) & 0xFF;  // 0x0000FF00 is green
         this.color[2] = color & 0xFF;          // 0x000000FF is blue
         this.color[3] = (color >>> 24) & 0xFF; // 0xFF000000 is alpha
-
-//        LOGGER.info("{} -> {} {} {} {}",
-//                Integer.toHexString(color),
-//                Integer.toHexString(this.color[0]),
-//                Integer.toHexString(this.color[1]),
-//                Integer.toHexString(this.color[2]),
-//                Integer.toHexString(this.color[3]));
     }
 
     public void setColor(Integer[] color) {
