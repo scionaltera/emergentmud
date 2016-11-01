@@ -54,10 +54,8 @@ public class MapCommand implements Command {
                     Room room = roomRepository.findByXAndYAndZ(x, y, center.getZ());
 
                     if (room != null) {
-                        line.append(String.format("<span style='color: #%02x%02x%02x'>[]</span>",
-                                room.getColor()[0],
-                                room.getColor()[1],
-                                room.getColor()[2]));
+                        line.append(String.format("<span style='color: #%02x'>[]</span>",
+                                room.getBiome() != null ? room.getBiome().getColor() : 0xFF00FF));
                     } else {
                         line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }

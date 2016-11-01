@@ -27,7 +27,7 @@
  */
 package com.hoten.delaunay.voronoi;
 
-import com.emergentmud.core.repository.zonebuilder.polygonal.Biome;
+import com.emergentmud.core.model.Biome;
 import com.hoten.delaunay.geom.Point;
 import java.util.ArrayList;
 import java.util.List;

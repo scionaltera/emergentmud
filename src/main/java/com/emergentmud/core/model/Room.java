@@ -35,12 +35,14 @@ public class Room {
     private String id;
 
     @DBRef
+    private Biome biome;
+
+    @DBRef
     private Zone zone;
 
     private Long x;
     private Long y;
     private Long z;
-    private Integer[] color;
 
     public String getId() {
         return id;
@@ -48,6 +50,14 @@ public class Room {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Biome getBiome() {
+        return biome;
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
     }
 
     public Zone getZone() {
@@ -80,23 +90,5 @@ public class Room {
 
     public void setZ(Long z) {
         this.z = z;
-    }
-
-    public Integer[] getColor() {
-        return color;
-    }
-
-    public void setColor(Integer color) {
-        this.color = new Integer[4];
-
-        // read an ARGB color and store it as RGBA
-        this.color[0] = (color >>> 16) & 0xFF; // 0x00FF0000 is red
-        this.color[1] = (color >>> 8) & 0xFF;  // 0x0000FF00 is green
-        this.color[2] = color & 0xFF;          // 0x000000FF is blue
-        this.color[3] = (color >>> 24) & 0xFF; // 0xFF000000 is alpha
-    }
-
-    public void setColor(Integer[] color) {
-        this.color = color;
     }
 }

@@ -23,8 +23,10 @@
 
 package com.emergentmud.core.repository.zonebuilder.polygonal;
 
+import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
@@ -64,8 +66,8 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private static final int SITES = 30000;
 
     private ZoneRepository zoneRepository;
+    private BiomeRepository biomeRepository;
     private RoomRepository roomRepository;
-    private Map<String, Biome> biomes;
 
     private final List<Edge> edges = new ArrayList<>();
     private final List<Center> centers = new ArrayList<>();
@@ -79,11 +81,13 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     private BufferedImage pixelCenterMap;
 
+    private Map<String, Biome> biomesByName = new HashMap<>();
+
     @Inject
-    public PolygonalZoneBuilder(Map<String, Biome> biomes, ZoneRepository zoneRepository, RoomRepository roomRepository) {
+    public PolygonalZoneBuilder(ZoneRepository zoneRepository, BiomeRepository biomeRepository, RoomRepository roomRepository) {
         this.zoneRepository = zoneRepository;
+        this.biomeRepository = biomeRepository;
         this.roomRepository = roomRepository;
-        this.biomes = biomes;
 
         RANDOM.setSeed(SEED);
 
@@ -98,6 +102,10 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         edges.clear();
         centers.clear();
         corners.clear();
+        biomesByName.clear();
+
+        List<Biome> allBiomes = biomeRepository.findAll();
+        allBiomes.forEach(biome -> biomesByName.put(biome.getName(), biome));
 
         Zone zone = new Zone();
         zone = zoneRepository.save(zone);
@@ -144,6 +152,9 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             LOGGER.error("Unable to export map as PNG image: ", ioe);
         }
 
+        Map<Integer, Biome> biomesByColor = new HashMap<>();
+        allBiomes.forEach(biome -> biomesByColor.put(biome.getColor(), biome));
+
         // create a new Room for each pixel
         for (long scanY = 0; scanY < map.getHeight(); scanY++) {
             List<Room> rooms = new ArrayList<>();
@@ -155,7 +166,18 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 room.setY((map.getHeight() - 1) - scanY);
                 room.setZ(0L);
                 room.setZone(zone);
-                room.setColor(pixels[(int)(scanY * map.getWidth() + scanX)]);
+
+                int color = pixels[(int)(scanY * map.getWidth() + scanX)];
+                color &= 0xFFFFFF;
+
+                room.setBiome(biomesByColor.get(color));
+
+                if (room.getBiome() == null) {
+                    LOGGER.debug("Failed to set biome for room at ({}, {}, {}) using color: {}",
+                            room.getX(), room.getY(), room.getZ(), Integer.toHexString(color));
+
+                    room.setBiome(biomesByName.get("Ocean")); // hide glitches around the edge of the map
+                }
 
                 rooms.add(room);
             }
@@ -173,59 +195,59 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             return Color.MAGENTA;
         }
 
-        return (biome.getColor());
+        return new Color(biome.getColor());
     }
 
     private Biome getBiome(Center p) {
         if (p.ocean) {
-            return biomes.get("oceanBiome");
+            return biomesByName.get("Ocean");
         } else if (p.water) {
             if (p.elevation < 0.1) {
-                return biomes.get("marshBiome");
+                return biomesByName.get("Marsh");
             }
             if (p.elevation > 0.8) {
-                return biomes.get("iceBiome");
+                return biomesByName.get("Ice");
             }
-            return biomes.get("lakeBiome");
+            return biomesByName.get("Lake");
         } else if (p.coast) {
-            return biomes.get("beachBiome");
+            return biomesByName.get("Beach");
         } else if (p.elevation > 0.8) {
             if (p.moisture > 0.50) {
-                return biomes.get("snowBiome");
+                return biomesByName.get("Snow");
             } else if (p.moisture > 0.33) {
-                return biomes.get("tundraBiome");
+                return biomesByName.get("Tundra");
             } else if (p.moisture > 0.16) {
-                return biomes.get("bareBiome");
+                return biomesByName.get("Bare");
             } else {
-                return biomes.get("scorchedBiome");
+                return biomesByName.get("Scorched");
             }
         } else if (p.elevation > 0.6) {
             if (p.moisture > 0.66) {
-                return biomes.get("taigaBiome");
+                return biomesByName.get("Taiga");
             } else if (p.moisture > 0.33) {
-                return biomes.get("shrublandBiome");
+                return biomesByName.get("Shrubland");
             } else {
-                return biomes.get("temperateDesertBiome");
+                return biomesByName.get("Temperate Desert");
             }
         } else if (p.elevation > 0.3) {
             if (p.moisture > 0.83) {
-                return biomes.get("temperateRainforestBiome");
+                return biomesByName.get("Temperate Rainforest");
             } else if (p.moisture > 0.50) {
-                return biomes.get("temperateDeciduousForestBiome");
+                return biomesByName.get("Temperate Deciduous Forest");
             } else if (p.moisture > 0.16) {
-                return biomes.get("grasslandBiome");
+                return biomesByName.get("Grassland");
             } else {
-                return biomes.get("temperateDesertBiome");
+                return biomesByName.get("Temperate Desert");
             }
         } else {
             if (p.moisture > 0.66) {
-                return biomes.get("tropicalRainforestBiome");
+                return biomesByName.get("Tropical Rainforest");
             } else if (p.moisture > 0.33) {
-                return biomes.get("tropicalSeasonalForestBiome");
+                return biomesByName.get("Tropical Seasonal Forest");
             } else if (p.moisture > 0.16) {
-                return biomes.get("grasslandBiome");
+                return biomesByName.get("Grassland");
             } else {
-                return biomes.get("subtropicalDesertBiome");
+                return biomesByName.get("Subtropical Desert");
             }
         }
     }
@@ -257,7 +279,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             }
             if (drawRivers && e.river > 0) {
                 g.setStroke(new BasicStroke(1 + (int) Math.sqrt(e.river * 2)));
-                g.setColor(biomes.get("riverBiome").getColor());
+                g.setColor(new Color(biomesByName.get("River").getColor()));
                 g.drawLine((int) e.v0.loc.x, (int) e.v0.loc.y, (int) e.v1.loc.x, (int) e.v1.loc.y);
             }
         }
@@ -271,8 +293,8 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             g.setColor(Color.WHITE);
             corners.forEach((c) -> g.fillOval((int) (c.loc.x - 2), (int) (c.loc.y - 2), 4, 4));
         }
-        g.setColor(Color.DARK_GRAY);
-        g.drawRect((int) bounds.x, (int) bounds.y, (int) bounds.width - 1, (int) bounds.height - 1);
+//        g.setColor(Color.DARK_GRAY);
+//        g.drawRect((int) bounds.x, (int) bounds.y, (int) bounds.width, (int) bounds.height);
     }
 
     private void drawPolygon(Graphics2D g, Center c, Color color) {

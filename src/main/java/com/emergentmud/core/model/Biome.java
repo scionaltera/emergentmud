@@ -18,24 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository.zonebuilder.polygonal;
+package com.emergentmud.core.model;
 
-import java.awt.Color;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public class Biome {
-    private String name;
-    private Color color;
+    @Id
+    private String id;
 
-    public Biome(String name, int color) {
+    @Indexed(unique = true)
+    private String name;
+
+    @Indexed(unique = true)
+    private Integer color;
+
+    public Biome(String name, Integer color) {
         this.name = name;
-        this.color = new Color(color);
+        this.color = color;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public Color getColor() {
+    public Integer getColor() {
         return color;
     }
 }
