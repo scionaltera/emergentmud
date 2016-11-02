@@ -57,44 +57,41 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static com.emergentmud.core.config.WorldConfiguration.SEED;
+
 @Component
 public class PolygonalZoneBuilder implements ZoneBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolygonalZoneBuilder.class);
-    private static final Random RANDOM = new Random();
-    private static final int SEED = 92948;
     private static final int EXTENT = 2000;
     private static final int SITES = 30000;
-
-    private ZoneRepository zoneRepository;
-    private BiomeRepository biomeRepository;
-    private RoomRepository roomRepository;
 
     private final List<Edge> edges = new ArrayList<>();
     private final List<Center> centers = new ArrayList<>();
     private final List<Corner> corners = new ArrayList<>();
+
+    private Random random;
+    private ZoneRepository zoneRepository;
+    private BiomeRepository biomeRepository;
+    private RoomRepository roomRepository;
+    private BiomeSelector biomeSelector;
+    private IslandShape islandShape;
+
     private Rectangle bounds;
-
-    private final int bumps;
-    private final double startAngle;
-    private final double dipAngle;
-    private final double dipWidth;
-
     private BufferedImage pixelCenterMap;
 
-    private Map<String, Biome> biomesByName = new HashMap<>();
-
     @Inject
-    public PolygonalZoneBuilder(ZoneRepository zoneRepository, BiomeRepository biomeRepository, RoomRepository roomRepository) {
+    public PolygonalZoneBuilder(Random random,
+                                ZoneRepository zoneRepository,
+                                BiomeRepository biomeRepository,
+                                RoomRepository roomRepository,
+                                BiomeSelector biomeSelector,
+                                IslandShape islandShape) {
+        this.random = random;
         this.zoneRepository = zoneRepository;
         this.biomeRepository = biomeRepository;
         this.roomRepository = roomRepository;
-
-        RANDOM.setSeed(SEED);
-
-        bumps = RANDOM.nextInt(5) + 1;
-        startAngle = RANDOM.nextDouble() * 2 * Math.PI;
-        dipAngle = RANDOM.nextDouble() * 2 * Math.PI;
-        dipWidth = RANDOM.nextDouble() * .5 + .2;
+        this.biomeSelector = biomeSelector;
+        this.islandShape = islandShape;
     }
 
     @Override
@@ -102,16 +99,12 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         edges.clear();
         centers.clear();
         corners.clear();
-        biomesByName.clear();
-
-        List<Biome> allBiomes = biomeRepository.findAll();
-        allBiomes.forEach(biome -> biomesByName.put(biome.getName(), biome));
 
         Zone zone = new Zone();
         zone = zoneRepository.save(zone);
 
         LOGGER.info("Generating points...");
-        Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, RANDOM, null);
+        Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, random, null);
         voronoi = relaxPoints(voronoi);
 
         bounds = voronoi.get_plotBounds();
@@ -152,7 +145,10 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             LOGGER.error("Unable to export map as PNG image: ", ioe);
         }
 
+        List<Biome> allBiomes = biomeRepository.findAll();
         Map<Integer, Biome> biomesByColor = new HashMap<>();
+        Biome oceanBiome = biomeRepository.findByName("Ocean");
+
         allBiomes.forEach(biome -> biomesByColor.put(biome.getColor(), biome));
 
         // create a new Room for each pixel
@@ -176,7 +172,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                     LOGGER.debug("Failed to set biome for room at ({}, {}, {}) using color: {}",
                             room.getX(), room.getY(), room.getZ(), Integer.toHexString(color));
 
-                    room.setBiome(biomesByName.get("Ocean")); // hide glitches around the edge of the map
+                    room.setBiome(oceanBiome); // hide glitches around the edge of the map
                 }
 
                 rooms.add(room);
@@ -198,60 +194,6 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         return new Color(biome.getColor());
     }
 
-    private Biome getBiome(Center p) {
-        if (p.ocean) {
-            return biomesByName.get("Ocean");
-        } else if (p.water) {
-            if (p.elevation < 0.1) {
-                return biomesByName.get("Marsh");
-            }
-            if (p.elevation > 0.8) {
-                return biomesByName.get("Ice");
-            }
-            return biomesByName.get("Lake");
-        } else if (p.coast) {
-            return biomesByName.get("Beach");
-        } else if (p.elevation > 0.8) {
-            if (p.moisture > 0.50) {
-                return biomesByName.get("Snow");
-            } else if (p.moisture > 0.33) {
-                return biomesByName.get("Tundra");
-            } else if (p.moisture > 0.16) {
-                return biomesByName.get("Bare");
-            } else {
-                return biomesByName.get("Scorched");
-            }
-        } else if (p.elevation > 0.6) {
-            if (p.moisture > 0.66) {
-                return biomesByName.get("Taiga");
-            } else if (p.moisture > 0.33) {
-                return biomesByName.get("Shrubland");
-            } else {
-                return biomesByName.get("Temperate Desert");
-            }
-        } else if (p.elevation > 0.3) {
-            if (p.moisture > 0.83) {
-                return biomesByName.get("Temperate Rainforest");
-            } else if (p.moisture > 0.50) {
-                return biomesByName.get("Temperate Deciduous Forest");
-            } else if (p.moisture > 0.16) {
-                return biomesByName.get("Grassland");
-            } else {
-                return biomesByName.get("Temperate Desert");
-            }
-        } else {
-            if (p.moisture > 0.66) {
-                return biomesByName.get("Tropical Rainforest");
-            } else if (p.moisture > 0.33) {
-                return biomesByName.get("Tropical Seasonal Forest");
-            } else if (p.moisture > 0.16) {
-                return biomesByName.get("Grassland");
-            } else {
-                return biomesByName.get("Subtropical Desert");
-            }
-        }
-    }
-
     private BufferedImage createMap() {
         final BufferedImage img = new BufferedImage((int)bounds.width, (int)bounds.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = img.createGraphics();
@@ -263,11 +205,12 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     //also records the area of each voronoi cell
     private void paint(Graphics2D g, boolean drawBiomes, boolean drawRivers, boolean drawSites, boolean drawCorners, boolean drawDelaunay) {
+        Biome riverBiome = biomeRepository.findByName("River");
         Graphics2D pixelCenterGraphics = pixelCenterMap.createGraphics();
 
         //draw via triangles
         for (Center c : centers) {
-            drawPolygon(g, c, drawBiomes ? getColor(c.biome) : new Color(RANDOM.nextInt(255), RANDOM.nextInt(255), RANDOM.nextInt(255)));
+            drawPolygon(g, c, drawBiomes ? getColor(c.biome) : new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
             drawPolygon(pixelCenterGraphics, c, new Color(c.index));
         }
 
@@ -279,7 +222,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
             }
             if (drawRivers && e.river > 0) {
                 g.setStroke(new BasicStroke(1 + (int) Math.sqrt(e.river * 2)));
-                g.setColor(new Color(biomesByName.get("River").getColor()));
+                g.setColor(new Color(riverBiome.getColor()));
                 g.drawLine((int) e.v0.loc.x, (int) e.v0.loc.y, (int) e.v1.loc.x, (int) e.v1.loc.y);
             }
         }
@@ -496,7 +439,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         LOGGER.info("Assigning corner elevations...");
         Deque<Corner> queue = new ArrayDeque<>();
         for (Corner c : corners) {
-            c.water = isWater(c.loc);
+            c.water = islandShape.isWater(bounds, c.loc);
             if (c.border) {
                 c.elevation = 0;
                 queue.add(c);
@@ -518,39 +461,6 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 }
             }
         }
-    }
-
-    //only the radial implementation of amitp's map generation
-    //TODO implement more island shapes
-    private boolean isWater(Point p) {
-        p = new Point(2 * (p.x / bounds.width - 0.5), 2 * (p.y / bounds.height - 0.5));
-
-        double angle = Math.atan2(p.y, p.x);
-        double length = 0.5 * (Math.max(Math.abs(p.x), Math.abs(p.y)) + p.length());
-
-        double r1 = 0.5 + 0.40 * Math.sin(startAngle + bumps * angle + Math.cos((bumps + 3) * angle));
-        double r2 = 0.7 - 0.20 * Math.sin(startAngle + bumps * angle - Math.sin((bumps + 2) * angle));
-        if (Math.abs(angle - dipAngle) < dipWidth
-                || Math.abs(angle - dipAngle + 2 * Math.PI) < dipWidth
-                || Math.abs(angle - dipAngle - 2 * Math.PI) < dipWidth) {
-            r1 = r2 = 0.2;
-        }
-        double ISLAND_FACTOR = 1.07;
-        return !(length < r1 || (length > r1 * ISLAND_FACTOR && length < r2));
-
-        //return false;
-
-        /*if (noise == null) {
-         noise = new Perlin2d(.125, 8, MyRandom.seed).createArray(257, 257);
-         }
-         int x = (int) ((p.x + 1) * 128);
-         int y = (int) ((p.y + 1) * 128);
-         return noise[x][y] < .3 + .3 * p.l2();*/
-
-        /*boolean eye1 = new Point(p.x - 0.2, p.y / 2 + 0.2).length() < 0.05;
-         boolean eye2 = new Point(p.x + 0.2, p.y / 2 + 0.2).length() < 0.05;
-         boolean body = p.length() < 0.8 - 0.18 * Math.sin(5 * Math.atan2(p.y, p.x));
-         return !(body && !eye1 && !eye2);*/
     }
 
     private void improveCorners() {
@@ -712,7 +622,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private void createRivers() {
         LOGGER.info("Creating rivers...");
         for (int i = 0; i < bounds.width / 2; i++) {
-            Corner c = corners.get(RANDOM.nextInt(corners.size()));
+            Corner c = corners.get(random.nextInt(corners.size()));
             if (c.ocean || c.elevation < 0.3 || c.elevation > 0.9) {
                 continue;
             }
@@ -798,7 +708,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private void assignBiomes() {
         LOGGER.info("Assigning biomes...");
         for (Center center : centers) {
-            center.biome = getBiome(center);
+            center.biome = biomeSelector.getBiome(center);
         }
     }
 }

@@ -21,17 +21,23 @@
 package com.emergentmud.core.config;
 
 import com.emergentmud.core.repository.BiomeRepository;
+import com.emergentmud.core.repository.zonebuilder.polygonal.BiomeSelector;
+import com.emergentmud.core.repository.zonebuilder.polygonal.IslandShape;
 import com.emergentmud.core.repository.zonebuilder.polygonal.PolygonalZoneBuilder;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
+import com.emergentmud.core.repository.zonebuilder.polygonal.RadialIslandShape;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.inject.Inject;
+import java.util.Random;
 
 @Configuration
 public class WorldConfiguration {
+    public static final int SEED = 92948;
+
     @Inject
     private ZoneRepository zoneRepository;
 
@@ -41,8 +47,31 @@ public class WorldConfiguration {
     @Inject
     private RoomRepository roomRepository;
 
+    @Inject
+    private BiomeSelector biomeSelector;
+
+    @Bean(name = "worldRandom")
+    public Random random() {
+        Random random = new Random();
+
+        random.setSeed(SEED);
+
+        return random;
+    }
+
+    @Bean
+    public IslandShape islandShape() {
+        return new RadialIslandShape(random());
+    }
+
     @Bean
     public ZoneBuilder zoneBuilder() {
-        return new PolygonalZoneBuilder(zoneRepository, biomeRepository, roomRepository);
+        return new PolygonalZoneBuilder(
+                random(),
+                zoneRepository,
+                biomeRepository,
+                roomRepository,
+                biomeSelector,
+                islandShape());
     }
 }
