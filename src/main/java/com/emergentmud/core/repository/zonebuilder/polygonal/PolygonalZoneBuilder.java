@@ -37,6 +37,7 @@ import com.hoten.delaunay.voronoi.Edge;
 import com.hoten.delaunay.voronoi.nodename.as3delaunay.Voronoi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -50,11 +51,11 @@ import java.util.Random;
 @Component
 public class PolygonalZoneBuilder implements ZoneBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolygonalZoneBuilder.class);
-    private static final int SITES = 30000; // TODO inject me from configuration
-    private static final int EXTENT = 2000; // TODO inject me from configuration
-    private static final int LLOYDS = 1;    // TODO inject me from configuration
 
     private Random random;
+    private int worldSites;
+    private int worldExtent;
+    private int worldLloyds;
     private LloydsRelaxation lloydsRelaxation;
     private ZoneRepository zoneRepository;
     private BiomeRepository biomeRepository;
@@ -67,6 +68,9 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     @Inject
     public PolygonalZoneBuilder(Random random,
+                                @Qualifier(value = "worldSites") int worldSites,
+                                @Qualifier(value = "worldExtent") int worldExtent,
+                                @Qualifier(value = "worldLloyds") int worldLloyds,
                                 LloydsRelaxation lloydsRelaxation,
                                 ZoneRepository zoneRepository,
                                 BiomeRepository biomeRepository,
@@ -77,6 +81,9 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                                 ElevationBuilder elevationBuilder,
                                 MoistureBuilder moistureBuilder) {
         this.random = random;
+        this.worldSites = worldSites;
+        this.worldExtent = worldExtent;
+        this.worldLloyds = worldLloyds;
         this.lloydsRelaxation = lloydsRelaxation;
         this.zoneRepository = zoneRepository;
         this.biomeRepository = biomeRepository;
@@ -118,9 +125,9 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     private Voronoi generatePoints() {
         LOGGER.info("Generating points...");
-        Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, random, null);
+        Voronoi voronoi = new Voronoi(worldSites, worldExtent, worldExtent, random, null);
 
-        for (int i = 0; i < LLOYDS; i++) {
+        for (int i = 0; i < worldLloyds; i++) {
             voronoi = lloydsRelaxation.relaxPoints(voronoi);
         }
 
@@ -137,7 +144,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
         allBiomes.forEach(biome -> biomesByColor.put(biome.getColor(), biome));
 
-        BufferedImage map = imageBuilder.build(SITES, LLOYDS, bounds, random, edges, centers, corners);
+        BufferedImage map = imageBuilder.build(bounds, random, edges, centers, corners);
         int[] pixels = new int[map.getHeight() * map.getWidth()];
         pixels = map.getRGB(0, 0, map.getWidth(), map.getHeight(), pixels, 0, map.getWidth());
 

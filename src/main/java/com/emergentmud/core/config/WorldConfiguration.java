@@ -33,6 +33,7 @@ import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
 import com.emergentmud.core.repository.zonebuilder.polygonal.RadialIslandShape;
 import com.emergentmud.core.repository.zonebuilder.polygonal.VoronoiGraphBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -41,7 +42,10 @@ import java.util.Random;
 
 @Configuration
 public class WorldConfiguration {
-    public static final int SEED = 92948; // TODO inject me from configuration
+    private @Value("${world.seed}") int seed;
+    private @Value("${world.sites}") int sites;
+    private @Value("${world.extent}") int extent;
+    private @Value("${world.lloyds}") int lloyds;
 
     @Inject
     private LloydsRelaxation lloydsRelaxation;
@@ -70,11 +74,31 @@ public class WorldConfiguration {
     @Inject
     private MoistureBuilder moistureBuilder;
 
+    @Bean(name = "worldSeed")
+    public int getSeed() {
+        return seed;
+    }
+
+    @Bean(name = "worldSites")
+    public int getSites() {
+        return sites;
+    }
+
+    @Bean(name = "worldExtent")
+    public int getExtent() {
+        return extent;
+    }
+
+    @Bean(name = "worldLloyds")
+    public int getLloyds() {
+        return lloyds;
+    }
+
     @Bean(name = "worldRandom")
     public Random random() {
         Random random = new Random();
 
-        random.setSeed(SEED);
+        random.setSeed(getSeed());
 
         return random;
     }
@@ -88,6 +112,9 @@ public class WorldConfiguration {
     public ZoneBuilder zoneBuilder() {
         return new PolygonalZoneBuilder(
                 random(),
+                getSites(),
+                getExtent(),
+                getLloyds(),
                 lloydsRelaxation,
                 zoneRepository,
                 biomeRepository,

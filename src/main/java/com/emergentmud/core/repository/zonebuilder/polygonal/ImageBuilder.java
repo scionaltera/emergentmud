@@ -28,6 +28,7 @@ import com.hoten.delaunay.voronoi.Corner;
 import com.hoten.delaunay.voronoi.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -39,20 +40,27 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
-import static com.emergentmud.core.config.WorldConfiguration.SEED;
-
 @Component
 public class ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageBuilder.class);
 
+    private int worldSeed;
+    private int worldSites;
+    private int worldLloyds;
     private BiomeRepository biomeRepository;
 
     @Inject
-    public ImageBuilder(BiomeRepository biomeRepository) {
+    public ImageBuilder(@Qualifier(value = "worldSeed") int worldSeed,
+                        @Qualifier(value = "worldSites") int worldSites,
+                        @Qualifier(value = "worldLloyds") int worldLloyds,
+                        BiomeRepository biomeRepository) {
+        this.worldSeed = worldSeed;
+        this.worldSites = worldSites;
+        this.worldLloyds = worldLloyds;
         this.biomeRepository = biomeRepository;
     }
 
-    public BufferedImage build(int sites, int lloyds, Rectangle bounds, Random random, List<Edge> edges, List<Center> centers, List<Corner> corners) {
+    public BufferedImage build(Rectangle bounds, Random random, List<Edge> edges, List<Center> centers, List<Corner> corners) {
         final BufferedImage map = new BufferedImage((int)bounds.width, (int)bounds.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = map.createGraphics();
 
@@ -61,7 +69,7 @@ public class ImageBuilder {
         LOGGER.info("Created bitmap: width = {}, height = {}", map.getWidth(), map.getHeight());
 
         try {
-            File file = new File(String.format("maps/seed-%d-sites-%d-lloyds-%d.png", SEED, sites, lloyds));
+            File file = new File(String.format("maps/seed-%d-sites-%d-lloyds-%d.png", worldSeed, worldSites, worldLloyds));
 
             if (file.mkdirs()) {
                 ImageIO.write(map, "PNG", file);
