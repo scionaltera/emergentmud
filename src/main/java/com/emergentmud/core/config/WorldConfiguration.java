@@ -22,12 +22,15 @@ package com.emergentmud.core.config;
 
 import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.zonebuilder.polygonal.BiomeSelector;
+import com.emergentmud.core.repository.zonebuilder.polygonal.ElevationBuilder;
+import com.emergentmud.core.repository.zonebuilder.polygonal.ImageBuilder;
 import com.emergentmud.core.repository.zonebuilder.polygonal.IslandShape;
 import com.emergentmud.core.repository.zonebuilder.polygonal.PolygonalZoneBuilder;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
 import com.emergentmud.core.repository.zonebuilder.polygonal.RadialIslandShape;
+import com.emergentmud.core.repository.zonebuilder.polygonal.VoronoiGraphBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,6 +52,15 @@ public class WorldConfiguration {
 
     @Inject
     private BiomeSelector biomeSelector;
+
+    @Inject
+    private ImageBuilder imageBuilder;
+
+    @Inject
+    private VoronoiGraphBuilder voronoiGraphBuilder;
+
+    @Inject
+    private ElevationBuilder elevationBuilder;
 
     @Bean(name = "worldRandom")
     public Random random() {
@@ -72,6 +84,8 @@ public class WorldConfiguration {
                 biomeRepository,
                 roomRepository,
                 biomeSelector,
-                islandShape());
+                imageBuilder,
+                voronoiGraphBuilder,
+                elevationBuilder);
     }
 }
