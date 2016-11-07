@@ -25,6 +25,8 @@ import com.emergentmud.core.repository.zonebuilder.polygonal.BiomeSelector;
 import com.emergentmud.core.repository.zonebuilder.polygonal.ElevationBuilder;
 import com.emergentmud.core.repository.zonebuilder.polygonal.ImageBuilder;
 import com.emergentmud.core.repository.zonebuilder.polygonal.IslandShape;
+import com.emergentmud.core.repository.zonebuilder.polygonal.LloydsRelaxation;
+import com.emergentmud.core.repository.zonebuilder.polygonal.MoistureBuilder;
 import com.emergentmud.core.repository.zonebuilder.polygonal.PolygonalZoneBuilder;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
@@ -39,7 +41,10 @@ import java.util.Random;
 
 @Configuration
 public class WorldConfiguration {
-    public static final int SEED = 92948;
+    public static final int SEED = 92948; // TODO inject me from configuration
+
+    @Inject
+    private LloydsRelaxation lloydsRelaxation;
 
     @Inject
     private ZoneRepository zoneRepository;
@@ -62,6 +67,9 @@ public class WorldConfiguration {
     @Inject
     private ElevationBuilder elevationBuilder;
 
+    @Inject
+    private MoistureBuilder moistureBuilder;
+
     @Bean(name = "worldRandom")
     public Random random() {
         Random random = new Random();
@@ -80,12 +88,14 @@ public class WorldConfiguration {
     public ZoneBuilder zoneBuilder() {
         return new PolygonalZoneBuilder(
                 random(),
+                lloydsRelaxation,
                 zoneRepository,
                 biomeRepository,
                 roomRepository,
                 biomeSelector,
                 imageBuilder,
                 voronoiGraphBuilder,
-                elevationBuilder);
+                elevationBuilder,
+                moistureBuilder);
     }
 }

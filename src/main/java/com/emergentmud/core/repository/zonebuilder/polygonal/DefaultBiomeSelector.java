@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class DefaultBiomeSelector implements BiomeSelector {
+public class DefaultBiomeSelector extends AbstractBiomeSelector {
     private BiomeRepository biomeRepository;
     private Map<String, Biome> biomesByName = new HashMap<>();
 

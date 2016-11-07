@@ -20,12 +20,15 @@
 
 package com.emergentmud.core.repository.zonebuilder.polygonal;
 
-import com.emergentmud.core.model.Biome;
-import com.hoten.delaunay.voronoi.Center;
+import com.hoten.delaunay.voronoi.Corner;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public interface BiomeSelector {
-    Biome getBiome(Center center);
-    void assignBiomes(List<Center> centers);
+@Component
+public class LandCornerFilter {
+    public List<Corner> landCorners(List<Corner> corners) {
+        return corners.stream().filter(c -> !c.ocean && !c.coast).collect(Collectors.toList());
+    }
 }

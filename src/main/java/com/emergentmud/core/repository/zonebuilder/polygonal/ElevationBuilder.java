@@ -38,10 +38,12 @@ public class ElevationBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElevationBuilder.class);
 
     private IslandShape islandShape;
+    private LandCornerFilter landCornerFilter;
 
     @Inject
-    public ElevationBuilder(IslandShape islandShape) {
+    public ElevationBuilder(IslandShape islandShape, LandCornerFilter landCornerFilter) {
         this.islandShape = islandShape;
+        this.landCornerFilter = landCornerFilter;
     }
 
     public void assignCornerElevations(Rectangle bounds, List<Corner> corners) {
@@ -119,8 +121,10 @@ public class ElevationBuilder {
         }
     }
 
-    public void redistributeElevations(List<Corner> landCorners, List<Corner> corners) {
+    public void redistributeElevations(List<Corner> corners) {
         LOGGER.info("Redistributing elevations...");
+
+        List<Corner> landCorners = landCornerFilter.landCorners(corners);
         Collections.sort(landCorners, (o1, o2) -> {
             if (o1.elevation > o2.elevation) {
                 return 1;
@@ -149,6 +153,21 @@ public class ElevationBuilder {
                 total += c.elevation;
             }
             center.elevation = total / center.corners.size();
+        }
+    }
+
+    public void calculateDownslopes(List<Corner> corners) {
+        LOGGER.info("Calculating slopes...");
+        for (Corner c : corners) {
+            Corner down = c;
+            //System.out.println("ME: " + c.elevation);
+            for (Corner a : c.adjacent) {
+                //System.out.println(a.elevation);
+                if (a.elevation <= down.elevation) {
+                    down = a;
+                }
+            }
+            c.downslope = down;
         }
     }
 }

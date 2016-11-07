@@ -52,7 +52,7 @@ public class ImageBuilder {
         this.biomeRepository = biomeRepository;
     }
 
-    public BufferedImage build(int sites, Rectangle bounds, Random random, List<Edge> edges, List<Center> centers, List<Corner> corners) {
+    public BufferedImage build(int sites, int lloyds, Rectangle bounds, Random random, List<Edge> edges, List<Center> centers, List<Corner> corners) {
         final BufferedImage map = new BufferedImage((int)bounds.width, (int)bounds.height, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D graphics = map.createGraphics();
 
@@ -61,7 +61,7 @@ public class ImageBuilder {
         LOGGER.info("Created bitmap: width = {}, height = {}", map.getWidth(), map.getHeight());
 
         try {
-            File file = new File(String.format("maps/seed-%d-sites-%d-lloyds-%d.png", SEED, sites, 1));
+            File file = new File(String.format("maps/seed-%d-sites-%d-lloyds-%d.png", SEED, sites, lloyds));
 
             if (file.mkdirs()) {
                 ImageIO.write(map, "PNG", file);

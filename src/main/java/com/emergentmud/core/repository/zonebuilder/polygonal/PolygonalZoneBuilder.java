@@ -30,7 +30,6 @@ import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneBuilder;
 import com.emergentmud.core.repository.ZoneRepository;
-import com.hoten.delaunay.geom.Point;
 import com.hoten.delaunay.geom.Rectangle;
 import com.hoten.delaunay.voronoi.Center;
 import com.hoten.delaunay.voronoi.Corner;
@@ -42,21 +41,21 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.awt.image.BufferedImage;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Component
 public class PolygonalZoneBuilder implements ZoneBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolygonalZoneBuilder.class);
+    private static final int SITES = 30000; // TODO inject me from configuration
+    private static final int EXTENT = 2000; // TODO inject me from configuration
+    private static final int LLOYDS = 1;    // TODO inject me from configuration
 
     private Random random;
+    private LloydsRelaxation lloydsRelaxation;
     private ZoneRepository zoneRepository;
     private BiomeRepository biomeRepository;
     private RoomRepository roomRepository;
@@ -64,17 +63,21 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     private ImageBuilder imageBuilder;
     private VoronoiGraphBuilder voronoiGraphBuilder;
     private ElevationBuilder elevationBuilder;
+    private MoistureBuilder moistureBuilder;
 
     @Inject
     public PolygonalZoneBuilder(Random random,
+                                LloydsRelaxation lloydsRelaxation,
                                 ZoneRepository zoneRepository,
                                 BiomeRepository biomeRepository,
                                 RoomRepository roomRepository,
                                 BiomeSelector biomeSelector,
                                 ImageBuilder imageBuilder,
                                 VoronoiGraphBuilder voronoiGraphBuilder,
-                                ElevationBuilder elevationBuilder) {
+                                ElevationBuilder elevationBuilder,
+                                MoistureBuilder moistureBuilder) {
         this.random = random;
+        this.lloydsRelaxation = lloydsRelaxation;
         this.zoneRepository = zoneRepository;
         this.biomeRepository = biomeRepository;
         this.roomRepository = roomRepository;
@@ -82,40 +85,51 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         this.imageBuilder = imageBuilder;
         this.voronoiGraphBuilder = voronoiGraphBuilder;
         this.elevationBuilder = elevationBuilder;
+        this.moistureBuilder = moistureBuilder;
     }
 
     @Override
     public Zone build(Long x, Long y, Long z) {
-        final int EXTENT = 2000;
-        final int SITES = 30000;
+        Voronoi voronoi = generatePoints();
+        Rectangle bounds = voronoi.get_plotBounds();
 
         List<Edge> edges = new ArrayList<>();
         List<Center> centers = new ArrayList<>();
         List<Corner> corners = new ArrayList<>();
-
-        Zone zone = new Zone();
-        zone = zoneRepository.save(zone);
-
-        LOGGER.info("Generating points...");
-        Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, random, null);
-        voronoi = relaxPoints(voronoi);
-
-        Rectangle bounds = voronoi.get_plotBounds();
 
         voronoiGraphBuilder.buildGraph(voronoi, edges, centers, corners);
         voronoiGraphBuilder.improveCorners(edges, corners);
 
         elevationBuilder.assignCornerElevations(bounds, corners);
         elevationBuilder.assignOceanCoastAndLand(centers, corners);
-        elevationBuilder.redistributeElevations(landCorners(corners), corners);
+        elevationBuilder.redistributeElevations(corners);
         elevationBuilder.assignPolygonElevations(centers);
+        elevationBuilder.calculateDownslopes(corners);
 
-        calculateDownslopes(corners);
-        createRivers(bounds, corners);
-        assignCornerMoisture(corners);
-        redistributeMoisture(landCorners(corners));
-        assignPolygonMoisture(centers);
-        assignBiomes(centers);
+        moistureBuilder.createRivers(bounds, corners);
+        moistureBuilder.assignCornerMoisture(corners);
+        moistureBuilder.redistributeMoisture(corners);
+        moistureBuilder.assignPolygonMoisture(centers);
+
+        biomeSelector.assignBiomes(centers);
+
+        return buildZone(bounds, edges, centers, corners);
+    }
+
+    private Voronoi generatePoints() {
+        LOGGER.info("Generating points...");
+        Voronoi voronoi = new Voronoi(SITES, EXTENT, EXTENT, random, null);
+
+        for (int i = 0; i < LLOYDS; i++) {
+            voronoi = lloydsRelaxation.relaxPoints(voronoi);
+        }
+
+        return voronoi;
+    }
+
+    private Zone buildZone(Rectangle bounds, List<Edge> edges, List<Center> centers, List<Corner> corners) {
+        Zone zone = new Zone();
+        zone = zoneRepository.save(zone);
 
         List<Biome> allBiomes = biomeRepository.findAll();
         Map<Integer, Biome> biomesByColor = new HashMap<>();
@@ -123,11 +137,12 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
         allBiomes.forEach(biome -> biomesByColor.put(biome.getColor(), biome));
 
-        BufferedImage map = imageBuilder.build(SITES, bounds, random, edges, centers, corners);
+        BufferedImage map = imageBuilder.build(SITES, LLOYDS, bounds, random, edges, centers, corners);
         int[] pixels = new int[map.getHeight() * map.getWidth()];
         pixels = map.getRGB(0, 0, map.getWidth(), map.getHeight(), pixels, 0, map.getWidth());
 
         // create a new Room for each pixel
+        LOGGER.info("Generating rooms from image...");
         for (long scanY = 0; scanY < map.getHeight(); scanY++) {
             List<Room> rooms = new ArrayList<>();
 
@@ -145,7 +160,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
                 room.setBiome(biomesByColor.get(color));
 
                 if (room.getBiome() == null) {
-                    LOGGER.debug("Failed to set biome for room at ({}, {}, {}) using color: {}",
+                    LOGGER.debug("Failed to set biome for room at ({}, {}, {}) with color: {}",
                             room.getX(), room.getY(), room.getZ(), Integer.toHexString(color));
 
                     room.setBiome(oceanBiome); // hide glitches around the edge of the map
@@ -160,146 +175,5 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         }
 
         return zone;
-    }
-
-    /**
-     * Lloyd's Relaxation. The random number generator tends to make clumps of points
-     * and this will smooth them out so they're more evenly distributed.
-     *
-     * https://en.wikipedia.org/wiki/Lloyd%27s_algorithm
-     */
-    private Voronoi relaxPoints(Voronoi voronoi) {
-        LOGGER.info("Relaxing points...");
-        List<Point> points = voronoi.siteCoords();
-
-        points.forEach(p -> {
-            List<Point> region = voronoi.region(p);
-            double x = 0;
-            double y = 0;
-
-            for (Point c : region) {
-                x += c.x;
-                y += c.y;
-            }
-
-            x /= region.size();
-            y /= region.size();
-            p.x = x;
-            p.y = y;
-        });
-
-        return new Voronoi(points, null, voronoi.get_plotBounds());
-    }
-
-    private List<Corner> landCorners(List<Corner> corners) {
-        return corners.stream().filter(c -> !c.ocean && !c.coast).collect(Collectors.toList());
-    }
-
-    private void calculateDownslopes(List<Corner> corners) {
-        LOGGER.info("Calculating slopes...");
-        for (Corner c : corners) {
-            Corner down = c;
-            //System.out.println("ME: " + c.elevation);
-            for (Corner a : c.adjacent) {
-                //System.out.println(a.elevation);
-                if (a.elevation <= down.elevation) {
-                    down = a;
-                }
-            }
-            c.downslope = down;
-        }
-    }
-
-    private void createRivers(Rectangle bounds, List<Corner> corners) {
-        LOGGER.info("Creating rivers...");
-        for (int i = 0; i < bounds.width / 2; i++) {
-            Corner c = corners.get(random.nextInt(corners.size()));
-            if (c.ocean || c.elevation < 0.3 || c.elevation > 0.9) {
-                continue;
-            }
-            // Bias rivers to go west: if (q.downslope.x > q.x) continue;
-            while (!c.coast) {
-                if (c == c.downslope) {
-                    break;
-                }
-                Edge edge = lookupEdgeFromCorner(c, c.downslope);
-                if (edge != null && (!edge.v0.water || !edge.v1.water)) {
-                    edge.river++;
-                    c.river++;
-                    c.downslope.river++;  // TODO: fix double count
-                }
-                c = c.downslope;
-            }
-        }
-    }
-
-    private Edge lookupEdgeFromCorner(Corner c, Corner downslope) {
-        for (Edge e : c.protrudes) {
-            if (e.v0 == downslope || e.v1 == downslope) {
-                return e;
-            }
-        }
-        return null;
-    }
-
-    private void assignCornerMoisture(List<Corner> corners) {
-        LOGGER.info("Assigning corner moisture...");
-        Deque<Corner> queue = new ArrayDeque<>();
-        for (Corner c : corners) {
-            if ((c.water || c.river > 0) && !c.ocean) {
-                c.moisture = c.river > 0 ? Math.min(3.0, (0.2 * c.river)) : 1.0;
-                queue.push(c);
-            } else {
-                c.moisture = 0.0;
-            }
-        }
-
-        while (!queue.isEmpty()) {
-            Corner c = queue.pop();
-            for (Corner a : c.adjacent) {
-                double newM = .9 * c.moisture;
-                if (newM > a.moisture) {
-                    a.moisture = newM;
-                    queue.add(a);
-                }
-            }
-        }
-
-        // Salt water
-        corners.stream().filter(c -> c.ocean || c.coast).forEach(c -> c.moisture = 1.0);
-    }
-
-    private void redistributeMoisture(List<Corner> landCorners) {
-        LOGGER.info("Redistributing moisture...");
-        Collections.sort(landCorners, (o1, o2) -> {
-            if (o1.moisture > o2.moisture) {
-                return 1;
-            } else if (o1.moisture < o2.moisture) {
-                return -1;
-            }
-            return 0;
-        });
-        for (int i = 0; i < landCorners.size(); i++) {
-            landCorners.get(i).moisture = (double) i / landCorners.size();
-        }
-    }
-
-    private void assignPolygonMoisture(List<Center> centers) {
-        LOGGER.info("Assigning moisture...");
-        for (Center center : centers) {
-            double total = 0;
-            for (Corner c : center.corners) {
-                total += c.moisture;
-            }
-            center.moisture = total / center.corners.size();
-        }
-    }
-
-
-    private void assignBiomes(List<Center> centers) {
-        LOGGER.info("Assigning biomes...");
-        for (Center center : centers) {
-            center.biome = biomeSelector.getBiome(center);
-        }
     }
 }
