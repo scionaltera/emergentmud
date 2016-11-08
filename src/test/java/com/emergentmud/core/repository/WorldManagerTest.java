@@ -75,18 +75,9 @@ public class WorldManagerTest {
 
     @Test
     public void testTestMissing() throws Exception {
-        assertTrue(worldManager.test(0L, 0L, 0L));
-
-        verify(zoneBuilder).build(eq(0L), eq(0L), eq(0L));
-    }
-
-    @Test
-    public void testTestNoZone() throws Exception {
-        when(zoneBuilder.build(eq(0L), eq(0L), eq(0L))).thenReturn(null);
-
         assertFalse(worldManager.test(0L, 0L, 0L));
 
-        verify(zoneBuilder).build(eq(0L), eq(0L), eq(0L));
+        verify(zoneBuilder, never()).build(eq(0L), eq(0L), eq(0L));
     }
 
     @Test
