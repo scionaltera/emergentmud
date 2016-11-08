@@ -62,7 +62,7 @@ public class GotoCommand implements Command {
             if (tokens.length == 3) {
                 location[2] = Long.parseLong(tokens[2]);
             }
-        } catch (NumberFormatException nfe) {
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException nfe) {
             output.append("Usage: GOTO &lt;X&gt; &lt;Y&gt; [Z]");
 
             return output;

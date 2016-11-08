@@ -51,8 +51,7 @@ public class CommandLoaderTest {
             //noinspection unchecked
             List<CommandMetadata> metadataList = (List<CommandMetadata>)invocation.getArguments()[0];
 
-            metadataList.stream()
-                    .forEach(m -> m.setId(UUID.randomUUID().toString()));
+            metadataList.forEach(m -> m.setId(UUID.randomUUID().toString()));
 
             return metadataList;
         });
@@ -70,8 +69,7 @@ public class CommandLoaderTest {
 
         List<CommandMetadata> metadataList = metadataCaptor.getValue();
 
-        metadataList.stream()
-                .forEach(m -> {
+        metadataList.forEach(m -> {
                     assertNotNull(m.getId());
                     assertNotNull(m.getName());
                     assertNotNull(m.getBeanName());
