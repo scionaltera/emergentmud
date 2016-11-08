@@ -253,6 +253,28 @@ public class MainResourceTest {
     }
 
     @Test
+    public void testPlayNoWorld() throws Exception {
+        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(false);
+
+        String view = mainResource.play("essence0", httpSession, principal, model);
+        Entity entity = essence.getEntity();
+
+        verify(entityUtil, never()).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
+        verify(worldManager, never()).put(eq(entity), eq(0L), eq(0L), eq(0L));
+        verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
+        verify(model).addAttribute(eq("breadcrumb"), anyString());
+        verify(model).addAttribute(eq("account"), eq(account));
+        verify(model).addAttribute(eq("essence"), eq(essence));
+        assertEquals("play", view);
+
+        Map<String, String> sessionMap = mapCaptor.getValue();
+
+        assertEquals(account.getId(), sessionMap.get("account"));
+        assertEquals(essence.getId(), sessionMap.get("essence"));
+        assertEquals(entity.getId(), sessionMap.get("entity"));
+    }
+
+    @Test
     public void testPlayNoId() throws Exception {
         String view = mainResource.play("", httpSession, principal, model);
 
