@@ -60,7 +60,7 @@ public class WorldManagerTest {
         when(zoneBuilder.build(anyLong(), anyLong(), anyLong())).thenReturn(zone);
         when(zone.getId()).thenReturn("zoneId");
 
-        worldManager = new WorldManager(entityRepository, zoneBuilder, roomRepository);
+        worldManager = new WorldManager(entityRepository, roomRepository);
 
     }
 

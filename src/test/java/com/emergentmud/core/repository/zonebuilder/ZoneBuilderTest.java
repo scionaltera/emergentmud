@@ -24,7 +24,6 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.ZoneRepository;
-import com.emergentmud.core.repository.zonebuilder.DrunkWalkZoneBuilder;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -91,15 +90,13 @@ public class ZoneBuilderTest {
     public void testBuild() throws Exception {
         Zone zone = zoneBuilder.build(0L, 0L, 0L);
 
-        assertTrue(3 == zone.getColor().length);
-
         verify(zoneRepository).save(eq(zone));
         verify(roomRepository).save(roomListCaptor.capture());
 
         List<Room> roomList = roomListCaptor.getValue();
 
         assertEquals(DrunkWalkZoneBuilder.ZONE_SIZE, roomList.size());
-        roomList.stream().forEach(room -> assertEquals(zone, room.getZone()));
+        roomList.forEach(room -> assertEquals(zone, room.getZone()));
     }
 
     @Test
