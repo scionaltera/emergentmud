@@ -16,31 +16,51 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Parts of this file are adapted from Connor Clark's map generation
- * implementation available here: https://github.com/Hoten/Java-Delaunay
  */
 
 package com.emergentmud.core.repository.zonebuilder.polygonal;
 
 import com.emergentmud.core.model.Biome;
 import com.hoten.delaunay.voronoi.Center;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractBiomeSelector implements BiomeSelector {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBiomeSelector.class);
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-    @Override
-    public abstract Biome getBiome(Center center);
+public class AbstractBiomeSelectorTest {
+    @Mock
+    private Biome biome;
 
-    @Override
-    public void assignBiomes(List<Center> centers) {
-        LOGGER.info("Assigning biomes...");
-        for (Center center : centers) {
-            center.biome = getBiome(center);
+    private List<Center> centers = new ArrayList<>();
+
+    private AbstractBiomeSelector abstractBiomeSelector;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
+        for (int i = 0; i < 5; i++) {
+            centers.add(mock(Center.class));
         }
+
+        abstractBiomeSelector = new AbstractBiomeSelector() {
+            @Override
+            public Biome getBiome(Center center) {
+                return biome;
+            }
+        };
+    }
+
+    @Test
+    public void testAssignBiomes() throws Exception {
+        abstractBiomeSelector.assignBiomes(centers);
+
+        centers.forEach(c -> assertEquals(biome, c.biome));
     }
 }

@@ -16,6 +16,9 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Parts of this file are adapted from Connor Clark's map generation
+ * implementation available here: https://github.com/Hoten/Java-Delaunay
  */
 
 package com.emergentmud.core.repository.zonebuilder.polygonal;

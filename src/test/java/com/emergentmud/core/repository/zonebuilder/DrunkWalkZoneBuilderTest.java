@@ -39,7 +39,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ZoneBuilderTest {
+public class DrunkWalkZoneBuilderTest {
     @Mock
     private ZoneRepository zoneRepository;
 
@@ -54,7 +54,7 @@ public class ZoneBuilderTest {
 
     private DrunkWalkZoneBuilder zoneBuilder;
 
-    public ZoneBuilderTest() {
+    public DrunkWalkZoneBuilderTest() {
         MockitoAnnotations.initMocks(this);
 
         when(origin.getX()).thenReturn(0L);
