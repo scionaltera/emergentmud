@@ -76,4 +76,20 @@ public class RadialIslandShape implements IslandShape {
          boolean body = p.length() < 0.8 - 0.18 * Math.sin(5 * Math.atan2(p.y, p.x));
          return !(body && !eye1 && !eye2);*/
     }
+
+    int getBumps() {
+        return bumps;
+    }
+
+    double getStartAngle() {
+        return startAngle;
+    }
+
+    double getDipAngle() {
+        return dipAngle;
+    }
+
+    double getDipWidth() {
+        return dipWidth;
+    }
 }

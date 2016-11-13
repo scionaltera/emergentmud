@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public final class Voronoi {
+public class Voronoi {
 
     private SiteList _sites;
     private HashMap<Point, Site> _sitesIndexedByLocation;

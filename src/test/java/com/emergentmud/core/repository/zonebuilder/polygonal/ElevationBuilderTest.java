@@ -22,6 +22,7 @@ package com.emergentmud.core.repository.zonebuilder.polygonal;
 
 import com.hoten.delaunay.geom.Point;
 import com.hoten.delaunay.geom.Rectangle;
+import com.hoten.delaunay.voronoi.Center;
 import com.hoten.delaunay.voronoi.Corner;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,8 @@ public class ElevationBuilderTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(landCornerFilter.landCorners(anyListOf(Corner.class))).thenCallRealMethod();
 
         elevationBuilder = new ElevationBuilder(islandShape, landCornerFilter);
     }
@@ -182,5 +185,90 @@ public class ElevationBuilderTest {
 
         assertEquals(1.01, adjacent.elevation, 0.001);
         assertFalse(adjacent.water);
+    }
+
+    @Test
+    public void testRedistributeElevations() throws Exception {
+        List<Corner> corners = new ArrayList<>();
+        Corner corner1 = new Corner();
+        Corner corner2 = new Corner();
+        Corner corner3 = new Corner();
+
+        corner1.elevation = 0.1;
+        corner2.elevation = 0.2;
+        corner3.elevation = 0.3;
+
+        corner1.ocean = false;
+        corner2.ocean = false;
+        corner3.ocean = false;
+
+        corner1.coast = false;
+        corner2.coast = false;
+        corner3.coast = false;
+
+        corners.add(corner1);
+        corners.add(corner2);
+        corners.add(corner3);
+
+        elevationBuilder.redistributeElevations(corners);
+
+        assertEquals(0.1, corner1.elevation, 0.1);
+        assertEquals(0.2, corner2.elevation, 0.1);
+        assertEquals(0.4, corner3.elevation, 0.1);
+    }
+
+    @Test
+    public void testAssignPolygonElevations() throws Exception {
+        List<Center> centers = new ArrayList<>();
+
+        Center center = new Center();
+        Corner corner1 = new Corner();
+        Corner corner2 = new Corner();
+        Corner corner3 = new Corner();
+
+        corner1.elevation = 1;
+        corner2.elevation = 1;
+        corner3.elevation = 1;
+
+        center.corners.add(corner1);
+        center.corners.add(corner2);
+        center.corners.add(corner3);
+
+        centers.add(center);
+
+        elevationBuilder.assignPolygonElevations(centers);
+
+        assertEquals(1, center.elevation, 0.1);
+    }
+
+    @Test
+    public void testCalculateDownslopes() throws Exception {
+        List<Corner> corners = new ArrayList<>();
+
+        Corner a = new Corner();
+        Corner b = new Corner();
+        Corner c = new Corner();
+
+        a.elevation = 0.6;
+        a.adjacent.add(b);
+        a.adjacent.add(c);
+
+        b.elevation = 0.5;
+        b.adjacent.add(a);
+        b.adjacent.add(c);
+
+        c.elevation = 0.4;
+        c.adjacent.add(a);
+        c.adjacent.add(b);
+
+        corners.add(a);
+        corners.add(b);
+        corners.add(c);
+
+        elevationBuilder.calculateDownslopes(corners);
+
+        assertTrue(a.downslope == c);
+        assertTrue(b.downslope == c);
+        assertTrue(c.downslope == c);
     }
 }

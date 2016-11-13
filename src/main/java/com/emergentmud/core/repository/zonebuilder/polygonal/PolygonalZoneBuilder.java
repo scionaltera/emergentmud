@@ -105,7 +105,8 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
         List<Corner> corners = new ArrayList<>();
 
         voronoiGraphBuilder.buildGraph(voronoi, edges, centers, corners);
-        voronoiGraphBuilder.improveCorners(edges, corners);
+        voronoiGraphBuilder.improveCorners(corners);
+        voronoiGraphBuilder.computeEdgeMidpoints(edges);
 
         elevationBuilder.assignCornerElevations(bounds, corners);
         elevationBuilder.assignOceanCoastAndLand(centers, corners);

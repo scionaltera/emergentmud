@@ -154,7 +154,8 @@ public class PolygonalZoneBuilderTest {
         Zone zone = polygonalZoneBuilder.build(0L, 0L, 0L);
 
         verify(voronoiGraphBuilder).buildGraph(any(Voronoi.class), anyListOf(Edge.class), anyListOf(Center.class), anyListOf(Corner.class));
-        verify(voronoiGraphBuilder).improveCorners(anyListOf(Edge.class), anyListOf(Corner.class));
+        verify(voronoiGraphBuilder).improveCorners(anyListOf(Corner.class));
+        verify(voronoiGraphBuilder).computeEdgeMidpoints(anyListOf(Edge.class));
         verify(elevationBuilder).assignCornerElevations(any(Rectangle.class), anyListOf(Corner.class));
         verify(elevationBuilder).assignOceanCoastAndLand(anyListOf(Center.class), anyListOf(Corner.class));
         verify(elevationBuilder).redistributeElevations(anyListOf(Corner.class));

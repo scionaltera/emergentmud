@@ -41,11 +41,12 @@ import java.util.List;
 public class VoronoiGraphBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(VoronoiGraphBuilder.class);
 
-    public void buildGraph(Voronoi v, List<Edge> edges, List<Center> centers, List<Corner> corners) {
+    public void buildGraph(Voronoi voronoi, List<Edge> edges, List<Center> centers, List<Corner> corners) {
         LOGGER.info("Building graph...");
-        final Rectangle bounds = v.get_plotBounds();
+        final Rectangle bounds = voronoi.get_plotBounds();
         final HashMap<Point, Center> pointCenterMap = new HashMap<>();
-        final List<Point> points = v.siteCoords();
+        final List<Point> points = voronoi.siteCoords();
+
         points.forEach((p) -> {
             Center c = new Center();
             c.loc = p;
@@ -55,9 +56,9 @@ public class VoronoiGraphBuilder {
         });
 
         //bug fix
-        centers.forEach(c -> v.region(c.loc));
+        centers.forEach(c -> voronoi.region(c.loc));
 
-        final List<com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge> libedges = v.edges();
+        final List<com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge> libedges = voronoi.edges();
         final HashMap<Integer, Corner> pointCornerMap = new HashMap<>();
 
         for (com.hoten.delaunay.voronoi.nodename.as3delaunay.Edge libedge : libedges) {
@@ -121,7 +122,8 @@ public class VoronoiGraphBuilder {
         }
     }
 
-    public void improveCorners(List<Edge> edges, List<Corner> corners) {
+    // This looks suspiciously like a Lloyd's Relaxation. -- PHK
+    public void improveCorners(List<Corner> corners) {
         LOGGER.info("Improving graph corners...");
         Point[] newP = new Point[corners.size()];
         for (Corner c : corners) {
@@ -137,8 +139,14 @@ public class VoronoiGraphBuilder {
                 newP[c.index] = new Point(x / c.touches.size(), y / c.touches.size());
             }
         }
-        corners.forEach((c) -> c.loc = newP[c.index]);
-        edges.stream().filter((e) -> (e.v0 != null && e.v1 != null)).forEach((e) -> e.setVornoi(e.v0, e.v1));
+        corners.forEach(c -> c.loc = newP[c.index]);
+    }
+
+    public void computeEdgeMidpoints(List<Edge> edges) {
+        LOGGER.info("Computing edge midpoints...");
+        edges.stream()
+                .filter(e -> e.v0 != null && e.v1 != null)
+                .forEach(e -> e.setVornoi(e.v0, e.v1));
     }
 
     // Helper functions for the following for loop; ideally these would be inlined
