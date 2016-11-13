@@ -48,8 +48,14 @@ public class LookCommand implements Command {
         } else {
             String roomName;
             String roomDescription;
+            Room room = entity.getRoom();
 
-            roomName = "The Featureless Plains";
+            if (room.getBiome() == null) {
+                roomName = "No Biome";
+            } else {
+                roomName = room.getBiome().getName();
+            }
+
             roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
@@ -60,7 +66,6 @@ public class LookCommand implements Command {
             output.append(String.format("[default]%s", roomDescription));
 
             StringBuilder exits = new StringBuilder("[dcyan]Exits:");
-            Room room = entity.getRoom();
 
             if (roomRepository.findByXAndYAndZ(room.getX(), room.getY() + 1, room.getZ()) != null) {
                 exits.append(" north");

@@ -52,6 +52,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("east", "eastCommand", 10, false));
             metadataList.add(new CommandMetadata("south", "southCommand", 10, false));
             metadataList.add(new CommandMetadata("west", "westCommand", 10, false));
+            metadataList.add(new CommandMetadata("goto", "gotoCommand", 15, true));
             metadataList.add(new CommandMetadata("look", "lookCommand", 100, false));
             metadataList.add(new CommandMetadata("say", "sayCommand", 200, false));
             metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, false));

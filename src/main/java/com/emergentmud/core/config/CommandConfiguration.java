@@ -21,7 +21,6 @@
 package com.emergentmud.core.config;
 
 import com.emergentmud.core.command.MoveCommand;
-import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.context.ApplicationContext;
@@ -37,9 +36,6 @@ public class CommandConfiguration {
 
     @Inject
     private WorldManager worldManager;
-
-    @Inject
-    private EntityRepository entityRepository;
 
     @Inject
     private EntityUtil entityUtil;

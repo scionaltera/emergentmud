@@ -108,6 +108,13 @@ public class EntityUtilTest {
         verifyContents();
     }
 
+    @Test
+    public void testSendMessageToListenersNoSender() throws Exception {
+        entityUtil.sendMessageToListeners(contents, output);
+
+        verifyContents();
+    }
+
     private List<Entity> generateContents() {
         List<Entity> contents = new ArrayList<>();
 

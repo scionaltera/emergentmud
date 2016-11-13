@@ -18,10 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.zonebuilder;
 
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.ZoneRepository;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -37,7 +39,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ZoneBuilderTest {
+public class DrunkWalkZoneBuilderTest {
     @Mock
     private ZoneRepository zoneRepository;
 
@@ -50,9 +52,9 @@ public class ZoneBuilderTest {
     @Captor
     private ArgumentCaptor<List<Room>> roomListCaptor;
 
-    private ZoneBuilder zoneBuilder;
+    private DrunkWalkZoneBuilder zoneBuilder;
 
-    public ZoneBuilderTest() {
+    public DrunkWalkZoneBuilderTest() {
         MockitoAnnotations.initMocks(this);
 
         when(origin.getX()).thenReturn(0L);
@@ -81,22 +83,20 @@ public class ZoneBuilderTest {
             }
         });
 
-        zoneBuilder = new ZoneBuilder(zoneRepository, roomRepository);
+        zoneBuilder = new DrunkWalkZoneBuilder(zoneRepository, roomRepository);
     }
 
     @Test
     public void testBuild() throws Exception {
         Zone zone = zoneBuilder.build(0L, 0L, 0L);
 
-        assertTrue(3 == zone.getColor().length);
-
         verify(zoneRepository).save(eq(zone));
         verify(roomRepository).save(roomListCaptor.capture());
 
         List<Room> roomList = roomListCaptor.getValue();
 
-        assertEquals(ZoneBuilder.ZONE_SIZE, roomList.size());
-        roomList.stream().forEach(room -> assertEquals(zone, room.getZone()));
+        assertEquals(DrunkWalkZoneBuilder.ZONE_SIZE, roomList.size());
+        roomList.forEach(room -> assertEquals(zone, room.getZone()));
     }
 
     @Test

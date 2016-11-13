@@ -40,13 +40,4 @@ public class ZoneTest {
 
         assertEquals("zoneId", zone.getId());
     }
-
-    @Test
-    public void testColor() throws Exception {
-        zone.setColor(new int[] {255, 254, 253});
-
-        assertEquals(255, zone.getColor()[0]);
-        assertEquals(254, zone.getColor()[1]);
-        assertEquals(253, zone.getColor()[2]);
-    }
 }

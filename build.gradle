@@ -98,7 +98,9 @@ task buildDocker(type: Docker, dependsOn: build) {
 pitest {
     excludedClasses = [
             "com.emergentmud.core.EmergentMUD",
-            "com.emergentmud.core.config.*"
+            "com.emergentmud.core.config.*",
+            "opensimplex",
+            "com.hoten.*"
     ]
     coverageThreshold = 70
     mutationThreshold = 70

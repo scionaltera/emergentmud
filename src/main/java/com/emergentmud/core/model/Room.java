@@ -35,6 +35,9 @@ public class Room {
     private String id;
 
     @DBRef
+    private Biome biome;
+
+    @DBRef
     private Zone zone;
 
     private Long x;
@@ -47,6 +50,14 @@ public class Room {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Biome getBiome() {
+        return biome;
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
     }
 
     public Zone getZone() {

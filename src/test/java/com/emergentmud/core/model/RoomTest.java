@@ -31,6 +31,9 @@ public class RoomTest {
     @Mock
     private Zone zone;
 
+    @Mock
+    private Biome biome;
+
     private Room room = new Room();
 
     @Before
@@ -43,6 +46,13 @@ public class RoomTest {
         room.setId("roomId");
 
         assertEquals("roomId", room.getId());
+    }
+
+    @Test
+    public void testBiome() throws Exception {
+        room.setBiome(biome);
+
+        assertEquals(biome, room.getBiome());
     }
 
     @Test

@@ -35,10 +35,12 @@ public class EmoteEditCommand implements Command {
     static final Sort SORT = new Sort("priority", "name");
 
     private EmoteMetadataRepository emoteMetadataRepository;
+    private InputUtil inputUtil;
 
     @Inject
-    public EmoteEditCommand(EmoteMetadataRepository emoteMetadataRepository) {
+    public EmoteEditCommand(EmoteMetadataRepository emoteMetadataRepository, InputUtil inputUtil) {
         this.emoteMetadataRepository = emoteMetadataRepository;
+        this.inputUtil = inputUtil;
     }
 
     @Override
@@ -107,7 +109,7 @@ public class EmoteEditCommand implements Command {
                     return output;
                 }
 
-                String message = InputUtil.chopWords(raw, 3);
+                String message = inputUtil.chopWords(raw, 3);
 
                 if ("self".equals(tokens[2])) {
                     metadata.setToSelf(message);

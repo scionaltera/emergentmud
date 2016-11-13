@@ -20,15 +20,23 @@
 
 package com.emergentmud.core.util;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class InputUtilTest {
+    private InputUtil inputUtil;
+
+    @Before
+    public void setUp() throws Exception {
+        inputUtil = new InputUtil();
+    }
+
     @Test
     public void testChopSingleWord() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = InputUtil.chopWords(in);
+        String out = inputUtil.chopWords(in);
 
         assertEquals("baker charlie dog easy fox", out);
     }
@@ -36,7 +44,7 @@ public class InputUtilTest {
     @Test
     public void testChopTwoWords() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = InputUtil.chopWords(in, 2);
+        String out = inputUtil.chopWords(in, 2);
 
         assertEquals("charlie dog easy fox", out);
     }
@@ -44,7 +52,7 @@ public class InputUtilTest {
     @Test
     public void testChopThreeWords() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = InputUtil.chopWords(in, 3);
+        String out = inputUtil.chopWords(in, 3);
 
         assertEquals("dog easy fox", out);
     }
@@ -52,7 +60,7 @@ public class InputUtilTest {
     @Test
     public void testWithTabs() throws Exception {
         String in = "able\tbaker\tcharlie\tdog\teasy\tfox";
-        String out = InputUtil.chopWords(in);
+        String out = inputUtil.chopWords(in);
 
         assertEquals("baker\tcharlie\tdog\teasy\tfox", out);
     }
@@ -60,7 +68,7 @@ public class InputUtilTest {
     @Test
     public void testWithMultipleSpaces() throws Exception {
         String in = "able   baker   charlie   dog   easy  fox";
-        String out = InputUtil.chopWords(in);
+        String out = inputUtil.chopWords(in);
 
         assertEquals("baker   charlie   dog   easy  fox", out);
     }
