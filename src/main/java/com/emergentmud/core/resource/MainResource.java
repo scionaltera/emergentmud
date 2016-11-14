@@ -34,6 +34,7 @@ import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -66,9 +67,10 @@ public class MainResource {
     private EntityRepository entityRepository;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
+    private Long worldExtent;
 
     @Inject
-    public MainResource(
+    public MainResource(@Qualifier("worldExtent") Long worldExtent,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
@@ -76,6 +78,8 @@ public class MainResource {
                         EntityRepository entityRepository,
                         WorldManager worldManager,
                         EntityUtil entityUtil) {
+
+        this.worldExtent = worldExtent;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
@@ -201,15 +205,17 @@ public class MainResource {
             entityUtil.sendMessageToEntity(entity, out);
         }
 
-        if (worldManager.test(0L, 0L, 0L)) {
-            Room room = worldManager.put(entity, 0L, 0L, 0L);
+        long worldCenter = worldExtent / 2;
+
+        if (worldManager.test(worldCenter, worldCenter, 0L)) {
+            Room room = worldManager.put(entity, worldCenter, worldCenter, 0L);
             GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()))
                     .append("")
                     .append("> ");
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);
         } else {
-            LOGGER.error("Unable to create world's first zone!");
+            LOGGER.error("Starting room does not exist!");
         }
 
         String breadcrumb = UUID.randomUUID().toString();

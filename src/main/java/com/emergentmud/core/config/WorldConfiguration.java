@@ -44,7 +44,7 @@ import java.util.Random;
 public class WorldConfiguration {
     private @Value("${world.seed}") int seed;
     private @Value("${world.sites}") int sites;
-    private @Value("${world.extent}") int extent;
+    private @Value("${world.extent}") long extent;
     private @Value("${world.lloyds}") int lloyds;
 
     @Inject
@@ -85,7 +85,7 @@ public class WorldConfiguration {
     }
 
     @Bean(name = "worldExtent")
-    public int getExtent() {
+    public long getExtent() {
         return extent;
     }
 
