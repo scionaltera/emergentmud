@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.util;
 
+import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -35,15 +36,20 @@ import java.util.List;
 public class EntityUtil {
     private EntityRepository entityRepository;
     private SimpMessagingTemplate simpMessagingTemplate;
+    private PromptBuilder promptBuilder;
 
     @Inject
     public EntityUtil(EntityRepository entityRepository,
-                      SimpMessagingTemplate simpMessagingTemplate) {
+                      SimpMessagingTemplate simpMessagingTemplate,
+                      PromptBuilder promptBuilder) {
         this.entityRepository = entityRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.promptBuilder = promptBuilder;
     }
 
     public void sendMessageToEntity(Entity entity, GameOutput message) {
+        promptBuilder.appendPrompt(message);
+
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
         headerAccessor.setSessionId(entity.getStompSessionId());
         headerAccessor.setLeaveMutable(true);
@@ -52,6 +58,8 @@ public class EntityUtil {
     }
 
     public void sendMessageToRoom(Room room, Entity entity, GameOutput message) {
+        promptBuilder.appendPrompt(message);
+
         entityRepository.findByRoom(room)
                 .stream()
                 .filter(e -> !e.equals(entity))
@@ -66,6 +74,8 @@ public class EntityUtil {
 
 
     public void sendMessageToListeners(List<Entity> targets, GameOutput message) {
+        promptBuilder.appendPrompt(message);
+
         targets.forEach(e -> {
                     SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
                     headerAccessor.setSessionId(e.getStompSessionId());
@@ -76,6 +86,8 @@ public class EntityUtil {
     }
 
     public void sendMessageToListeners(List<Entity> targets, Entity source, GameOutput message) {
+        promptBuilder.appendPrompt(message);
+
         targets.stream()
                 .filter(e -> !source.getId().equals(e.getId()))
                 .forEach(e -> {

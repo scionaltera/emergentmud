@@ -49,9 +49,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
 
         output.append(String.format("[green]You gossip '%s[green]'", htmlEscape(raw)));
 
-        GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), htmlEscape(raw)))
-                .append("")
-                .append("> ");
+        GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), htmlEscape(raw)));
 
         List<Entity> contents = entityRepository.findByRoomIsNotNull();
 

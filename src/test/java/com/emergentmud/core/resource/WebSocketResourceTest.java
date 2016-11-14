@@ -21,6 +21,7 @@
 package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
@@ -35,6 +36,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -76,6 +79,9 @@ public class WebSocketResourceTest {
 
     @Mock
     private EmoteMetadataRepository emoteMetadataRepository;
+
+    @Mock
+    private PromptBuilder promptBuilder;
 
     @Mock
     private OAuth2Authentication principal;
@@ -138,6 +144,11 @@ public class WebSocketResourceTest {
             return output;
         });
         when(essence.getEntity()).thenReturn(entity);
+        doAnswer(invocation -> {
+            GameOutput message = invocation.getArgumentAt(0, GameOutput.class);
+            message.append("").append("[red]UnitTest> ");
+            return null;
+        }).when(promptBuilder).appendPrompt(any(GameOutput.class));
 
         webSocketResource = new WebSocketResource(
                 APPLICATION_VERSION,
@@ -147,7 +158,8 @@ public class WebSocketResourceTest {
                 essenceRepository,
                 entityRepository,
                 commandMetadataRepository,
-                emoteMetadataRepository
+                emoteMetadataRepository,
+                promptBuilder
         );
     }
 

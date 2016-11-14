@@ -20,35 +20,12 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
-import javax.inject.Inject;
 
 @Component
-public class SayCommand extends BaseCommunicationCommand implements Command {
-    @Inject
-    public SayCommand(EntityUtil entityUtil) {
-        this.entityUtil = entityUtil;
-    }
-
-    @Override
-    public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        if (StringUtils.isEmpty(raw)) {
-            output.append("What would you like to say?");
-
-            return output;
-        }
-
-        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(raw)));
-
-        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), htmlEscape(raw)));
-
-        entityUtil.sendMessageToRoom(entity.getRoom(), entity, toRoom);
-
-        return output;
+public class PromptBuilder {
+    public void appendPrompt(GameOutput message) {
+        message.append("").append("[default]> ");
     }
 }

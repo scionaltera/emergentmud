@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.util;
 
+import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -48,6 +49,9 @@ public class EntityUtilTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
+    private PromptBuilder promptBuilder;
+
+    @Mock
     private Room room;
 
     @Mock
@@ -74,7 +78,7 @@ public class EntityUtilTest {
         when(entity.getStompSessionId()).thenReturn("stompSessionId");
         when(entity.getStompUsername()).thenReturn("stompUsername");
 
-        entityUtil = new EntityUtil(entityRepository, simpMessagingTemplate);
+        entityUtil = new EntityUtil(entityRepository, simpMessagingTemplate, promptBuilder);
     }
 
     @Test

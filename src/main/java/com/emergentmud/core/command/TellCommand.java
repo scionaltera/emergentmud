@@ -64,9 +64,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
 
         output.append(String.format("[red]You tell %s '%s[red]'", target.getName(), htmlEscape(message)));
 
-        GameOutput toTarget = new GameOutput(String.format("[red]%s tells you '%s[red]'", entity.getName(), htmlEscape(message)))
-                .append("")
-                .append("> ");
+        GameOutput toTarget = new GameOutput(String.format("[red]%s tells you '%s[red]'", entity.getName(), htmlEscape(message)));
 
         entityUtil.sendMessageToEntity(entity, toTarget);
 

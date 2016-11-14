@@ -48,9 +48,7 @@ public class GameShutdownListener implements ApplicationListener<ApplicationCont
     public void onApplicationEvent(ApplicationContextEvent event) {
         if (event instanceof ContextClosedEvent || event instanceof ContextStoppedEvent) {
             List<Entity> everyone = entityRepository.findByRoomIsNotNull();
-            GameOutput output = new GameOutput("[red]EmergentMUD is shutting down. Please check back later!")
-                    .append("")
-                    .append("> ");
+            GameOutput output = new GameOutput("[red]EmergentMUD is shutting down. Please check back later!");
 
             entityUtil.sendMessageToListeners(everyone, output);
         }
