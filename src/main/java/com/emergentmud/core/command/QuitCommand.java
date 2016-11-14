@@ -49,9 +49,7 @@ public class QuitCommand implements Command {
             return output;
         }
 
-        GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()))
-                .append("")
-                .append("> ");
+        GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
         entityUtil.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
 

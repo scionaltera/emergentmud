@@ -21,6 +21,7 @@
 package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
@@ -65,6 +66,7 @@ public class WebSocketResource {
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
+    private PromptBuilder promptBuilder;
 
     @Inject
     public WebSocketResource(String applicationVersion,
@@ -74,7 +76,8 @@ public class WebSocketResource {
                              EssenceRepository essenceRepository,
                              EntityRepository entityRepository,
                              CommandMetadataRepository commandMetadataRepository,
-                             EmoteMetadataRepository emoteMetadataRepository) {
+                             EmoteMetadataRepository emoteMetadataRepository,
+                             PromptBuilder promptBuilder) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
         this.applicationContext = applicationContext;
@@ -83,6 +86,7 @@ public class WebSocketResource {
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
+        this.promptBuilder = promptBuilder;
     }
 
     @SubscribeMapping("/queue/output")
@@ -122,8 +126,7 @@ public class WebSocketResource {
         Command command = (Command)applicationContext.getBean("lookCommand");
         command.execute(output, entity, "look", new String[0], "");
 
-        output.append("");
-        output.append("> ");
+        promptBuilder.appendPrompt(output);
 
         return output;
     }
@@ -189,8 +192,7 @@ public class WebSocketResource {
             }
         }
 
-        output.append("");
-        output.append("> ");
+        promptBuilder.appendPrompt(output);
 
         return output;
     }

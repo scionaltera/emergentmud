@@ -72,9 +72,7 @@ public class GotoCommand implements Command {
         if (room != null) {
             LOGGER.trace("Location before: ({}, {}, {})", room.getX(), room.getY(), room.getZ());
 
-            GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()))
-                    .append("")
-                    .append("> ");
+            GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
 
             entityUtil.sendMessageToRoom(room, entity, exitMessage);
         } else {
@@ -84,9 +82,7 @@ public class GotoCommand implements Command {
         room = worldManager.put(entity, location[0], location[1], location[2]);
         LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
-        GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()))
-                .append("")
-                .append("> ");
+        GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
 
         entityUtil.sendMessageToRoom(room, entity, enterMessage);
 

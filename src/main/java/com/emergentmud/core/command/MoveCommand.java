@@ -77,9 +77,7 @@ public class MoveCommand implements Command {
                 return output;
             }
 
-            GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction))
-                    .append("")
-                    .append("> ");
+            GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction));
 
             entityUtil.sendMessageToRoom(room, entity, exitMessage);
 
@@ -88,9 +86,7 @@ public class MoveCommand implements Command {
             room = worldManager.put(entity, location[0], location[1], location[2]);
             LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
-            GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), opposite))
-                    .append("")
-                    .append("> ");
+            GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), opposite));
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);
 

@@ -55,9 +55,7 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
 
         output.append(String.format("[dyellow]You shout '%s[dyellow]'", htmlEscape(raw)));
 
-        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)))
-                .append("")
-                .append("> ");
+        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)));
 
         Room entityRoom = entity.getRoom();
         List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
