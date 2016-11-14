@@ -54,7 +54,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
 
     private Random random;
     private int worldSites;
-    private int worldExtent;
+    private long worldExtent;
     private int worldLloyds;
     private LloydsRelaxation lloydsRelaxation;
     private ZoneRepository zoneRepository;
@@ -69,7 +69,7 @@ public class PolygonalZoneBuilder implements ZoneBuilder {
     @Inject
     public PolygonalZoneBuilder(Random random,
                                 @Qualifier(value = "worldSites") int worldSites,
-                                @Qualifier(value = "worldExtent") int worldExtent,
+                                @Qualifier(value = "worldExtent") long worldExtent,
                                 @Qualifier(value = "worldLloyds") int worldLloyds,
                                 LloydsRelaxation lloydsRelaxation,
                                 ZoneRepository zoneRepository,
