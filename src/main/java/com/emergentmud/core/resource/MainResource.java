@@ -145,7 +145,7 @@ public class MainResource {
         }
 
         if (essenceRepository.count() == 0) {
-            LOGGER.info("Making {} into an administrator.", essence.getName());
+            LOGGER.info("Making {} into an administrator", essence.getName());
             essence.setAdmin(true);
         }
 
@@ -212,6 +212,8 @@ public class MainResource {
             GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);
+
+            LOGGER.info("{} has entered the game", entity.getName());
         } else {
             LOGGER.error("Starting room does not exist!");
         }
