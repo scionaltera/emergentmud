@@ -46,7 +46,7 @@ public class InWorldAppender<T> extends AppenderBase<T> {
             return;
         }
 
-        GameOutput logMessage = new GameOutput(String.format("[dmagenta]%s'", eventObject));
+        GameOutput logMessage = new GameOutput(String.format("[dmagenta]%s[dmagenta]", eventObject));
 
         List<Entity> contents = entityRepository.findByAdminAndRoomIsNotNull(true);
 

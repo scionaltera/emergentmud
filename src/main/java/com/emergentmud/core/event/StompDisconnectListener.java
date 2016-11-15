@@ -25,6 +25,8 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -33,6 +35,8 @@ import javax.inject.Inject;
 
 @Component
 public class StompDisconnectListener implements ApplicationListener<SessionDisconnectEvent> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StompDisconnectListener.class);
+
     private EntityRepository entityRepository;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
@@ -55,6 +59,8 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
                 GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
                 entityUtil.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
+
+                LOGGER.info("{} has disconnected from the game", entity.getName());
             }
 
             worldManager.remove(entity);
