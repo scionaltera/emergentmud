@@ -63,6 +63,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("map", "mapCommand", 400, false));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
             metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, true));
+            metadataList.add(new CommandMetadata("data", "dataCommand", 1000, true));
             metadataList.add(new CommandMetadata("quit", "quitCommand", 2000, false));
 
             commandMetadataRepository.save(metadataList);
