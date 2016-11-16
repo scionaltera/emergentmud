@@ -20,22 +20,27 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 @Component
 public class DataCommand implements Command {
     private EssenceRepository essenceRepository;
+    private AccountRepository accountRepository;
 
     @Inject
-    public DataCommand(EssenceRepository essenceRepository) {
+    public DataCommand(EssenceRepository essenceRepository, AccountRepository accountRepository) {
         this.essenceRepository = essenceRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -48,9 +53,31 @@ public class DataCommand implements Command {
             List<Essence> essences = essenceRepository.findAll();
 
             output.append("[dyellow][ [yellow]Essences in Database [dyellow]]");
+
+            StringBuilder buf = new StringBuilder();
+
+            buf.append("<table class=\"table\">");
+            buf.append("<tr><th>[dyellow]Name</th><th>[dyellow]Social Network</th><th>[dyellow]Social ID</th>" +
+                    "<th>[dyellow]Created</th><th>[dyellow]Last Login</th></tr>");
+
             essences.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
-            essences.forEach(e -> output.append(String.format("[yellow]%s", e.getName())));
-            output.append(String.format("[dyellow]%d Essence%s listed.", essences.size(), essences.size() == 1 ? "" : "s"));
+            essences.forEach(e -> {
+                Account account = accountRepository.findOne(e.getAccountId());
+
+                buf.append(String.format("<tr><td>[yellow]%s</td><td>[yellow]%s</td><td>[yellow]%s</td>" +
+                                "<td>[yellow]%s</td><td>[yellow]%s</td></tr>",
+                    e.getName(),
+                    account.getSocialNetwork(),
+                    account.getSocialNetworkId(),
+                    new Date(e.getCreationDate()),
+                    new Date(e.getLastLoginDate())));
+            });
+
+            buf.append("</table>");
+            output.append(buf.toString());
+            output.append(String.format("[dyellow]%d Essence%s listed.",
+                    essences.size(),
+                    essences.size() == 1 ? "" : "s"));
         } else {
             usage(output);
         }

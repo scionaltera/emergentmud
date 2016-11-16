@@ -149,6 +149,7 @@ public class MainResource {
             essence.setAdmin(true);
         }
 
+        essence.setCreationDate(System.currentTimeMillis());
         essence.setAccountId(account.getId());
         essence = essenceRepository.save(essence);
         LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
@@ -195,8 +196,10 @@ public class MainResource {
             entity = entityRepository.save(entity);
 
             essence.setEntity(entity);
-            essence = essenceRepository.save(essence);
         }
+
+        essence.setLastLoginDate(System.currentTimeMillis());
+        essence = essenceRepository.save(essence);
 
         if (entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());

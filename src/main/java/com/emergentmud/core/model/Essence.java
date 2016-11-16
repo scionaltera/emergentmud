@@ -32,6 +32,8 @@ public class Essence {
     @DBRef
     private Entity entity;
 
+    private Long creationDate;
+    private Long lastLoginDate;
     private String accountId;
     private String name;
     private Boolean admin;
@@ -50,6 +52,22 @@ public class Essence {
 
     public void setEntity(Entity entity) {
         this.entity = entity;
+    }
+
+    public Long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Long getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Long lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     public String getAccountId() {

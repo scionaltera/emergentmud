@@ -20,9 +20,11 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,9 @@ public class DataCommandTest {
     private EssenceRepository essenceRepository;
 
     @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
     private Entity entity;
 
     @Mock
@@ -48,6 +53,12 @@ public class DataCommandTest {
 
     @Mock
     private Essence baker;
+
+    @Mock
+    private Account ableAccount;
+
+    @Mock
+    private Account bakerAccount;
 
     @Spy
     private GameOutput output;
@@ -68,8 +79,12 @@ public class DataCommandTest {
         essences.add(able);
 
         when(essenceRepository.findAll()).thenReturn(essences);
+        when(able.getAccountId()).thenReturn("able");
+        when(baker.getAccountId()).thenReturn("baker");
+        when(accountRepository.findOne(eq("able"))).thenReturn(ableAccount);
+        when(accountRepository.findOne(eq("baker"))).thenReturn(bakerAccount);
 
-        dataCommand = new DataCommand(essenceRepository);
+        dataCommand = new DataCommand(essenceRepository, accountRepository);
     }
 
     @Test
@@ -84,9 +99,10 @@ public class DataCommandTest {
         GameOutput result = dataCommand.execute(output, entity, "data", new String[] { "essence" }, "essence");
 
         assertTrue(result.getOutput().get(0).contains("Essences in Database"));
+        assertTrue(result.getOutput().get(1).contains("Name"));
         assertTrue(result.getOutput().get(1).contains("Able"));
-        assertTrue(result.getOutput().get(2).contains("Baker"));
-        assertTrue(result.getOutput().get(3).contains("2 Essences listed."));
+        assertTrue(result.getOutput().get(1).contains("Baker"));
+        assertTrue(result.getOutput().get(2).contains("2 Essences listed."));
     }
 
     @Test
@@ -96,6 +112,7 @@ public class DataCommandTest {
         GameOutput result = dataCommand.execute(output, entity, "data", new String[] { "essence" }, "essence");
 
         assertTrue(result.getOutput().get(0).contains("Essences in Database"));
+        assertTrue(result.getOutput().get(1).contains("Name"));
         assertTrue(result.getOutput().get(1).contains("Able"));
         assertTrue(result.getOutput().get(2).contains("1 Essence listed."));
     }
