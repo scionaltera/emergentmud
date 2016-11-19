@@ -124,7 +124,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Ahoy!");
 
         verify(response).append(eq("[red]You tell Stu 'Ahoy![red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
+        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -138,7 +138,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Feed me a stray cat.");
 
         verify(response).append(eq("[red]You tell Stu 'Feed me a stray cat.[red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
+        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -152,7 +152,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu <script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[red]You tell Stu '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(entity), outputCaptor.capture());
+        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
