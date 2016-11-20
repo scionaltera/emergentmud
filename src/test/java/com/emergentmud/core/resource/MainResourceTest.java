@@ -342,9 +342,11 @@ public class MainResourceTest {
 
     @Test
     public void testPlayReconnect() throws Exception {
+        Room room = mock(Room.class);
         Essence essence0 = essences.get(0);
         Entity entity0 = essence0.getEntity();
 
+        when(entity0.getRoom()).thenReturn(room);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 
