@@ -201,7 +201,7 @@ public class MainResource {
         essence.setLastLoginDate(System.currentTimeMillis());
         essence = essenceRepository.save(essence);
 
-        if (entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+        if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
             GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
