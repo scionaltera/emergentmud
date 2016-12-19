@@ -18,17 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.util;
 
 import com.emergentmud.core.model.Room;
-import com.emergentmud.core.model.Zone;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-@Repository
-public interface RoomRepository extends MongoRepository<Room, String> {
-    Room findByXAndYAndZ(Long x, Long y, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
+@Component
+public class RoomUtil {
+    public boolean isWithinDistance(Room origin, Room query, double distance) {
+        return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
+                + Math.pow(origin.getY() - query.getY(), 2)
+                + Math.pow(origin.getZ() - query.getZ(), 2)) <= distance;
+    }
 }
