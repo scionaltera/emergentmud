@@ -26,19 +26,34 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.util.RoomUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.emergentmud.core.command.ShoutCommand.SHOUT_DISTANCE;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ShoutCommandTest extends BaseCommunicationCommandTest {
     @Mock
     private EntityRepository entityRepository;
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private EntityUtil entityUtil;
+
+    @Spy
+    private RoomUtil roomUtil;
 
     @Mock
     private GameOutput output;
@@ -49,14 +64,11 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     @Mock
     private Entity entity;
 
-    @Mock
-    private RoomRepository roomRepository;
-
-    @Mock
-    private EntityUtil entityUtil;
-
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
+
+    @Captor
+    private ArgumentCaptor<List<Room>> roomListCaptor;
 
     private String cmd = "shout";
 
@@ -73,7 +85,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
 
-        command = new ShoutCommand(roomRepository, entityRepository, entityUtil);
+        command = new ShoutCommand(roomRepository, entityRepository, roomUtil, entityUtil);
     }
 
     @Test
@@ -88,6 +100,44 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
         GameOutput output = outputCaptor.getValue();
 
         assertTrue(output.getOutput().get(0).equals("[dyellow]Testy shouts 'Feed me a stray cat.[dyellow]'"));
+    }
+
+    @Test
+    public void testShoutRadius() throws Exception {
+        List<Room> rooms = new ArrayList<>();
+
+        for (long y = -SHOUT_DISTANCE; y < SHOUT_DISTANCE; y++) {
+            for (long x = -SHOUT_DISTANCE; x < SHOUT_DISTANCE; x++) {
+                Room room = mock(Room.class);
+
+                when(room.getX()).thenReturn(x);
+                when(room.getY()).thenReturn(y);
+                when(room.getZ()).thenReturn(0L);
+
+                rooms.add(room);
+            }
+        }
+
+        when(roomRepository.findByXBetweenAndYBetweenAndZBetween(
+                eq(-7L),
+                eq(7L),
+                eq(-7L),
+                eq(7L),
+                eq(-7L),
+                eq(7L)
+        )).thenReturn(rooms);
+
+        GameOutput response = command.execute(output, entity, cmd,
+                new String[] { "Feed", "me", "a", "stray", "cat." },
+                "Feed me a stray cat.");
+
+        verify(entityRepository).findByRoomIn(roomListCaptor.capture());
+
+        List<Room> filteredRooms = roomListCaptor.getValue();
+
+        assertNotNull(response);
+        assertEquals(147, filteredRooms.size()); // 196 would be the full square
+                                                 // 147 is the circle
     }
 
     @Test

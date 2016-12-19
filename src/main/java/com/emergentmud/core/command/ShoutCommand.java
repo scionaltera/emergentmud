@@ -26,21 +26,28 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.util.RoomUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ShoutCommand extends BaseCommunicationCommand implements Command {
+    static final long SHOUT_DISTANCE = 7;
+
     private RoomRepository roomRepository;
+    private RoomUtil roomUtil;
 
     @Inject
     public ShoutCommand(RoomRepository roomRepository,
                         EntityRepository entityRepository,
+                        RoomUtil roomUtil,
                         EntityUtil entityUtil) {
         this.roomRepository = roomRepository;
+        this.roomUtil = roomUtil;
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
     }
@@ -58,7 +65,18 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)));
 
         Room entityRoom = entity.getRoom();
-        List<Room> rooms = roomRepository.findByZone(entityRoom.getZone());
+        List<Room> rooms = roomRepository.findByXBetweenAndYBetweenAndZBetween(
+                entityRoom.getX() - SHOUT_DISTANCE,
+                entityRoom.getX() + SHOUT_DISTANCE,
+                entityRoom.getY() - SHOUT_DISTANCE,
+                entityRoom.getY() + SHOUT_DISTANCE,
+                entityRoom.getZ() - SHOUT_DISTANCE,
+                entityRoom.getZ() + SHOUT_DISTANCE);
+
+        rooms = rooms.stream()
+                .filter(r -> roomUtil.isWithinDistance(entityRoom, r, SHOUT_DISTANCE))
+                .collect(Collectors.toList());
+
         List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
         entityUtil.sendMessageToListeners(contents, entity, toZone);
