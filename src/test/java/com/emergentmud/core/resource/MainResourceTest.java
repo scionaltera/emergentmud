@@ -55,6 +55,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 public class MainResourceTest {
+    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String NETWORK_NAME = "AlteraNet";
     private static final String NETWORK_ID = "alteranet";
     private static final String NETWORK_USER = "007";
@@ -206,10 +207,11 @@ public class MainResourceTest {
     public void testSaveFirstNewEssence() throws Exception {
         when(essenceRepository.count()).thenReturn(0L);
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence);
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
 
         verify(essence).setAccountId(eq(ACCOUNT_ID));
         verify(essence).setAdmin(eq(true));
+        verify(essence).setCreationDate(anyLong());
         assertEquals("redirect:/", view);
     }
 
@@ -217,18 +219,159 @@ public class MainResourceTest {
     public void testSaveNewEssence() throws Exception {
         when(essenceRepository.count()).thenReturn(100L);
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence);
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
 
         verify(essence).setAccountId(eq(ACCOUNT_ID));
         verify(essence, never()).setAdmin(anyBoolean());
+        verify(essence).setCreationDate(anyLong());
         assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameTooShort() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("A");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("A"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameTooLong() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Supercalifragilisticexpealadocious");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Supercalifragilisticexpealadocious"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameNotCapitalized() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("abraham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("abraham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameInvalidCharacters() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Abra!ham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Abra!ham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameStartsWithHyphen() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("-Abraham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("-Abraham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameStartsWithApostrophe() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("'Abraham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("'Abraham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameEndsWithHyphen() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Abraham-");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Abraham-"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameEndsWithApostrophe() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Abraham'");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Abraham'"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameMultipleSymbols1() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Abra--ham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Abra--ham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
+    }
+
+    @Test
+    public void testSaveNewEssenceNameMultipleSymbols2() throws Exception {
+        when(essenceRepository.count()).thenReturn(100L);
+        when(essence.getName()).thenReturn("Ab-ra-ham");
+
+        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+
+        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
+        verify(essence, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("essenceName"), eq("Ab-ra-ham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-essence", view);
     }
 
     @Test(expected = NoAccountException.class)
     public void testSaveNewEssenceMissingAccount() throws Exception {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
-        mainResource.saveNewEssence(httpSession, principal, essence);
+        mainResource.saveNewEssence(httpSession, principal, essence, model);
     }
 
     @Test
@@ -396,12 +539,12 @@ public class MainResourceTest {
             Entity entity = mock(Entity.class);
 
             when(essence.getId()).thenReturn("essence" + i);
-            when(essence.getName()).thenReturn("Essence" + i);
+            when(essence.getName()).thenReturn("Essence" + ALPHABET.charAt(i));
             when(essence.getAccountId()).thenReturn(ACCOUNT_ID);
             when(essence.getEntity()).thenReturn(entity);
 
             when(entity.getId()).thenReturn("entity" + i);
-            when(entity.getName()).thenReturn("Entity" + i);
+            when(entity.getName()).thenReturn("Entity" + ALPHABET.charAt(i));
 
             essences.add(essence);
         }

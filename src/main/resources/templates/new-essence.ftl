@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <meta name="description" content=""/>
     <meta name="viewport" content="width=device-width"/>
     <base href="/"/>
-    <link rel='stylesheet' type='text/css' href="<@spring.url 'https://fonts.googleapis.com/css?family=Inconsolata:400,700'/>">
+    <link rel='stylesheet' type='text/css' href="<@spring.url 'https://fonts.googleapis.com/css?family=Inconsolata'/>">
     <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/bootstrap/css/bootstrap.min.css'/>"/>
     <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/font-awesome/css/font-awesome.min.css'/>"/>
     <link rel="stylesheet" type="text/css" href="<@spring.url '/css/bootstrap-social.css'/>"/>
@@ -43,11 +43,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </div>
 
     <div class="row">
-        <form class="form-horizontal">
+        <form id="new-essence-form" class="form-horizontal">
             <div class="form-group">
                 <div class="col-md-4 col-md-push-4">
-                    <label for="name">First Name</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="First Name" autofocus>
+                    <label for="name">First Name <#if errorName??>- <span style="color: red;">${errorName}</span></#if></label>
+                    <input type="text" class="form-control" name="name" id="name" value="${essenceName!}" placeholder="First Name" autofocus>
                 </div>
             </div>
             <div class="form-group">
