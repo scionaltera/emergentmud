@@ -135,13 +135,49 @@ public class MainResource {
     }
 
     @RequestMapping(method=RequestMethod.POST, value="/new-essence")
-    public String saveNewEssence(HttpSession session, Principal principal, Essence essence) {
+    public String saveNewEssence(HttpSession session, Principal principal, Essence essence, Model model) {
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
 
         if (account == null) {
             throw new NoAccountException(network, networkId);
+        }
+
+        if (essence.getName().length() < 3) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names must be at least 3 letters long.");
+            return "new-essence";
+        }
+
+        if (essence.getName().length() > 30) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names must be less than 30 letters long.");
+            return "new-essence";
+        }
+
+        if (!essence.getName().matches("^[A-Z].+$")) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names must begin with a capital letter.");
+            return "new-essence";
+        }
+
+        if (!essence.getName().matches("^[A-Za-z'-]+$")) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names may only contain letters, hyphens and apostrophes.");
+            return "new-essence";
+        }
+
+        if (essence.getName().matches("^[A-Za-z'-]\\w+['-]$")) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names may not end with a hyphen or apostrophe.");
+            return "new-essence";
+        }
+
+        if (essence.getName().matches("^\\w+['-].*['-]\\w+$")) {
+            model.addAttribute("essenceName", essence.getName());
+            model.addAttribute("errorName", "Names may only contain one hyphen or apostrophe.");
+            return "new-essence";
         }
 
         if (essenceRepository.count() == 0) {

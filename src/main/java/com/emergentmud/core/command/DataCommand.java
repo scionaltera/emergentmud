@@ -70,7 +70,7 @@ public class DataCommand implements Command {
                     account.getSocialNetwork(),
                     account.getSocialNetworkId(),
                     new Date(e.getCreationDate()),
-                    new Date(e.getLastLoginDate())));
+                    e.getLastLoginDate() == null ? "Never" : new Date(e.getLastLoginDate())));
             });
 
             buf.append("</table>");
