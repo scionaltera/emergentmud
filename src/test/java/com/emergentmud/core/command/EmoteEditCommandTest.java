@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -100,7 +100,7 @@ public class EmoteEditCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
-        verify(emoteMetadataRepository).findAll(eq(CommandEditCommand.SORT));
+        verify(emoteMetadataRepository).findAll(eq(EmoteEditCommand.SORT));
 
         emotes.forEach(emote -> {
                     verify(emote).getPriority();
@@ -116,7 +116,8 @@ public class EmoteEditCommandTest {
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
-        verify(output, times(4)).append(anyString());
+        verify(output).append(eq("[yellow](0) null"));
+        verify(output, times(7)).append(contains("[Empty]"));
         verify(emoteMetadataRepository).findByName(eq("nod"));
     }
 
@@ -236,41 +237,38 @@ public class EmoteEditCommandTest {
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
         verify(emoteMetadataRepository).save(any(EmoteMetadata.class));
-        verify(emote).setToSelf(eq("You nod."));
-        verify(emote, never()).setToTarget(anyString());
-        verify(emote, never()).setToRoom(anyString());
+        verify(emote).setToSelfUntargeted(eq("You nod."));
+        verifyNoMoreInteractions(emote);
         verify(output).append(anyString());
     }
 
     @Test
     public void testSetTarget() throws Exception {
-        String[] tokens = new String[] { "set", "nod", "target", "nods." };
-        String raw = "set nod target nods.";
+        String[] tokens = new String[] { "set", "nod", "target", "%self%", "nods", "to", "you." };
+        String raw = "set nod target %self% nods to you.";
 
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
         verify(emoteMetadataRepository).save(any(EmoteMetadata.class));
-        verify(emote, never()).setToSelf(anyString());
-        verify(emote).setToTarget(eq("nods."));
-        verify(emote, never()).setToRoom(anyString());
+        verify(emote).setToTarget(eq("%self% nods to you."));
+        verifyNoMoreInteractions(emote);
         verify(output).append(anyString());
     }
 
     @Test
     public void testSetRoom() throws Exception {
-        String[] tokens = new String[] { "set", "nod", "room", "nods." };
-        String raw = "set nod room nods.";
+        String[] tokens = new String[] { "set", "nod", "room", "%self%", "nods." };
+        String raw = "set nod room %self% nods.";
 
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(emoteMetadataRepository).findByName(eq("nod"));
         verify(emoteMetadataRepository).save(any(EmoteMetadata.class));
-        verify(emote, never()).setToSelf(anyString());
-        verify(emote, never()).setToTarget(anyString());
-        verify(emote).setToRoom(eq("nods."));
+        verify(emote).setToRoomUntargeted(eq("%self% nods."));
+        verifyNoMoreInteractions(emote);
         verify(output).append(anyString());
     }
 

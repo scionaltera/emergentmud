@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -61,23 +61,51 @@ public class EmoteMetadataTest {
     }
 
     @Test
-    public void testToSelf() throws Exception {
-        emoteMetadata.setToSelf("to self");
+    public void testToSelfUntargeted() throws Exception {
+        emoteMetadata.setToSelfUntargeted("test");
 
-        assertEquals("to self", emoteMetadata.getToSelf());
+        assertEquals("test", emoteMetadata.getToSelfUntargeted());
+    }
+
+    @Test
+    public void testToRoomUntargeted() throws Exception {
+        emoteMetadata.setToRoomUntargeted("test");
+
+        assertEquals("test", emoteMetadata.getToRoomUntargeted());
+    }
+
+    @Test
+    public void testToSelfWithTarget() throws Exception {
+        emoteMetadata.setToSelfWithTarget("test");
+
+        assertEquals("test", emoteMetadata.getToSelfWithTarget());
     }
 
     @Test
     public void testToTarget() throws Exception {
-        emoteMetadata.setToTarget("to target");
+        emoteMetadata.setToTarget("test");
 
-        assertEquals("to target", emoteMetadata.getToTarget());
+        assertEquals("test", emoteMetadata.getToTarget());
     }
 
     @Test
-    public void testToRoom() throws Exception {
-        emoteMetadata.setToRoom("to room");
+    public void testToRoomWithTarget() throws Exception {
+        emoteMetadata.setToRoomWithTarget("test");
 
-        assertEquals("to room", emoteMetadata.getToRoom());
+        assertEquals("test", emoteMetadata.getToRoomWithTarget());
+    }
+
+    @Test
+    public void testToSelfAsTarget() throws Exception {
+        emoteMetadata.setToSelfAsTarget("test");
+
+        assertEquals("test", emoteMetadata.getToSelfAsTarget());
+    }
+
+    @Test
+    public void testToRoomTargetingSelf() throws Exception {
+        emoteMetadata.setToRoomTargetingSelf("test");
+
+        assertEquals("test", emoteMetadata.getToRoomTargetingSelf());
     }
 }

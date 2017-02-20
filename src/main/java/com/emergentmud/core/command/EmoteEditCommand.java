@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -70,9 +70,13 @@ public class EmoteEditCommand implements Command {
                 }
 
                 output.append(String.format("[yellow](%d) %s", metadata.getPriority(), metadata.getName()));
-                output.append(String.format("[yellow]To Self: %s", metadata.getToSelf() == null ? "[Empty]" : metadata.getToSelf()));
+                output.append(String.format("[yellow]To Self (no target): %s", metadata.getToSelfUntargeted() == null ? "[Empty]" : metadata.getToSelfUntargeted()));
+                output.append(String.format("[yellow]To Room (no target): %s", metadata.getToRoomUntargeted() == null ? "[Empty]" : metadata.getToRoomUntargeted()));
+                output.append(String.format("[yellow]To Self (targeted): %s", metadata.getToSelfWithTarget() == null ? "[Empty]" : metadata.getToSelfWithTarget()));
                 output.append(String.format("[yellow]To Target: %s", metadata.getToTarget() == null ? "[Empty]" : metadata.getToTarget()));
-                output.append(String.format("[yellow]To Room: %s", metadata.getToRoom() == null ? "[Empty]" : metadata.getToRoom()));
+                output.append(String.format("[yellow]To Room (targeted): %s", metadata.getToRoomWithTarget() == null ? "[Empty]" : metadata.getToRoomWithTarget()));
+                output.append(String.format("[yellow]To Self (self targeted): %s", metadata.getToSelfAsTarget() == null ? "[Empty]" : metadata.getToSelfAsTarget()));
+                output.append(String.format("[yellow]To Room (self targeted): %s", metadata.getToRoomTargetingSelf() == null ? "[Empty]" : metadata.getToRoomTargetingSelf()));
             } else if ("add".equals(tokens[0])) {
                 if (tokens.length != 2) {
                     usage(output);
@@ -103,7 +107,13 @@ public class EmoteEditCommand implements Command {
                     return output;
                 }
 
-                if (!"self".equals(tokens[2]) && !"target".equals(tokens[2]) && !"room".equals(tokens[2])) {
+                if (!"self".equals(tokens[2])
+                        && !"room".equals(tokens[2])
+                        && !"targetself".equals(tokens[2])
+                        && !"target".equals(tokens[2])
+                        && !"targetroom".equals(tokens[2])
+                        && !"selftarget".equals(tokens[2])
+                        && !"selftargetroom".equals(tokens[2])) {
                     usage(output);
 
                     return output;
@@ -112,11 +122,19 @@ public class EmoteEditCommand implements Command {
                 String message = inputUtil.chopWords(raw, 3);
 
                 if ("self".equals(tokens[2])) {
-                    metadata.setToSelf(message);
+                    metadata.setToSelfUntargeted(message);
+                } else if ("room".equals(tokens[2])) {
+                    metadata.setToRoomUntargeted(message);
+                } else if ("targetself".equals(tokens[2])) {
+                    metadata.setToSelfWithTarget(message);
                 } else if ("target".equals(tokens[2])) {
                     metadata.setToTarget(message);
-                } else if ("room".equals(tokens[2])) {
-                    metadata.setToRoom(message);
+                } else if ("targetroom".equals(tokens[2])) {
+                    metadata.setToRoomWithTarget(message);
+                } else if ("selftarget".equals(tokens[2])) {
+                    metadata.setToSelfAsTarget(message);
+                } else if ("selftargetroom".equals(tokens[2])) {
+                    metadata.setToRoomTargetingSelf(message);
                 }
 
                 emoteMetadataRepository.save(metadata);
@@ -175,7 +193,7 @@ public class EmoteEditCommand implements Command {
         output.append("[yellow]list - List all emotes.");
         output.append("[yellow]show &lt;emote name&gt; - Show details of an emote.");
         output.append("[yellow]add &lt;emote name&gt; - Add a new emote.");
-        output.append("[yellow]set &lt;emote name&gt; &lt;self|target|room&gt; &lt;message&gt; - Set a field on an emote.");
+        output.append("[yellow]set &lt;emote name&gt; &lt;self|room|targetself|target|targetroom|selftarget|selftargetroom&gt; &lt;message&gt; - Set a field on an emote.");
         output.append("[yellow]priority &lt;emote name&gt; &lt;priority&gt; - Set priority for an emote.");
         output.append("[yellow]delete &lt;emote name&gt; - Delete an emote.");
     }

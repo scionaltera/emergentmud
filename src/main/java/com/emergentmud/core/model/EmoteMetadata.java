@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -35,9 +35,13 @@ public class EmoteMetadata {
     @Indexed
     private Integer priority;
 
-    private String toSelf;
+    private String toSelfUntargeted;
+    private String toRoomUntargeted;
+    private String toSelfWithTarget;
     private String toTarget;
-    private String toRoom;
+    private String toRoomWithTarget;
+    private String toSelfAsTarget;
+    private String toRoomTargetingSelf;
 
     public EmoteMetadata() {
         // this method intentionally left blank
@@ -72,12 +76,28 @@ public class EmoteMetadata {
         this.priority = priority;
     }
 
-    public String getToSelf() {
-        return toSelf;
+    public String getToSelfUntargeted() {
+        return toSelfUntargeted;
     }
 
-    public void setToSelf(String toSelf) {
-        this.toSelf = toSelf;
+    public void setToSelfUntargeted(String toSelfUntargeted) {
+        this.toSelfUntargeted = toSelfUntargeted;
+    }
+
+    public String getToRoomUntargeted() {
+        return toRoomUntargeted;
+    }
+
+    public void setToRoomUntargeted(String toRoomUntargeted) {
+        this.toRoomUntargeted = toRoomUntargeted;
+    }
+
+    public String getToSelfWithTarget() {
+        return toSelfWithTarget;
+    }
+
+    public void setToSelfWithTarget(String toSelfWithTarget) {
+        this.toSelfWithTarget = toSelfWithTarget;
     }
 
     public String getToTarget() {
@@ -88,11 +108,27 @@ public class EmoteMetadata {
         this.toTarget = toTarget;
     }
 
-    public String getToRoom() {
-        return toRoom;
+    public String getToRoomWithTarget() {
+        return toRoomWithTarget;
     }
 
-    public void setToRoom(String toRoom) {
-        this.toRoom = toRoom;
+    public void setToRoomWithTarget(String toRoomWithTarget) {
+        this.toRoomWithTarget = toRoomWithTarget;
+    }
+
+    public String getToSelfAsTarget() {
+        return toSelfAsTarget;
+    }
+
+    public void setToSelfAsTarget(String toSelfAsTarget) {
+        this.toSelfAsTarget = toSelfAsTarget;
+    }
+
+    public String getToRoomTargetingSelf() {
+        return toRoomTargetingSelf;
+    }
+
+    public void setToRoomTargetingSelf(String toRoomTargetingSelf) {
+        this.toRoomTargetingSelf = toRoomTargetingSelf;
     }
 }
