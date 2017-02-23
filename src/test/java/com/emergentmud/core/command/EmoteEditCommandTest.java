@@ -229,8 +229,8 @@ public class EmoteEditCommandTest {
 
     @Test
     public void testSetSelf() throws Exception {
-        String[] tokens = new String[] { "set", "nod", "self", "You", "nod." };
-        String raw = "set nod self You nod.";
+        String[] tokens = new String[] { "set", "nod", "1", "You", "nod." };
+        String raw = "set nod 1 You nod.";
 
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
@@ -244,8 +244,8 @@ public class EmoteEditCommandTest {
 
     @Test
     public void testSetTarget() throws Exception {
-        String[] tokens = new String[] { "set", "nod", "target", "%self%", "nods", "to", "you." };
-        String raw = "set nod target %self% nods to you.";
+        String[] tokens = new String[] { "set", "nod", "4", "%self%", "nods", "to", "you." };
+        String raw = "set nod 4 %self% nods to you.";
 
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
@@ -259,8 +259,8 @@ public class EmoteEditCommandTest {
 
     @Test
     public void testSetRoom() throws Exception {
-        String[] tokens = new String[] { "set", "nod", "room", "%self%", "nods." };
-        String raw = "set nod room %self% nods.";
+        String[] tokens = new String[] { "set", "nod", "2", "%self%", "nods." };
+        String raw = "set nod 2 %self% nods.";
 
         GameOutput result = emoteEditCommand.execute(output, entity, cmd, tokens, raw);
 
