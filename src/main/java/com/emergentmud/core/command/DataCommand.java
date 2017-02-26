@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,11 +29,12 @@ import com.emergentmud.core.repository.EssenceRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 @Component
-public class DataCommand implements Command {
+public class DataCommand extends BaseCommand {
     private EssenceRepository essenceRepository;
     private AccountRepository accountRepository;
 
@@ -41,12 +42,14 @@ public class DataCommand implements Command {
     public DataCommand(EssenceRepository essenceRepository, AccountRepository accountRepository) {
         this.essenceRepository = essenceRepository;
         this.accountRepository = accountRepository;
+
+        addParameter("essence", true);
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length != 1) {
-            usage(output);
+            usage(output, command);
 
             return output;
         } else if ("essence".equals(tokens[0])) {
@@ -60,7 +63,7 @@ public class DataCommand implements Command {
             buf.append("<tr><th>[dyellow]Name</th><th>[dyellow]Social Network</th><th>[dyellow]Social ID</th>" +
                     "<th>[dyellow]Created</th><th>[dyellow]Last Login</th></tr>");
 
-            essences.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+            essences.sort(Comparator.comparing(Essence::getName));
             essences.forEach(e -> {
                 Account account = accountRepository.findOne(e.getAccountId());
 
@@ -79,13 +82,9 @@ public class DataCommand implements Command {
                     essences.size(),
                     essences.size() == 1 ? "" : "s"));
         } else {
-            usage(output);
+            usage(output, command);
         }
 
         return output;
-    }
-
-    private void usage(GameOutput output) {
-        output.append("[yellow]Usage: DATA &lt;essence&gt;");
     }
 }

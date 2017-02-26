@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class WhoCommand implements Command {
+public class WhoCommand extends BaseCommand {
     private EntityRepository entityRepository;
 
     @Inject

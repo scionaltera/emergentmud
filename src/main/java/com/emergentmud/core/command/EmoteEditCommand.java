@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 @Component
-public class EmoteEditCommand implements Command {
+public class EmoteEditCommand extends BaseCommand {
     static final Sort SORT = new Sort("priority", "name");
 
     private EmoteMetadataRepository emoteMetadataRepository;
@@ -41,6 +41,21 @@ public class EmoteEditCommand implements Command {
     public EmoteEditCommand(EmoteMetadataRepository emoteMetadataRepository, InputUtil inputUtil) {
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.inputUtil = inputUtil;
+
+        addSubcommand("list", "List all emotes.");
+        addSubcommand("show", "Show details of an emote.",
+                new Parameter("emote name", true));
+        addSubcommand("add", "Add a new emote.",
+                new Parameter("emote name", true));
+        addSubcommand("set", "Set a field on an emote.",
+                new Parameter("emote name", true),
+                new Parameter("number", true),
+                new Parameter("message", true));
+        addSubcommand("priority", "Set priority for an emote.",
+                new Parameter("emote name", true),
+                new Parameter("priority", true));
+        addSubcommand("delete", "Delete an emote.",
+                new Parameter("emote name", true));
     }
 
     @Override
@@ -56,7 +71,7 @@ public class EmoteEditCommand implements Command {
                                 emote.getName())));
             } else if ("show".equals(tokens[0])) {
                 if (tokens.length != 2) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -79,7 +94,7 @@ public class EmoteEditCommand implements Command {
                 output.append(String.format("[yellow]7[dyellow]) [yellow]To Room (self targeted): %s", metadata.getToRoomTargetingSelf() == null ? "[Empty]" : metadata.getToRoomTargetingSelf()));
             } else if ("add".equals(tokens[0])) {
                 if (tokens.length != 2) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -94,7 +109,7 @@ public class EmoteEditCommand implements Command {
                 output.append("[yellow]Added new emote.");
             } else if ("set".equals(tokens[0])) {
                 if (tokens.length < 4) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -112,7 +127,7 @@ public class EmoteEditCommand implements Command {
                 try {
                     fieldNumber = Integer.parseInt(tokens[2]);
                 } catch (NumberFormatException e) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -138,7 +153,7 @@ public class EmoteEditCommand implements Command {
                 output.append("[yellow]Updated emote.");
             } else if ("priority".equals(tokens[0])) {
                 if (tokens.length != 3) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -158,7 +173,7 @@ public class EmoteEditCommand implements Command {
                 output.append("[yellow]Updated priority.");
             } else if ("delete".equals(tokens[0])) {
                 if (tokens.length != 2) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -179,18 +194,8 @@ public class EmoteEditCommand implements Command {
             return output;
         }
 
-        usage(output);
+        usage(output, command);
 
         return output;
-    }
-
-    private void usage(GameOutput output) {
-        output.append("[yellow]Usage:");
-        output.append("[yellow]list - List all emotes.");
-        output.append("[yellow]show &lt;emote name&gt; - Show details of an emote.");
-        output.append("[yellow]add &lt;emote name&gt; - Add a new emote.");
-        output.append("[yellow]set &lt;emote name&gt; &lt;number&gt; &lt;message&gt; - Set a field on an emote.");
-        output.append("[yellow]priority &lt;emote name&gt; &lt;priority&gt; - Set priority for an emote.");
-        output.append("[yellow]delete &lt;emote name&gt; - Delete an emote.");
     }
 }

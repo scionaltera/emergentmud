@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Component
-public class LookCommand implements Command {
+public class LookCommand extends BaseCommand {
     private EntityRepository entityRepository;
     private RoomRepository roomRepository;
 
@@ -39,6 +39,8 @@ public class LookCommand implements Command {
     public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
         this.entityRepository = entityRepository;
         this.roomRepository = roomRepository;
+
+        addParameter("target", false);
     }
 
     @Override

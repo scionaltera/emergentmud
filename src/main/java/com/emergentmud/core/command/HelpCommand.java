@@ -20,36 +20,45 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.repository.CommandMetadataRepository;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 
 @Component
-public class SayCommand extends BaseCommunicationCommand implements Command {
-    @Inject
-    public SayCommand(EntityUtil entityUtil) {
-        this.entityUtil = entityUtil;
+public class HelpCommand extends BaseCommand {
+    private ApplicationContext applicationContext;
+    private CommandMetadataRepository commandMetadataRepository;
 
-        addParameter("message", true);
+    @Inject
+    public HelpCommand(ApplicationContext applicationContext,
+                       CommandMetadataRepository commandMetadataRepository) {
+
+        this.applicationContext = applicationContext;
+        this.commandMetadataRepository = commandMetadataRepository;
+
+        addParameter("command", true);
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        if (StringUtils.isEmpty(raw)) {
-            output.append("What would you like to say?");
+        if (tokens.length == 0) {
+            usage(output, command);
+        } else {
+            CommandMetadata commandMetadata = commandMetadataRepository.findByName(tokens[0]);
 
-            return output;
+            if (commandMetadata != null && (entity.isAdmin() || !commandMetadata.isAdmin())) {
+                Command cmd = (Command)applicationContext.getBean(commandMetadata.getBeanName());
+
+                cmd.usage(output, commandMetadata.getName());
+            } else {
+                output.append("There is no command by that name.");
+            }
         }
-
-        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(raw)));
-
-        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), htmlEscape(raw)));
-
-        entityUtil.sendMessageToRoom(entity.getRoom(), entity, toRoom);
 
         return output;
     }

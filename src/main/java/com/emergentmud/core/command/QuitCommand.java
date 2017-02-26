@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 @Component
-public class QuitCommand implements Command {
+public class QuitCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuitCommand.class);
 
     private EntityUtil entityUtil;
@@ -42,6 +42,8 @@ public class QuitCommand implements Command {
                        WorldManager worldManager) {
         this.entityUtil = entityUtil;
         this.worldManager = worldManager;
+
+        addParameter("now", true);
     }
 
     @Override

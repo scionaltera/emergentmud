@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 @Component
-public class GotoCommand implements Command {
+public class GotoCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotoCommand.class);
 
     private ApplicationContext applicationContext;
@@ -48,6 +48,10 @@ public class GotoCommand implements Command {
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
+
+        addParameter("x", true);
+        addParameter("y", true);
+        addParameter("z", false);
     }
 
     @Override
@@ -63,7 +67,7 @@ public class GotoCommand implements Command {
                 location[2] = Long.parseLong(tokens[2]);
             }
         } catch (ArrayIndexOutOfBoundsException | NumberFormatException nfe) {
-            output.append("Usage: GOTO &lt;X&gt; &lt;Y&gt; [Z]");
+            usage(output, command);
 
             return output;
         }

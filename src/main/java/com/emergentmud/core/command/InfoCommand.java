@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,12 +29,14 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 @Component
-public class InfoCommand implements Command {
+public class InfoCommand extends BaseCommand {
     private EntityRepository entityRepository;
 
     @Inject
     public InfoCommand(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
+
+        addParameter("target", false);
     }
 
     @Override
@@ -57,8 +59,7 @@ public class InfoCommand implements Command {
                 return output;
             }
         } else {
-            output.append("Usage: INFO [target]");
-            output.append("If target is omitted, the command will display information about you.");
+            usage(output, command);
 
             return output;
         }

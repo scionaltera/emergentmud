@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 @Component
-public class CommandEditCommand implements Command {
+public class CommandEditCommand extends BaseCommand {
     static final Sort SORT = new Sort("priority", "name");
 
     private CommandMetadataRepository commandMetadataRepository;
@@ -38,6 +38,18 @@ public class CommandEditCommand implements Command {
     @Inject
     public CommandEditCommand(CommandMetadataRepository commandMetadataRepository) {
         this.commandMetadataRepository = commandMetadataRepository;
+
+        addSubcommand("list", "List all commands.");
+        addSubcommand("add", "Add a new command.",
+                new Parameter("command name", true),
+                new Parameter("bean name", true),
+                new Parameter("priority", true));
+        addSubcommand("priority", "Set priority for a command.",
+                new Parameter("command name", true),
+                new Parameter("priority", true));
+        addSubcommand("admin", "Restrict a command to administrators.",
+                new Parameter("command name", true),
+                new Parameter("true|false", true));
     }
 
     @Override
@@ -54,7 +66,7 @@ public class CommandEditCommand implements Command {
                                 cm.isAdmin())));
             } else if ("add".equals(tokens[0])) {
                 if (tokens.length != 4) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -78,7 +90,7 @@ public class CommandEditCommand implements Command {
                 output.append("[yellow]Added new command.");
             } else if ("priority".equals(tokens[0])) {
                 if (tokens.length != 3) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -98,7 +110,7 @@ public class CommandEditCommand implements Command {
                 output.append("[yellow]Updated priority.");
             } else if ("admin".equals(tokens[0])) {
                 if (tokens.length != 3) {
-                    usage(output);
+                    usage(output, command);
 
                     return output;
                 }
@@ -111,22 +123,14 @@ public class CommandEditCommand implements Command {
 
                 output.append("[yellow]Updated admin flag.");
             } else {
-                usage(output);
+                usage(output, command);
             }
 
             return output;
         }
 
-        usage(output);
+        usage(output, command);
 
         return output;
-    }
-
-    private void usage(GameOutput output) {
-        output.append("[yellow]Usage:");
-        output.append("[yellow]list - List all commands.");
-        output.append("[yellow]add &lt;command name&gt; &lt;bean name&gt; &lt;priority&gt; - Add a new command.");
-        output.append("[yellow]priority &lt;command name&gt; &lt;priority&gt; - Set priority for a command.");
-        output.append("[yellow]admin &lt;command name&gt; &lt;true|false&gt; - Restrict a command to administrators.");
     }
 }

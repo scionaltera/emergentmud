@@ -20,10 +20,20 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.stomp.GameOutput;
+public class Parameter {
+    private String name;
+    private boolean isRequired;
 
-public interface Command {
-    GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw);
-    GameOutput usage(GameOutput output, String command);
+    public Parameter(String name, boolean isRequired) {
+        this.name = name;
+        this.isRequired = isRequired;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -62,6 +62,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("emote", "emoteCommand", 250, false));
             metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
             metadataList.add(new CommandMetadata("map", "mapCommand", 400, false));
+            metadataList.add(new CommandMetadata("help", "helpCommand", 500, false));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
             metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, true));
             metadataList.add(new CommandMetadata("data", "dataCommand", 1000, true));

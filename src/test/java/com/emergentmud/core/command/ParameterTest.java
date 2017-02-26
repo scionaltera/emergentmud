@@ -20,10 +20,16 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.stomp.GameOutput;
+import org.junit.Test;
 
-public interface Command {
-    GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw);
-    GameOutput usage(GameOutput output, String command);
+import static org.junit.Assert.*;
+
+public class ParameterTest {
+    @Test
+    public void testName() throws Exception {
+        Parameter parameter = new Parameter("test", true);
+
+        assertEquals("test", parameter.getName());
+        assertEquals(true, parameter.isRequired());
+    }
 }
