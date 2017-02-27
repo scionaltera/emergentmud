@@ -30,6 +30,7 @@ import java.util.List;
 public abstract class BaseCommand implements Command {
     private List<Subcommand> subCommands = new ArrayList<>();
     private List<Parameter> parameters = new ArrayList<>();
+    private String description = "No description.";
 
     @Override
     public abstract GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw);
@@ -37,27 +38,30 @@ public abstract class BaseCommand implements Command {
     @Override
     public GameOutput usage(GameOutput output, String command) {
         if (!subCommands.isEmpty()) {
-            output.append(String.format("[yellow]Usage: %s", command.toUpperCase()));
+            output.append("[white]Description[dwhite]: [white]" + description);
+            output.append(String.format("[white]Usage[dwhite]: [white]%s [dwhite]&lt;[white]sub-command[dwhite]&gt;", command.toUpperCase()));
+            output.append("[white]Sub-commands[dwhite]:");
 
             subCommands.forEach(sc -> {
-                StringBuilder buf = new StringBuilder("[yellow]");
+                StringBuilder buf = new StringBuilder("[white]");
 
                 buf.append(sc.name);
                 buf.append(" ");
 
                 sc.parameters.forEach(p -> {
                     if (p.isRequired()) {
-                        buf.append("&lt;");
+                        buf.append("[dwhite]&lt;");
                     } else {
-                        buf.append("[");
+                        buf.append("[dwhite][");
                     }
 
+                    buf.append("[white]");
                     buf.append(p.getName());
 
                     if (p.isRequired()) {
-                        buf.append("&gt; ");
+                        buf.append("[dwhite]&gt; ");
                     } else {
-                        buf.append("] ");
+                        buf.append("[dwhite]] ");
                     }
                 });
 
@@ -65,36 +69,41 @@ public abstract class BaseCommand implements Command {
                     buf.append(" ");
                 }
 
-                buf.append("- ");
+                buf.append("[dwhite]- [white]");
                 buf.append(sc.description);
 
                 output.append(buf.toString());
             });
         } else if (!parameters.isEmpty()) {
-            StringBuilder buf = new StringBuilder("[yellow]Usage: ");
+            StringBuilder buf = new StringBuilder();
 
+            output.append("[white]Description[dwhite]: [white]" + description);
+
+            buf.append("[white]Usage[dwhite]: [white]");
             buf.append(command.toUpperCase());
             buf.append(" ");
 
             parameters.forEach(p -> {
                 if (p.isRequired()) {
-                    buf.append("&lt;");
+                    buf.append("[dwhite]&lt;");
                 } else {
-                    buf.append("[");
+                    buf.append("[dwhite][");
                 }
 
+                buf.append("[white]");
                 buf.append(p.getName());
 
                 if (p.isRequired()) {
-                    buf.append("&gt; ");
+                    buf.append("[dwhite]&gt; ");
                 } else {
-                    buf.append("] ");
+                    buf.append("[dwhite]] ");
                 }
             });
 
             output.append(buf.toString().trim());
         } else {
-            output.append("[yellow]Usage: " + command.toUpperCase());
+            output.append("[white]Description[dwhite]: [white]" + description);
+            output.append("[white]Usage[dwhite]: [white]" + command.toUpperCase());
         }
 
         return output;
@@ -106,6 +115,10 @@ public abstract class BaseCommand implements Command {
 
     protected void addSubcommand(String command, String description, Parameter... parameters) {
         subCommands.add(new Subcommand(command, description, Arrays.asList(parameters)));
+    }
+
+    protected void setDescription(String description) {
+        this.description = description;
     }
 
     private static class Subcommand {
