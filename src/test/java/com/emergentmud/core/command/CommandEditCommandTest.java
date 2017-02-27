@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CommandEditCommandTest {
-    private static final int USAGE_LENGTH = 5;
+    private static final int USAGE_LENGTH = 7;
 
     @Captor
     private ArgumentCaptor<CommandMetadata> commandMetadataArgumentCaptor;

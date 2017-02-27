@@ -79,7 +79,7 @@ public class GotoCommandTest {
     public void testGotoNoArgs() throws Exception {
         GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] {}, "");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
@@ -90,7 +90,7 @@ public class GotoCommandTest {
     public void testGotoOneArg() throws Exception {
         GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] { "1000" }, "1000");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
@@ -127,7 +127,7 @@ public class GotoCommandTest {
     public void testGotoTwoArgsBad() throws Exception {
         GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] { "1000", "bad" }, "1000 bad");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
