@@ -42,6 +42,7 @@ public class EmoteEditCommand extends BaseCommand {
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.inputUtil = inputUtil;
 
+        setDescription("Edit and prioritize emotes.");
         addSubcommand("list", "List all emotes.");
         addSubcommand("show", "Show details of an emote.",
                 new Parameter("emote name", true));

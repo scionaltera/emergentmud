@@ -35,6 +35,8 @@ public class WhoCommand extends BaseCommand {
     @Inject
     public WhoCommand(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
+
+        setDescription("See who else is in the game.");
     }
 
     @Override

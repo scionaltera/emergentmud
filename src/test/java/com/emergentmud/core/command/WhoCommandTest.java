@@ -54,13 +54,18 @@ public class WhoCommandTest {
 
     private String cmd = "who";
 
-    private WhoCommand whoCommand;
+    private WhoCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        whoCommand = new WhoCommand(entityRepository);
+        command = new WhoCommand(entityRepository);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
@@ -69,7 +74,7 @@ public class WhoCommandTest {
 
         when(entityRepository.findByRoomIsNotNull()).thenReturn(online);
 
-        GameOutput response = whoCommand.execute(output, self, cmd, new String[] {}, "");
+        GameOutput response = command.execute(output, self, cmd, new String[] {}, "");
 
         verify(entityRepository).findByRoomIsNotNull();
         verify(self).getName();
@@ -83,7 +88,7 @@ public class WhoCommandTest {
 
         when(entityRepository.findByRoomIsNotNull()).thenReturn(online);
 
-        GameOutput response = whoCommand.execute(output, self, cmd, new String[] {}, "");
+        GameOutput response = command.execute(output, self, cmd, new String[] {}, "");
 
         verify(entityRepository).findByRoomIsNotNull();
         verify(self).getName();

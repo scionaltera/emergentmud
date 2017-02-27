@@ -38,6 +38,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
 
+        setDescription("Send a message to all other players.");
         addParameter("message", true);
     }
 

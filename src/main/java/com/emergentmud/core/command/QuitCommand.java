@@ -43,6 +43,7 @@ public class QuitCommand extends BaseCommand {
         this.entityUtil = entityUtil;
         this.worldManager = worldManager;
 
+        setDescription("Leave the game.");
         addParameter("now", true);
     }
 

@@ -69,6 +69,11 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
+    }
+
+    @Test
     public void testEmoteSomething() throws Exception {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "dies", "a", "little", "on", "the", "inside." },

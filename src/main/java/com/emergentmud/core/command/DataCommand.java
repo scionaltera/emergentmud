@@ -43,6 +43,7 @@ public class DataCommand extends BaseCommand {
         this.essenceRepository = essenceRepository;
         this.accountRepository = accountRepository;
 
+        setDescription("Show the contents of database entries.");
         addParameter("essence", true);
     }
 

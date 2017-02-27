@@ -39,6 +39,7 @@ public class CommandEditCommand extends BaseCommand {
     public CommandEditCommand(CommandMetadataRepository commandMetadataRepository) {
         this.commandMetadataRepository = commandMetadataRepository;
 
+        setDescription("Edit and prioritize commands.");
         addSubcommand("list", "List all commands.");
         addSubcommand("add", "Add a new command.",
                 new Parameter("command name", true),

@@ -41,6 +41,7 @@ public class HelpCommand extends BaseCommand {
         this.applicationContext = applicationContext;
         this.commandMetadataRepository = commandMetadataRepository;
 
+        setDescription("Shows the documentation for a command.");
         addParameter("command", true);
     }
 

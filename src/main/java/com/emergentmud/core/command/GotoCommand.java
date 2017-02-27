@@ -49,6 +49,7 @@ public class GotoCommand extends BaseCommand {
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
 
+        setDescription("Instantly transport to another room.");
         addParameter("x", true);
         addParameter("y", true);
         addParameter("z", false);

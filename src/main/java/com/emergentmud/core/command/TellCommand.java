@@ -37,6 +37,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
 
+        setDescription("Send a private message to another player.");
         addParameter("target", true);
         addParameter("message", true);
     }

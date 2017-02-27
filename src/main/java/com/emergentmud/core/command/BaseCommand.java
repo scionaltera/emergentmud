@@ -109,6 +109,10 @@ public abstract class BaseCommand implements Command {
         return output;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     protected void addParameter(String parameter, boolean isRequired) {
         parameters.add(new Parameter(parameter, isRequired));
     }

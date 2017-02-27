@@ -65,7 +65,7 @@ public class DataCommandTest {
 
     private List<Essence> essences = new ArrayList<>();
 
-    private DataCommand dataCommand;
+    private DataCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -84,19 +84,24 @@ public class DataCommandTest {
         when(accountRepository.findOne(eq("able"))).thenReturn(ableAccount);
         when(accountRepository.findOne(eq("baker"))).thenReturn(bakerAccount);
 
-        dataCommand = new DataCommand(essenceRepository, accountRepository);
+        command = new DataCommand(essenceRepository, accountRepository);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
     public void testExecuteNoArgs() throws Exception {
-        GameOutput result = dataCommand.execute(output, entity, "data", new String[] {}, "");
+        GameOutput result = command.execute(output, entity, "data", new String[] {}, "");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
     }
 
     @Test
     public void testExecuteEssence() throws Exception {
-        GameOutput result = dataCommand.execute(output, entity, "data", new String[] { "essence" }, "essence");
+        GameOutput result = command.execute(output, entity, "data", new String[] { "essence" }, "essence");
 
         assertTrue(result.getOutput().get(0).contains("Essences in Database"));
         assertTrue(result.getOutput().get(1).contains("Name"));
@@ -109,7 +114,7 @@ public class DataCommandTest {
     public void testExecuteSingleEssence() throws Exception {
         essences.remove(baker);
 
-        GameOutput result = dataCommand.execute(output, entity, "data", new String[] { "essence" }, "essence");
+        GameOutput result = command.execute(output, entity, "data", new String[] { "essence" }, "essence");
 
         assertTrue(result.getOutput().get(0).contains("Essences in Database"));
         assertTrue(result.getOutput().get(1).contains("Name"));
@@ -119,7 +124,7 @@ public class DataCommandTest {
 
     @Test
     public void testExecuteEssenceWrongArg() throws Exception {
-        GameOutput result = dataCommand.execute(output, entity, "data", new String[] { "farts" }, "farts");
+        GameOutput result = command.execute(output, entity, "data", new String[] { "farts" }, "farts");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
     }

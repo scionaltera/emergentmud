@@ -34,6 +34,7 @@ public class EmoteCommand extends BaseCommunicationCommand implements Command {
     public EmoteCommand(EntityUtil entityUtil) {
         this.entityUtil = entityUtil;
 
+        setDescription("Display an action to others in the same room.");
         addParameter("message", true);
     }
 

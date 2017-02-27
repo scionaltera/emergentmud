@@ -51,6 +51,7 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
 
+        setDescription("Send a message to those within a few rooms of you.");
         addParameter("message", true);
     }
 

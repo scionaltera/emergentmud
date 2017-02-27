@@ -36,6 +36,7 @@ public class InfoCommand extends BaseCommand {
     public InfoCommand(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
 
+        setDescription("Display information about a thing in the game.");
         addParameter("target", false);
     }
 

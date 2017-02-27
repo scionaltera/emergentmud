@@ -46,18 +46,23 @@ public class HelpCommandTest {
     @Mock
     private Entity entity;
 
-    private HelpCommand helpCommand;
+    private HelpCommand command;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        helpCommand = new HelpCommand(applicationContext, commandMetadataRepository);
+        command = new HelpCommand(applicationContext, commandMetadataRepository);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
     public void testExecuteNoArgs() throws Exception {
-        GameOutput result = helpCommand.execute(output, entity, "help", new String[0], "help");
+        GameOutput result = command.execute(output, entity, "help", new String[0], "help");
 
         assertEquals(output, result);
         verify(output, atLeastOnce()).append(anyString());
@@ -65,7 +70,7 @@ public class HelpCommandTest {
 
     @Test
     public void testExecuteMissingCommand() throws Exception {
-        GameOutput result = helpCommand.execute(output, entity, "help", new String[] {"foo"}, "help foo");
+        GameOutput result = command.execute(output, entity, "help", new String[] {"foo"}, "help foo");
 
         assertEquals(output, result);
         verify(commandMetadataRepository).findByName(eq("foo"));
@@ -80,7 +85,7 @@ public class HelpCommandTest {
         when(entity.isAdmin()).thenReturn(false);
         when(metadata.isAdmin()).thenReturn(true);
 
-        GameOutput result = helpCommand.execute(output, entity, "help", new String[] {"admin"}, "help admin");
+        GameOutput result = command.execute(output, entity, "help", new String[] {"admin"}, "help admin");
 
         assertEquals(output, result);
         verify(commandMetadataRepository).findByName(eq("admin"));
@@ -100,7 +105,7 @@ public class HelpCommandTest {
         when(metadata.getName()).thenReturn("cmd");
         when(metadata.getBeanName()).thenReturn("cmdCommand");
 
-        GameOutput result = helpCommand.execute(output, entity, "help", new String[] {"cmd"}, "help cmd");
+        GameOutput result = command.execute(output, entity, "help", new String[] {"cmd"}, "help cmd");
 
         assertEquals(output, result);
         verify(commandMetadataRepository).findByName(eq("cmd"));
@@ -121,7 +126,7 @@ public class HelpCommandTest {
         when(metadata.getName()).thenReturn("admin");
         when(metadata.getBeanName()).thenReturn("adminCommand");
 
-        GameOutput result = helpCommand.execute(output, entity, "help", new String[] {"admin"}, "help admin");
+        GameOutput result = command.execute(output, entity, "help", new String[] {"admin"}, "help admin");
 
         assertEquals(output, result);
         verify(commandMetadataRepository).findByName(eq("admin"));

@@ -38,6 +38,8 @@ public class MapCommand extends BaseCommand {
     @Inject
     public MapCommand(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
+
+        setDescription("Shows a bird's eye view of the rooms around you.");
     }
 
     @Override

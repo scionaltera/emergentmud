@@ -51,6 +51,8 @@ public class MoveCommand extends BaseCommand {
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
+
+        setDescription("Walk to an adjacent room.");
     }
 
     @Override

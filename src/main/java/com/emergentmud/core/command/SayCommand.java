@@ -34,6 +34,7 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
     public SayCommand(EntityUtil entityUtil) {
         this.entityUtil = entityUtil;
 
+        setDescription("Send a message to others in the same room.");
         addParameter("message", true);
     }
 

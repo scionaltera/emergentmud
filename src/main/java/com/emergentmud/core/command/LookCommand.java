@@ -40,6 +40,7 @@ public class LookCommand extends BaseCommand {
         this.entityRepository = entityRepository;
         this.roomRepository = roomRepository;
 
+        setDescription("Describes the things in the world around you.");
         addParameter("target", false);
     }
 

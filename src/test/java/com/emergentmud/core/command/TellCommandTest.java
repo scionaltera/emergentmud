@@ -77,6 +77,11 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
+    }
+
+    @Test
     public void testTellNoArgs() throws Exception {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { },
