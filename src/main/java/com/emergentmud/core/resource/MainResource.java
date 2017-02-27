@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -19,14 +19,17 @@
  */
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
@@ -35,6 +38,7 @@ import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -60,31 +64,37 @@ import java.util.UUID;
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
 
+    private ApplicationContext applicationContext;
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private AccountRepository accountRepository;
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
+    private CommandMetadataRepository commandMetadataRepository;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
     private Long worldExtent;
 
     @Inject
-    public MainResource(@Qualifier("worldExtent") Long worldExtent,
+    public MainResource(ApplicationContext applicationContext,
+                        @Qualifier("worldExtent") Long worldExtent,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
+                        CommandMetadataRepository commandMetadataRepository,
                         WorldManager worldManager,
                         EntityUtil entityUtil) {
 
+        this.applicationContext = applicationContext;
         this.worldExtent = worldExtent;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
+        this.commandMetadataRepository = commandMetadataRepository;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
     }
@@ -271,6 +281,22 @@ public class MainResource {
         model.addAttribute("essence", essence);
 
         return "play";
+    }
+
+    @RequestMapping("/commands")
+    public String commands(Model model) {
+        List<CommandMetadata> metadata = commandMetadataRepository.findByAdmin(false);
+        Map<String, Command> commandMap = new HashMap<>();
+
+        metadata.forEach(m -> {
+            Command command = (Command)applicationContext.getBean(m.getBeanName());
+            commandMap.put(m.getName(), command);
+        });
+
+        model.addAttribute("metadataList", metadata);
+        model.addAttribute("commandMap", commandMap);
+
+        return "commands";
     }
 
     @RequestMapping("/logout")

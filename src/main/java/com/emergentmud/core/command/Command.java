@@ -23,7 +23,12 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 
+import java.util.List;
+
 public interface Command {
     GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw);
     GameOutput usage(GameOutput output, String command);
+    String getDescription();
+    List<Parameter> getParameters();
+    List<SubCommand> getSubCommands();
 }

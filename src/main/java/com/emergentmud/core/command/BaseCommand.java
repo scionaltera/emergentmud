@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class BaseCommand implements Command {
-    private List<Subcommand> subCommands = new ArrayList<>();
+    private List<SubCommand> subCommands = new ArrayList<>();
     private List<Parameter> parameters = new ArrayList<>();
     private String description = "No description.";
 
@@ -45,10 +45,10 @@ public abstract class BaseCommand implements Command {
             subCommands.forEach(sc -> {
                 StringBuilder buf = new StringBuilder("[white]");
 
-                buf.append(sc.name);
+                buf.append(sc.getName());
                 buf.append(" ");
 
-                sc.parameters.forEach(p -> {
+                sc.getParameters().forEach(p -> {
                     if (p.isRequired()) {
                         buf.append("[dwhite]&lt;");
                     } else {
@@ -65,12 +65,12 @@ public abstract class BaseCommand implements Command {
                     }
                 });
 
-                if (sc.parameters.isEmpty()) {
+                if (sc.getParameters().isEmpty()) {
                     buf.append(" ");
                 }
 
                 buf.append("[dwhite]- [white]");
-                buf.append(sc.description);
+                buf.append(sc.getDescription());
 
                 output.append(buf.toString());
             });
@@ -109,8 +109,23 @@ public abstract class BaseCommand implements Command {
         return output;
     }
 
+    @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    @Override
+    public List<SubCommand> getSubCommands() {
+        return subCommands;
+    }
+
+    protected void setDescription(String description) {
+        this.description = description;
     }
 
     protected void addParameter(String parameter, boolean isRequired) {
@@ -118,22 +133,6 @@ public abstract class BaseCommand implements Command {
     }
 
     protected void addSubcommand(String command, String description, Parameter... parameters) {
-        subCommands.add(new Subcommand(command, description, Arrays.asList(parameters)));
-    }
-
-    protected void setDescription(String description) {
-        this.description = description;
-    }
-
-    private static class Subcommand {
-        private String name;
-        private String description;
-        private List<Parameter> parameters = new ArrayList<>();
-
-        Subcommand(String name, String description, List<Parameter> parameters) {
-            this.name = name;
-            this.description = description;
-            this.parameters = parameters;
-        }
+        subCommands.add(new SubCommand(command, description, Arrays.asList(parameters)));
     }
 }

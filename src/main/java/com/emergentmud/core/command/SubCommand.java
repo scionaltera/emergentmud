@@ -18,16 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.CommandMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
-
+import java.util.ArrayList;
 import java.util.List;
 
-@Repository
-public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
-    CommandMetadata findByName(String name);
-    List<CommandMetadata> findByAdmin(boolean isAdmin);
+public class SubCommand {
+    private String name;
+    private String description;
+    private List<Parameter> parameters = new ArrayList<>();
+
+    SubCommand(String name, String description, List<Parameter> parameters) {
+        this.name = name;
+        this.description = description;
+        this.parameters = parameters;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
 }

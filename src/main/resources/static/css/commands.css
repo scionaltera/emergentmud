@@ -18,16 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+.command-heading {
+    background-color: #222222;
+    border: 1px solid #444444;
+    margin-bottom: 12px;
+}
 
-import com.emergentmud.core.model.CommandMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+.command-heading p {
+    font-size: larger;
+    margin: 17px;
+}
 
-import java.util.List;
+.command {
+    background-color: #222222;
+    border: 1px solid #444444;
+    margin-bottom: 12px;
+}
 
-@Repository
-public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
-    CommandMetadata findByName(String name);
-    List<CommandMetadata> findByAdmin(boolean isAdmin);
+.command ul {
+    list-style: none;
+}
+
+.command li {
+    margin-bottom: 6px;
 }
