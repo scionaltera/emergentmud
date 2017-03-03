@@ -25,12 +25,15 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 
 @Component
 public class HelpCommand extends BaseCommand {
+    private static final Sort SORT = new Sort("name");
+
     private ApplicationContext applicationContext;
     private CommandMetadataRepository commandMetadataRepository;
 
@@ -48,7 +51,19 @@ public class HelpCommand extends BaseCommand {
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length == 0) {
-            usage(output, command);
+            output.append("[dwhite]=== [white]Command Listing [dwhite]===");
+            output.append("[white]Type HELP [dwhite]&lt;[white]command[dwhite]&gt; [white]to get more detailed help for any of these commands.");
+            output.append("");
+
+            commandMetadataRepository.findAll(SORT)
+                    .stream()
+                    .filter(cm -> !cm.isAdmin() || entity.isAdmin())
+                    .forEach(cm -> {
+                        Command bean = (Command)applicationContext.getBean(cm.getBeanName());
+
+                        output.append(String.format("[white]%s [dwhite]- [white]%s",
+                                cm.getName(), bean.getDescription()));
+                    });
         } else {
             CommandMetadata commandMetadata = commandMetadataRepository.findByName(tokens[0]);
 
