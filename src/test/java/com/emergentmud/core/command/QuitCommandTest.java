@@ -52,7 +52,7 @@ public class QuitCommandTest {
 
     private String cmd = "quit";
 
-    private QuitCommand quitCommand;
+    private QuitCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -60,12 +60,17 @@ public class QuitCommandTest {
 
         when(entity.getRoom()).thenReturn(room);
 
-        quitCommand = new QuitCommand(entityUtil, worldManager);
+        command = new QuitCommand(entityUtil, worldManager);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
     public void testQuitNoArgs() throws Exception {
-        GameOutput result = quitCommand.execute(output, entity, cmd, new String[] {}, "");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         result.getOutput().forEach(line -> assertFalse(line.contains("window.location")));
         verify(entityUtil, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
@@ -74,7 +79,7 @@ public class QuitCommandTest {
 
     @Test
     public void testQuitNow() throws Exception {
-        GameOutput result = quitCommand.execute(output, entity, cmd, new String[] {"now"}, "now");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"now"}, "now");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
@@ -83,7 +88,7 @@ public class QuitCommandTest {
 
     @Test
     public void testQuitNowMixedCase() throws Exception {
-        GameOutput result = quitCommand.execute(output, entity, cmd, new String[] {"NoW"}, "NoW");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"NoW"}, "NoW");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
@@ -92,7 +97,7 @@ public class QuitCommandTest {
 
     @Test
     public void testQuitWrongArg() throws Exception {
-        GameOutput result = quitCommand.execute(output, entity, cmd, new String[] {"later"}, "later");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"later"}, "later");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityUtil, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));

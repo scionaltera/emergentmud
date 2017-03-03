@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-public class MoveCommand implements Command {
+public class MoveCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoveCommand.class);
 
     private long[] differential;
@@ -51,6 +51,8 @@ public class MoveCommand implements Command {
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
+
+        setDescription("Walk to an adjacent room.");
     }
 
     @Override

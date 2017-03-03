@@ -18,16 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.CommandMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.*;
 
-@Repository
-public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
-    CommandMetadata findByName(String name);
-    List<CommandMetadata> findByAdmin(boolean isAdmin);
+public class ParameterTest {
+    @Test
+    public void testName() throws Exception {
+        Parameter parameter = new Parameter("test", true);
+
+        assertEquals("test", parameter.getName());
+        assertEquals(true, parameter.isRequired());
+    }
 }

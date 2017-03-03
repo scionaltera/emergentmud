@@ -18,16 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.CommandMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+public class Parameter {
+    private String name;
+    private boolean isRequired;
 
-import java.util.List;
+    public Parameter(String name, boolean isRequired) {
+        this.name = name;
+        this.isRequired = isRequired;
+    }
 
-@Repository
-public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
-    CommandMetadata findByName(String name);
-    List<CommandMetadata> findByAdmin(boolean isAdmin);
+    public String getName() {
+        return name;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
 }

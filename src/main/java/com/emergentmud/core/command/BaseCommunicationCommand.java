@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.command;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.util.EntityUtil;
 
-public abstract class BaseCommunicationCommand {
+public abstract class BaseCommunicationCommand extends BaseCommand {
     protected EntityUtil entityUtil;
     protected EntityRepository entityRepository;
 

@@ -57,7 +57,7 @@ public class LookCommandTest {
     private List<Entity> contents = new ArrayList<>();
     private String cmd = "look";
 
-    private LookCommand lookCommand;
+    private LookCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -83,12 +83,17 @@ public class LookCommandTest {
             contents.add(entity);
         }
 
-        lookCommand = new LookCommand(entityRepository, roomRepository);
+        command = new LookCommand(entityRepository, roomRepository);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
     public void testLookVoid() throws Exception {
-        GameOutput result = lookCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output).append(anyString());
@@ -107,7 +112,7 @@ public class LookCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        GameOutput result = lookCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());

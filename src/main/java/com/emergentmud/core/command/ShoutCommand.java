@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -50,6 +50,9 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         this.roomUtil = roomUtil;
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
+
+        setDescription("Send a message to those within a few rooms of you.");
+        addParameter("message", true);
     }
 
     @Override

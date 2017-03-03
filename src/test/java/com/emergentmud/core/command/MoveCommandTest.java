@@ -68,7 +68,7 @@ public class MoveCommandTest {
     private String raw = "";
     private String cmd = "e";
 
-    private MoveCommand moveCommand;
+    private MoveCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -94,7 +94,12 @@ public class MoveCommandTest {
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        moveCommand = new MoveCommand(1, 1, 1, "move", "unmove", applicationContext, worldManager, entityUtil);
+        command = new MoveCommand(1, 1, 1, "move", "unmove", applicationContext, worldManager, entityUtil);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
@@ -104,7 +109,7 @@ public class MoveCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        GameOutput result = moveCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(worldManager).remove(eq(entity));
@@ -124,7 +129,7 @@ public class MoveCommandTest {
 
         when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(false);
 
-        GameOutput result = moveCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(worldManager, never()).remove(eq(entity));
@@ -133,7 +138,7 @@ public class MoveCommandTest {
 
     @Test
     public void testMoveInVoid() throws Exception {
-        moveCommand.execute(output, entity, cmd, tokens, raw);
+        command.execute(output, entity, cmd, tokens, raw);
 
         verifyZeroInteractions(worldManager);
         verifyZeroInteractions(applicationContext);

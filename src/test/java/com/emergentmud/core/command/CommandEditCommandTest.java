@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CommandEditCommandTest {
-    private static final int USAGE_LENGTH = 5;
+    private static final int USAGE_LENGTH = 7;
 
     @Captor
     private ArgumentCaptor<CommandMetadata> commandMetadataArgumentCaptor;
@@ -53,12 +53,12 @@ public class CommandEditCommandTest {
     private Entity entity;
 
     @Mock
-    private CommandMetadata command;
+    private CommandMetadata metadata;
 
     private List<CommandMetadata> commands = new ArrayList<>();
     private String cmd = "cmdedit";
 
-    private CommandEditCommand commandEditCommand;
+    private CommandEditCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -69,9 +69,14 @@ public class CommandEditCommandTest {
         }
 
         when(commandMetadataRepository.findAll(eq(CommandEditCommand.SORT))).thenReturn(commands);
-        when(commandMetadataRepository.findByName(eq("test"))).thenReturn(command);
+        when(commandMetadataRepository.findByName(eq("test"))).thenReturn(metadata);
 
-        commandEditCommand = new CommandEditCommand(commandMetadataRepository);
+        command = new CommandEditCommand(commandMetadataRepository);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
@@ -79,7 +84,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[0];
         String raw = "";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verifyZeroInteractions(commandMetadataRepository);
@@ -91,7 +96,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "list" };
         String raw = "list";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
@@ -108,7 +113,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "add" };
         String raw = "add";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verifyZeroInteractions(commandMetadataRepository);
@@ -120,7 +125,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "add", "test", "testCommand", "important" };
         String raw = "add test testCommand important";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verifyZeroInteractions(commandMetadataRepository);
@@ -132,7 +137,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "add", "test", "testCommand", "42" };
         String raw = "add test testCommand 42";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).save(commandMetadataArgumentCaptor.capture());
@@ -152,7 +157,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "priority", "test" };
         String raw = "priority test";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(USAGE_LENGTH)).append(anyString());
@@ -163,11 +168,11 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "priority", "test", "important" };
         String raw = "priority test important";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(command, never()).setPriority(anyInt());
+        verify(metadata, never()).setPriority(anyInt());
         verify(commandMetadataRepository, never()).save(any(CommandMetadata.class));
     }
 
@@ -176,11 +181,11 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "priority", "test", "42" };
         String raw = "priority test 42";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(command).setPriority(eq(42));
+        verify(metadata).setPriority(eq(42));
         verify(commandMetadataRepository).save(any(CommandMetadata.class));
     }
 
@@ -189,7 +194,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "admin", "test" };
         String raw = "admin test";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(USAGE_LENGTH)).append(anyString());
@@ -200,11 +205,11 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "admin", "test", "true" };
         String raw = "admin test true";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(command).setAdmin(eq(true));
+        verify(metadata).setAdmin(eq(true));
         verify(commandMetadataRepository).save(any(CommandMetadata.class));
     }
 
@@ -213,11 +218,11 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "admin", "test", "false" };
         String raw = "admin test false";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(command).setAdmin(eq(false));
+        verify(metadata).setAdmin(eq(false));
         verify(commandMetadataRepository).save(any(CommandMetadata.class));
     }
 
@@ -226,7 +231,7 @@ public class CommandEditCommandTest {
         String[] tokens = new String[] { "foo" };
         String raw = "foo";
 
-        GameOutput result = commandEditCommand.execute(output, entity, cmd, tokens, raw);
+        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, times(USAGE_LENGTH)).append(anyString());

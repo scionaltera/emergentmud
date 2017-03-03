@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/font-awesome/css/font-awesome.min.css'/>"/>
     <link rel="stylesheet" type="text/css" href="<@spring.url '/css/bootstrap-social.css'/>"/>
     <link rel="stylesheet" type="text/css" href="<@spring.url '/css/index.css'/>">
+    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/commands.css'/>">
 </head>
 <body>
 
@@ -42,25 +43,60 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-        <div class="col-md-4 col-md-offset-4 text-center">
-    <#list networks as network>
-            <a class="btn btn-social btn-${network.id} social-btn" role="button" href="<@spring.url '/social/${network.id}'/>">
-                <i class="fa fa-${network.id}"></i> Sign in with ${network.displayName}
-            </a>
-    </#list>
-        </div>
-    </div>
-    <div class="row">
         <div class="col-md-10 col-md-offset-1 description">
-            <p>EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It will be a modern game with an old school feel. Just like most other MUDs back in the 90s, you will play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.</p>
-            <p>EmergentMUD is a brand new project and the groundwork is still in its very first stages of development. This is the actively running server for demonstration purposes. If you are interested in seeing what the current state of the MUD looks like, please drop in and take a look around. Please be aware that the version is fixed at v0.1.0-SNAPSHOT for a reason: while I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.</p>
-            <p>That being said, I do welcome visitors and would love for people to drop in and look around.</p>
-            <p>-- Scion</p>
+            <div class="row">
+                <div class="col-md-12 command-heading">
+                    <p>The following are the commands you can use while playing the game.</p>
+                </div>
+            </div>
+            <#list metadataList as metadata>
+                <#if commandMap[metadata.name].parameters?size gt 0>
+                    <div class="row">
+                    <div class="col-md-12 command">${metadata.name?upper_case}
+                    <#list commandMap[metadata.name].parameters as parameter>
+                        <#if parameter.required>
+                        &lt;${parameter.name}&gt;
+                        <#else>
+                        [${parameter.name}]
+                        </#if>
+                    </#list>
+                    <br/>${commandMap[metadata.name].description!}
+                    </div>
+                    </div>
+                <#elseif commandMap[metadata.name].subCommands?size gt 0>
+                    <div class="row">
+                    <div class="col-md-12 command">${metadata.name?upper_case} &lt;sub-command&gt;
+                    <ul>
+                    <#list commandMap[metadata.name].subCommands as subCommand>
+                        <li>${subCommand.name?upper_case}
+                        <#list subCommand.parameters as parameter>
+                            <#if parameter.required>
+                                &lt;${parameter.name}&gt;
+                            <#else>
+                                [${parameter.name}]
+                            </#if>
+                        </#list>
+                        <br/>
+                        ${subCommand.description}
+                        </li>
+                    </#list>
+                    </ul>
+                    ${commandMap[metadata.name].description!}
+                    </div>
+                    </div>
+                <#else>
+                    <div class="row">
+                    <div class="col-md-12 command">${metadata.name?upper_case}<br/>
+                        ${commandMap[metadata.name].description!}
+                    </div>
+                    </div>
+                </#if>
+            </#list>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12 text-center links">
-            [ <a href="<@spring.url '/commands'/>">Commands</a> ]
+            [ <a href="<@spring.url '/'/>">Home</a> ]
         </div>
     </div>
     <div class="row">

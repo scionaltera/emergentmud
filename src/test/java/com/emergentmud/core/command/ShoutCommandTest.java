@@ -89,6 +89,11 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
+    }
+
+    @Test
     public void testShoutSomething() throws Exception {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },

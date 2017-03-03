@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -33,6 +33,9 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
     @Inject
     public SayCommand(EntityUtil entityUtil) {
         this.entityUtil = entityUtil;
+
+        setDescription("Send a message to others in the same room.");
+        addParameter("message", true);
     }
 
     @Override

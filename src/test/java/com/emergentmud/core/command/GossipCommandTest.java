@@ -33,7 +33,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class GossipCommandTest extends BaseCommunicationCommandTest {
@@ -67,6 +67,11 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
         when(entityRepository.findByRoomIsNotNull()).thenReturn(worldContents);
 
         command = new GossipCommand(entityRepository, entityUtil);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test

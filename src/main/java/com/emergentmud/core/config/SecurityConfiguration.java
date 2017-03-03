@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -109,7 +109,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
                 .authorizeRequests()
-                .antMatchers("/", "/social/**", "/login**", "/webjars/**", "/img/**", "/css/**").permitAll()
+                .antMatchers(
+                        "/",
+                        "/commands",
+                        "/social/**",
+                        "/login**",
+                        "/webjars/**",
+                        "/img/**",
+                        "/css/**").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().logoutSuccessUrl("/").permitAll()
                 .and().formLogin().loginPage("/")

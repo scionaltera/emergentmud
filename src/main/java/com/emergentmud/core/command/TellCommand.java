@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -36,6 +36,10 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
                        EntityUtil entityUtil) {
         this.entityRepository = entityRepository;
         this.entityUtil = entityUtil;
+
+        setDescription("Send a private message to another player.");
+        addParameter("target", true);
+        addParameter("message", true);
     }
 
     @Override

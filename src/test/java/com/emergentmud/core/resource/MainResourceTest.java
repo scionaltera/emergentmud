@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -28,6 +28,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.WorldManager;
@@ -38,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -64,6 +66,9 @@ public class MainResourceTest {
     private static final long WORLD_CENTER = WORLD_EXTENT / 2;
 
     @Mock
+    private ApplicationContext applicationContext;
+
+    @Mock
     private SecurityContextLogoutHandler securityContextLogoutHandler;
 
     @Mock
@@ -74,6 +79,9 @@ public class MainResourceTest {
 
     @Mock
     private EntityRepository entityRepository;
+
+    @Mock
+    private CommandMetadataRepository commandMetadataRepository;
 
     @Mock
     private WorldManager worldManager;
@@ -134,12 +142,14 @@ public class MainResourceTest {
         when(essenceRepository.findByAccountId(anyString())).thenReturn(essences);
 
         mainResource = new MainResource(
+                applicationContext,
                 WORLD_EXTENT,
                 socialNetworks,
                 securityContextLogoutHandler,
                 accountRepository,
                 essenceRepository,
                 entityRepository,
+                commandMetadataRepository,
                 worldManager,
                 entityUtil
         );

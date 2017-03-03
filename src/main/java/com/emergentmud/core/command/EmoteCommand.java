@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -33,6 +33,9 @@ public class EmoteCommand extends BaseCommunicationCommand implements Command {
     @Inject
     public EmoteCommand(EntityUtil entityUtil) {
         this.entityUtil = entityUtil;
+
+        setDescription("Display an action to others in the same room.");
+        addParameter("message", true);
     }
 
     @Override

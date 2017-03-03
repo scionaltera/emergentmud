@@ -62,7 +62,7 @@ public class GotoCommandTest {
 
     private String cmd = "goto";
 
-    private GotoCommand gotoCommand;
+    private GotoCommand command;
 
     @Before
     public void setUp() throws Exception {
@@ -72,14 +72,19 @@ public class GotoCommandTest {
         when(worldManager.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenReturn(destination);
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        gotoCommand = new GotoCommand(applicationContext, worldManager, entityUtil);
+        command = new GotoCommand(applicationContext, worldManager, entityUtil);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
     public void testGotoNoArgs() throws Exception {
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] {}, "");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
@@ -88,9 +93,9 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoOneArg() throws Exception {
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] { "1000" }, "1000");
+        GameOutput result = command.execute(output, entity, cmd, new String[] { "1000" }, "1000");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
@@ -99,7 +104,7 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoTwoArgs() throws Exception {
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] {"1000", "1000"}, "1000 1000");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"1000", "1000"}, "1000 1000");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
@@ -112,7 +117,7 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoThreeArgs() throws Exception {
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] {"1000", "1000", "0"}, "1000 1000 0");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"1000", "1000", "0"}, "1000 1000 0");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
@@ -125,9 +130,9 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoTwoArgsBad() throws Exception {
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] { "1000", "bad" }, "1000 bad");
+        GameOutput result = command.execute(output, entity, cmd, new String[] { "1000", "bad" }, "1000 bad");
 
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
+        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityUtil);
@@ -138,7 +143,7 @@ public class GotoCommandTest {
     public void testGotoTwoArgsNullOrigin() throws Exception {
         when(entity.getRoom()).thenReturn(null);
 
-        GameOutput result = gotoCommand.execute(output, entity, cmd, new String[] {"1000", "1000"}, "1000 1000");
+        GameOutput result = command.execute(output, entity, cmd, new String[] {"1000", "1000"}, "1000 1000");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
