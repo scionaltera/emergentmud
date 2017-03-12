@@ -44,7 +44,7 @@ public class DataCommand extends BaseCommand {
         this.accountRepository = accountRepository;
 
         setDescription("Show the contents of database entries.");
-        addParameter("essence", true);
+        addSubcommand("essence", "Show all Essence objects.");
     }
 
     @Override
