@@ -31,6 +31,7 @@ import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
@@ -62,8 +63,6 @@ public class MainResourceTest {
     private static final String NETWORK_ID = "alteranet";
     private static final String NETWORK_USER = "007";
     private static final String ACCOUNT_ID = "1234567890";
-    private static final long WORLD_EXTENT = 2000;
-    private static final long WORLD_CENTER = WORLD_EXTENT / 2;
 
     @Mock
     private ApplicationContext applicationContext;
@@ -82,6 +81,9 @@ public class MainResourceTest {
 
     @Mock
     private CommandMetadataRepository commandMetadataRepository;
+
+    @Mock
+    private RoomBuilder roomBuilder;
 
     @Mock
     private WorldManager worldManager;
@@ -120,7 +122,7 @@ public class MainResourceTest {
         generateEssences();
         essence = essences.get(0);
 
-        when(worldManager.test(eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L))).thenReturn(true);
+        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(true);
         when(httpSession.getAttribute(eq("social"))).thenReturn(NETWORK_ID);
         when(principal.getName()).thenReturn(NETWORK_USER);
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> {
@@ -143,13 +145,13 @@ public class MainResourceTest {
 
         mainResource = new MainResource(
                 applicationContext,
-                WORLD_EXTENT,
                 socialNetworks,
                 securityContextLogoutHandler,
                 accountRepository,
                 essenceRepository,
                 entityRepository,
                 commandMetadataRepository,
+                roomBuilder,
                 worldManager,
                 entityUtil
         );
@@ -389,8 +391,9 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
+        verify(roomBuilder, never()).buildRoom(eq(0L), eq(0L), eq(0L));
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(eq(entity), eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L));
+        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -410,13 +413,14 @@ public class MainResourceTest {
 
     @Test
     public void testPlayNoWorld() throws Exception {
-        when(worldManager.test(eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L))).thenReturn(false);
+        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(false);
 
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
-        verify(entityUtil, never()).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
-        verify(worldManager, never()).put(eq(entity), eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L));
+        verify(roomBuilder).buildRoom(eq(0L), eq(0L), eq(0L));
+        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
+        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -475,7 +479,7 @@ public class MainResourceTest {
         verify(entityRepository).save(any(Entity.class));
         verify(essence1).setEntity(any(Entity.class));
         verify(essenceRepository).save(eq(essence1));
-        verify(worldManager).put(any(Entity.class), eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L));
+        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -506,7 +510,7 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
 
         verify(entityUtil).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(any(Entity.class), eq(WORLD_CENTER), eq(WORLD_CENTER), eq(0L));
+        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));

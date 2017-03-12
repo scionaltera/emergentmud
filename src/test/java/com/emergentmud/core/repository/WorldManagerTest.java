@@ -52,7 +52,6 @@ public class WorldManagerTest {
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         worldManager = new WorldManager(entityRepository, roomRepository);
-
     }
 
     @Test

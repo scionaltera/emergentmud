@@ -33,6 +33,7 @@ import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
@@ -70,6 +71,7 @@ public class MainResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
+    private RoomBuilder roomBuilder;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
 
@@ -81,6 +83,7 @@ public class MainResource {
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         CommandMetadataRepository commandMetadataRepository,
+                        RoomBuilder roomBuilder,
                         WorldManager worldManager,
                         EntityUtil entityUtil) {
 
@@ -91,6 +94,7 @@ public class MainResource {
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
+        this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
     }
@@ -250,16 +254,16 @@ public class MainResource {
             entityUtil.sendMessageToEntity(entity, out);
         }
 
-        if (worldManager.test(0L, 0L, 0L)) {
-            Room room = worldManager.put(entity, 0L, 0L, 0L);
-            GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
-
-            entityUtil.sendMessageToRoom(room, entity, enterMessage);
-
-            LOGGER.info("{} has entered the game", entity.getName());
-        } else {
-            LOGGER.error("Starting room does not exist!");
+        if (!worldManager.test(0L, 0L, 0L)) {
+            roomBuilder.buildRoom(0L, 0L, 0L);
         }
+
+        Room room = worldManager.put(entity, 0L, 0L, 0L);
+        GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
+
+        entityUtil.sendMessageToRoom(room, entity, enterMessage);
+
+        LOGGER.info("{} has entered the game", entity.getName());
 
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();
