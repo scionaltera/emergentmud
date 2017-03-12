@@ -37,7 +37,6 @@ import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -73,11 +72,9 @@ public class MainResource {
     private CommandMetadataRepository commandMetadataRepository;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
-    private Long worldExtent;
 
     @Inject
     public MainResource(ApplicationContext applicationContext,
-                        @Qualifier("worldExtent") Long worldExtent,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
@@ -88,7 +85,6 @@ public class MainResource {
                         EntityUtil entityUtil) {
 
         this.applicationContext = applicationContext;
-        this.worldExtent = worldExtent;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
@@ -254,10 +250,8 @@ public class MainResource {
             entityUtil.sendMessageToEntity(entity, out);
         }
 
-        long worldCenter = worldExtent / 2;
-
-        if (worldManager.test(worldCenter, worldCenter, 0L)) {
-            Room room = worldManager.put(entity, worldCenter, worldCenter, 0L);
+        if (worldManager.test(0L, 0L, 0L)) {
+            Room room = worldManager.put(entity, 0L, 0L, 0L);
             GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);

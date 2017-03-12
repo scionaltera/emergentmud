@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -31,18 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class WorldLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorldLoader.class);
+public class BiomeLoader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BiomeLoader.class);
 
-    private ZoneBuilder zoneBuilder;
     private BiomeRepository biomeRepository;
-    private RoomRepository roomRepository;
 
     @Inject
-    public WorldLoader(ZoneBuilder zoneBuilder, BiomeRepository biomeRepository, RoomRepository roomRepository) {
-        this.zoneBuilder = zoneBuilder;
+    public BiomeLoader(BiomeRepository biomeRepository) {
         this.biomeRepository = biomeRepository;
-        this.roomRepository = roomRepository;
     }
 
     @PostConstruct
@@ -73,13 +69,6 @@ public class WorldLoader {
             biomes.add(new Biome("River", 0x225588));
 
             biomeRepository.save(biomes);
-        }
-
-        if (roomRepository.count() == 0) {
-            LOGGER.warn("No rooms found! Generating a world using strategy: {}", zoneBuilder.getClass().getName());
-            LOGGER.warn("This could take some time...");
-
-            zoneBuilder.build(0L, 0L, 0L);
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,7 +22,6 @@ package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
-import com.emergentmud.core.model.Zone;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,12 +41,6 @@ public class WorldManagerTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private ZoneBuilder zoneBuilder;
-
-    @Mock
-    private Zone zone;
-
-    @Mock
     private Room room;
 
     private WorldManager worldManager;
@@ -57,8 +50,6 @@ public class WorldManagerTest {
         MockitoAnnotations.initMocks(this);
 
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
-        when(zoneBuilder.build(anyLong(), anyLong(), anyLong())).thenReturn(zone);
-        when(zone.getId()).thenReturn("zoneId");
 
         worldManager = new WorldManager(entityRepository, roomRepository);
 
@@ -69,15 +60,11 @@ public class WorldManagerTest {
         when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
 
         assertTrue(worldManager.test(0L, 0L, 0L));
-
-        verify(zoneBuilder, never()).build(anyLong(), anyLong(), anyLong());
     }
 
     @Test
     public void testTestMissing() throws Exception {
         assertFalse(worldManager.test(0L, 0L, 0L));
-
-        verify(zoneBuilder, never()).build(eq(0L), eq(0L), eq(0L));
     }
 
     @Test
