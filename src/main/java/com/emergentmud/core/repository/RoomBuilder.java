@@ -20,16 +20,23 @@
 
 package com.emergentmud.core.repository;
 
+import com.emergentmud.core.model.Direction;
+import com.emergentmud.core.model.Exit;
 import com.emergentmud.core.model.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class RoomBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomBuilder.class);
+    private static final Random RANDOM = new Random();
 
     private RoomRepository roomRepository;
     private BiomeRepository biomeRepository;
@@ -40,14 +47,60 @@ public class RoomBuilder {
         this.biomeRepository = biomeRepository;
     }
 
-    public Room buildRoom(long x, long y, long z) {
+    public Room generateRoom(long x, long y, long z) {
+        Room room = roomRepository.findByXAndYAndZ(x, y, z);
+
+        if (room != null) {
+            return room;
+        }
+
+        room = generateRandomRoom(x, y, z);
+
+        LOGGER.debug("Generated {} at ({}, {}, {})", room.getBiome().getName(), x, y, z);
+        return roomRepository.save(room);
+    }
+
+    private Room generateRandomRoom(long x, long y, long z) {
         Room room = new Room();
 
-        room.setBiome(biomeRepository.findByName("Temperate Deciduous Forest"));
-        room.setX(x);
-        room.setY(y);
-        room.setZ(z);
+        room.setLocation(x, y, z);
+        room.setBiome(biomeRepository.findByName("Grassland"));
 
-        return roomRepository.save(room);
+        List<Direction> openExits = new ArrayList<>();
+
+        for (Direction direction : Direction.DIRECTIONS) {
+            Room neighbor = roomRepository.findByXAndYAndZ(
+                    x + direction.getX(),
+                    y + direction.getY(),
+                    z + direction.getZ());
+
+            if (neighbor != null) {
+                // ensure we have a reciprocal exit for any neighbors that have exits to us
+                if (neighbor.getExit(direction.getOpposite()) != null) {
+                    if (room.getExit(direction) == null) {
+                        room.setExit(new Exit(direction));
+                    }
+                }
+            } else {
+                openExits.add(direction);
+            }
+        }
+
+        // add additional exits if possible
+        Collections.shuffle(openExits);
+
+        if (openExits.size() > 0) {
+            room.setExit(new Exit(openExits.get(0)));
+
+            if (openExits.size() > 1 && RANDOM.nextDouble() < 0.5) {
+                room.setExit(new Exit(openExits.get(1)));
+
+                if (openExits.size() > 2 && RANDOM.nextDouble() < 0.25) {
+                    room.setExit(new Exit(openExits.get(2)));
+                }
+            }
+        }
+
+        return room;
     }
 }

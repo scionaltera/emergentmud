@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -116,12 +117,12 @@ public class LookCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());
-        verify(output).append(eq("[dcyan]Exits: north east south west"));
+        verify(output).append(startsWith("[dcyan]Exits:"));
         verify(entityRepository).findByRoom(eq(room));
-        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(1L), eq(0L));
-        verify(roomRepository).findByXAndYAndZ(eq(1L), eq(0L), eq(0L));
-        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(-1L), eq(0L));
-        verify(roomRepository).findByXAndYAndZ(eq(-1L), eq(0L), eq(0L));
+        verify(room).getExit(Direction.NORTH);
+        verify(room).getExit(Direction.EAST);
+        verify(room).getExit(Direction.SOUTH);
+        verify(room).getExit(Direction.WEST);
 
         contents.forEach(e -> {
                     if (!"Tester1".equals(e.getId())) {

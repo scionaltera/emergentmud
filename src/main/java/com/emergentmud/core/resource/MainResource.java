@@ -255,7 +255,7 @@ public class MainResource {
         }
 
         if (!worldManager.test(0L, 0L, 0L)) {
-            roomBuilder.buildRoom(0L, 0L, 0L);
+            roomBuilder.generateRoom(0L, 0L, 0L);
         }
 
         Room room = worldManager.put(entity, 0L, 0L, 0L);

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,6 +21,8 @@
 package com.emergentmud.core.config;
 
 import com.emergentmud.core.command.MoveCommand;
+import com.emergentmud.core.model.Direction;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +37,9 @@ public class CommandConfiguration {
     private ApplicationContext applicationContext;
 
     @Inject
+    private RoomBuilder roomBuilder;
+
+    @Inject
     private WorldManager worldManager;
 
     @Inject
@@ -42,21 +47,21 @@ public class CommandConfiguration {
 
     @Bean(name = "northCommand")
     public MoveCommand northCommand() {
-        return new MoveCommand(0, 1, 0, "north", "south", applicationContext, worldManager, entityUtil);
+        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityUtil);
     }
 
     @Bean(name = "eastCommand")
     public MoveCommand eastCommand() {
-        return new MoveCommand(1, 0, 0, "east", "west", applicationContext, worldManager, entityUtil);
+        return new MoveCommand(Direction.EAST, applicationContext, worldManager, roomBuilder, entityUtil);
     }
 
     @Bean(name = "southCommand")
     public MoveCommand southCommand() {
-        return new MoveCommand(0, -1, 0, "south", "north", applicationContext, worldManager, entityUtil);
+        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, roomBuilder, entityUtil);
     }
 
     @Bean(name = "westCommand")
     public MoveCommand westCommand() {
-        return new MoveCommand(-1, 0, 0, "west", "east", applicationContext, worldManager, entityUtil);
+        return new MoveCommand(Direction.WEST, applicationContext, worldManager, roomBuilder, entityUtil);
     }
 }

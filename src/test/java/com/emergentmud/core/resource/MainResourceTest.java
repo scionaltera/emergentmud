@@ -391,7 +391,7 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
-        verify(roomBuilder, never()).generateRooms(eq(0L), eq(0L), eq(0L));
+        verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
@@ -418,7 +418,7 @@ public class MainResourceTest {
         String view = mainResource.play("essence0", httpSession, principal, model);
         Entity entity = essence.getEntity();
 
-        verify(roomBuilder).generateRooms(eq(0L), eq(0L), eq(0L));
+        verify(roomBuilder).generateRoom(eq(0L), eq(0L), eq(0L));
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());

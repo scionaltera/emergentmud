@@ -26,6 +26,9 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Document
 @CompoundIndexes({
         @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
@@ -37,6 +40,7 @@ public class Room {
     @DBRef
     private Biome biome;
 
+    private Map<String, Exit> exits = new HashMap<>();
     private Long x;
     private Long y;
     private Long z;
@@ -55,6 +59,24 @@ public class Room {
 
     public void setBiome(Biome biome) {
         this.biome = biome;
+    }
+
+    public Exit getExit(Direction direction) {
+        return exits.get(direction.getName());
+    }
+
+    public Exit getExit(String name) {
+        return exits.get(name);
+    }
+
+    public void setExit(Exit exit) {
+        exits.put(exit.getDirection().getName(), exit);
+    }
+
+    public void setLocation(Long x, Long y, Long z) {
+        setX(x);
+        setY(y);
+        setZ(z);
     }
 
     public Long getX() {

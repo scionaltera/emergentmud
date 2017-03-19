@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,9 +20,12 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Exit;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
@@ -44,6 +47,9 @@ public class MoveCommandTest {
     private WorldManager worldManager;
 
     @Mock
+    private RoomBuilder roomBuilder;
+
+    @Mock
     private EntityUtil entityUtil;
 
     @Mock
@@ -57,6 +63,9 @@ public class MoveCommandTest {
 
     @Mock
     private Room room;
+
+    @Mock
+    private Exit exit;
 
     @Mock
     private Room room2;
@@ -89,12 +98,14 @@ public class MoveCommandTest {
                     doCallRealMethod().when(r).setZ(anyLong());
                 });
 
-        when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(true);
-        when(worldManager.put(any(Entity.class), eq(1L), eq(1L), eq(1L))).thenReturn(room2);
+        when(room.getExit(eq(Direction.NORTH))).thenReturn(exit);
+
+        when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(true);
+        when(worldManager.put(any(Entity.class), eq(0L), eq(1L), eq(0L))).thenReturn(room2);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        command = new MoveCommand(1, 1, 1, "move", "unmove", applicationContext, worldManager, entityUtil);
+        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityUtil);
     }
 
     @Test
@@ -113,7 +124,7 @@ public class MoveCommandTest {
 
         assertNotNull(result);
         verify(worldManager).remove(eq(entity));
-        verify(worldManager).put(eq(entity), eq(1L), eq(1L), eq(1L));
+        verify(worldManager).put(eq(entity), eq(0L), eq(1L), eq(0L));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), eq(new String[0]), eq(""));
         verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
@@ -127,13 +138,14 @@ public class MoveCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        when(worldManager.test(eq(1L), eq(1L), eq(1L))).thenReturn(false);
+        when(room.getExit(eq(Direction.NORTH))).thenReturn(null);
+        when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(false);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(worldManager, never()).remove(eq(entity));
-        verify(worldManager, never()).put(eq(entity), eq(1L), eq(1L), eq(1L));
+        verify(worldManager, never()).put(eq(entity), eq(0L), eq(1L), eq(0L));
     }
 
     @Test
