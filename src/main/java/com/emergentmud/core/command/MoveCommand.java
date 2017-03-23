@@ -63,12 +63,6 @@ public class MoveCommand extends BaseCommand {
         if (room == null) {
             output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
         } else {
-            // if the room doesn't have an exit that direction, bail out fast
-            if (room.getExit(direction) == null) {
-                output.append("Alas, you cannot go that way.");
-                return output;
-            }
-
             long[] location = new long[] {
                     room.getX(),
                     room.getY(),
@@ -88,7 +82,7 @@ public class MoveCommand extends BaseCommand {
                         location[2]);
 
                 if (destination == null) {
-                    output.append("You can't seem to find a way through there.");
+                    output.append("Alas, you cannot go that way.");
                     return output;
                 }
             }

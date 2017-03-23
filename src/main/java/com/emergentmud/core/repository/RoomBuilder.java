@@ -20,8 +20,6 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.Direction;
-import com.emergentmud.core.model.Exit;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.WhittakerGridLocation;
 import org.slf4j.Logger;
@@ -29,16 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 @Component
 public class RoomBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomBuilder.class);
-    private static final Random RANDOM = new Random();
 
     private RoomRepository roomRepository;
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
@@ -68,24 +63,19 @@ public class RoomBuilder {
 
     private Room generateRandomRoom(long x, long y, long z) {
         List<WhittakerGridLocation> gridLocations = whittakerGridLocationRepository.findAll();
+        List<Room> neighbors = roomRepository.findByXBetweenAndYBetweenAndZ(x - 2, x + 2, y - 2, y + 2, z);
 
-        for (long ny = y - 1; ny <= y + 1; ny++) {
-            for (long nx = x - 1; nx <= x + 1; nx++) {
-                Room neighbor = roomRepository.findByXAndYAndZ(nx, ny, z);
+        neighbors.forEach(neighbor -> {
+            for (Iterator<WhittakerGridLocation> iterator = gridLocations.iterator(); iterator.hasNext();) {
+                WhittakerGridLocation gridLocation = iterator.next();
+                double elevationDiff = Math.abs(neighbor.getElevation() - gridLocation.getElevation());
+                double moistureDiff = Math.abs(neighbor.getMoisture() - gridLocation.getMoisture());
 
-                if (neighbor != null) {
-                    for (Iterator<WhittakerGridLocation> iterator = gridLocations.iterator(); iterator.hasNext();) {
-                        WhittakerGridLocation gridLocation = iterator.next();
-                        double elevationDiff = Math.abs(neighbor.getElevation() - gridLocation.getElevation());
-                        double moistureDiff = Math.abs(neighbor.getMoisture() - gridLocation.getMoisture());
-
-                        if (elevationDiff > 1 || moistureDiff > 1 || (elevationDiff == 1 && moistureDiff == 1)) {
-                            iterator.remove();
-                        }
-                    }
+                if (elevationDiff > 1 || moistureDiff > 1 || (elevationDiff == 1 && moistureDiff == 1)) {
+                    iterator.remove();
                 }
             }
-        }
+        });
 
         if (gridLocations.isEmpty()) {
             return null;
@@ -100,41 +90,6 @@ public class RoomBuilder {
         room.setBiome(whittaker.getBiome());
         room.setElevation(whittaker.getElevation());
         room.setMoisture(whittaker.getMoisture());
-
-        List<Direction> openExits = new ArrayList<>();
-
-        // ensure we have a reciprocal exit for any neighbors that have exits to us
-        for (Direction direction : Direction.DIRECTIONS) {
-            Room neighbor = roomRepository.findByXAndYAndZ(
-                    x + direction.getX(),
-                    y + direction.getY(),
-                    z + direction.getZ());
-
-            if (neighbor != null) {
-                if (neighbor.getExit(direction.getOpposite()) != null) {
-                    if (room.getExit(direction) == null) {
-                        room.setExit(new Exit(direction));
-                    }
-                }
-            } else {
-                openExits.add(direction);
-            }
-        }
-
-        // add additional exits if possible
-        Collections.shuffle(openExits);
-
-        if (openExits.size() > 0) {
-            room.setExit(new Exit(openExits.get(0)));
-
-            if (openExits.size() > 1 && RANDOM.nextDouble() < 0.5) {
-                room.setExit(new Exit(openExits.get(1)));
-
-                if (openExits.size() > 2 && RANDOM.nextDouble() < 0.25) {
-                    room.setExit(new Exit(openExits.get(2)));
-                }
-            }
-        }
 
         return room;
     }

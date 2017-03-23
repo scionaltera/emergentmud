@@ -22,7 +22,6 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Exit;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.RoomBuilder;
@@ -65,9 +64,6 @@ public class MoveCommandTest {
     private Room room;
 
     @Mock
-    private Exit exit;
-
-    @Mock
     private Room room2;
 
     @Mock
@@ -97,8 +93,6 @@ public class MoveCommandTest {
                     doCallRealMethod().when(r).setY(anyLong());
                     doCallRealMethod().when(r).setZ(anyLong());
                 });
-
-        when(room.getExit(eq(Direction.NORTH))).thenReturn(exit);
 
         when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(true);
         when(worldManager.put(any(Entity.class), eq(0L), eq(1L), eq(0L))).thenReturn(room2);
@@ -138,7 +132,6 @@ public class MoveCommandTest {
         room.setZ(0L);
         entity.setRoom(room);
 
-        when(room.getExit(eq(Direction.NORTH))).thenReturn(null);
         when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(false);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);

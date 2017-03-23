@@ -29,5 +29,6 @@ import java.util.List;
 @Repository
 public interface RoomRepository extends MongoRepository<Room, String> {
     Room findByXAndYAndZ(Long x, Long y, Long z);
+    List<Room> findByXBetweenAndYBetweenAndZ(Long xFrom, Long xTo, Long yFrom, Long yTo, Long z);
     List<Room> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
 }

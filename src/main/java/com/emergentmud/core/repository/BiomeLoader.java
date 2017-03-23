@@ -58,13 +58,13 @@ public class BiomeLoader {
             biomes.add(new Biome("Taiga", 0x99aa77));
             biomes.add(new Biome("Shrubland", 0x889977));
             biomes.add(new Biome("Temperate Desert", 0xc9d29b));
-            biomes.add(new Biome("Temperate Rainforest", 0x448855));
+            biomes.add(new Biome("Temperate Rain Forest", 0x448855));
             biomes.add(new Biome("Temperate Deciduous Forest", 0x679459));
             biomes.add(new Biome("Grassland", 0x88aa55));
             biomes.add(new Biome("Subtropical Desert", 0xd2b98b));
             biomes.add(new Biome("Ice", 0x99ffff));
             biomes.add(new Biome("Marsh", 0x2f6666));
-            biomes.add(new Biome("Tropical Rainforest", 0x337755));
+            biomes.add(new Biome("Tropical Rain Forest", 0x337755));
             biomes.add(new Biome("Tropical Seasonal Forest", 0x559944));
             biomes.add(new Biome("River", 0x225588));
 

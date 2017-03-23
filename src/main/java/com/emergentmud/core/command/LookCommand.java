@@ -61,7 +61,7 @@ public class LookCommand extends BaseCommand {
             }
 
             roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-            roomDescription += String.format("<br/>elevation=%d moisture=m%d", room.getElevation(), room.getMoisture());
+            roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
                     roomName,
@@ -73,17 +73,15 @@ public class LookCommand extends BaseCommand {
             StringBuilder exits = new StringBuilder("[dcyan]Exits:");
 
             Direction.DIRECTIONS.forEach(d -> {
-                if (room.getExit(d) != null) {
-                    exits.append(" ");
+                exits.append(" ");
 
-                    Room neighbor = roomRepository.findByXAndYAndZ(
-                            room.getX() + d.getX(),
-                            room.getY() + d.getY(),
-                            room.getZ() + d.getZ());
+                Room neighbor = roomRepository.findByXAndYAndZ(
+                        room.getX() + d.getX(),
+                        room.getY() + d.getY(),
+                        room.getZ() + d.getZ());
 
-                    exits.append(neighbor == null ? "[red]" : "[cyan]");
-                    exits.append(d.getName());
-                }
+                exits.append(neighbor == null ? "[red]" : "[cyan]");
+                exits.append(d.getName());
             });
 
             output.append(exits.toString());
