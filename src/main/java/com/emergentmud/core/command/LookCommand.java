@@ -61,6 +61,7 @@ public class LookCommand extends BaseCommand {
             }
 
             roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
+            roomDescription += String.format("<br/>elevation=%d moisture=m%d", room.getElevation(), room.getMoisture());
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
                     roomName,

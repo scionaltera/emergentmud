@@ -23,6 +23,7 @@ package com.emergentmud.core.repository;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Exit;
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.WhittakerGridLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -39,12 +41,12 @@ public class RoomBuilder {
     private static final Random RANDOM = new Random();
 
     private RoomRepository roomRepository;
-    private BiomeRepository biomeRepository;
+    private WhittakerGridLocationRepository whittakerGridLocationRepository;
 
     @Inject
-    public RoomBuilder(RoomRepository roomRepository, BiomeRepository biomeRepository) {
+    public RoomBuilder(RoomRepository roomRepository, WhittakerGridLocationRepository whittakerGridLocationRepository) {
         this.roomRepository = roomRepository;
-        this.biomeRepository = biomeRepository;
+        this.whittakerGridLocationRepository = whittakerGridLocationRepository;
     }
 
     public Room generateRoom(long x, long y, long z) {
@@ -56,18 +58,52 @@ public class RoomBuilder {
 
         room = generateRandomRoom(x, y, z);
 
-        LOGGER.debug("Generated {} at ({}, {}, {})", room.getBiome().getName(), x, y, z);
+        if (room == null) {
+            LOGGER.debug("No valid biomes for room at ({}, {}, {})", x, y, z);
+            return null;
+        }
+
         return roomRepository.save(room);
     }
 
     private Room generateRandomRoom(long x, long y, long z) {
+        List<WhittakerGridLocation> gridLocations = whittakerGridLocationRepository.findAll();
+
+        for (long ny = y - 1; ny <= y + 1; ny++) {
+            for (long nx = x - 1; nx <= x + 1; nx++) {
+                Room neighbor = roomRepository.findByXAndYAndZ(nx, ny, z);
+
+                if (neighbor != null) {
+                    for (Iterator<WhittakerGridLocation> iterator = gridLocations.iterator(); iterator.hasNext();) {
+                        WhittakerGridLocation gridLocation = iterator.next();
+                        double elevationDiff = Math.abs(neighbor.getElevation() - gridLocation.getElevation());
+                        double moistureDiff = Math.abs(neighbor.getMoisture() - gridLocation.getMoisture());
+
+                        if (elevationDiff > 1 || moistureDiff > 1 || (elevationDiff == 1 && moistureDiff == 1)) {
+                            iterator.remove();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (gridLocations.isEmpty()) {
+            return null;
+        }
+
+        Collections.shuffle(gridLocations);
+
+        WhittakerGridLocation whittaker = gridLocations.get(0);
         Room room = new Room();
 
         room.setLocation(x, y, z);
-        room.setBiome(biomeRepository.findByName("Grassland"));
+        room.setBiome(whittaker.getBiome());
+        room.setElevation(whittaker.getElevation());
+        room.setMoisture(whittaker.getMoisture());
 
         List<Direction> openExits = new ArrayList<>();
 
+        // ensure we have a reciprocal exit for any neighbors that have exits to us
         for (Direction direction : Direction.DIRECTIONS) {
             Room neighbor = roomRepository.findByXAndYAndZ(
                     x + direction.getX(),
@@ -75,7 +111,6 @@ public class RoomBuilder {
                     z + direction.getZ());
 
             if (neighbor != null) {
-                // ensure we have a reciprocal exit for any neighbors that have exits to us
                 if (neighbor.getExit(direction.getOpposite()) != null) {
                     if (room.getExit(direction) == null) {
                         room.setExit(new Exit(direction));

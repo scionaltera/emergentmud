@@ -82,10 +82,15 @@ public class MoveCommand extends BaseCommand {
             location[2] += direction.getZ();
 
             if (!worldManager.test(location[0], location[1], location[2])) {
-                roomBuilder.generateRoom(
+                Room destination = roomBuilder.generateRoom(
                         location[0],
                         location[1],
                         location[2]);
+
+                if (destination == null) {
+                    output.append("You can't seem to find a way through there.");
+                    return output;
+                }
             }
 
             GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
