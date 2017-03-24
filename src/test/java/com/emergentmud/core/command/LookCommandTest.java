@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.command;
 
-import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -119,10 +118,6 @@ public class LookCommandTest {
         verify(output, atLeast(3)).append(anyString());
         verify(output).append(startsWith("[dcyan]Exits:"));
         verify(entityRepository).findByRoom(eq(room));
-        verify(room).getExit(Direction.NORTH);
-        verify(room).getExit(Direction.EAST);
-        verify(room).getExit(Direction.SOUTH);
-        verify(room).getExit(Direction.WEST);
 
         contents.forEach(e -> {
                     if (!"Tester1".equals(e.getId())) {
