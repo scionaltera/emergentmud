@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,78 +20,19 @@
 
 package com.emergentmud.core.config;
 
-import com.emergentmud.core.repository.BiomeRepository;
-import com.emergentmud.core.repository.zonebuilder.polygonal.BiomeSelector;
-import com.emergentmud.core.repository.zonebuilder.polygonal.ElevationBuilder;
-import com.emergentmud.core.repository.zonebuilder.polygonal.ImageBuilder;
-import com.emergentmud.core.repository.zonebuilder.polygonal.IslandShape;
-import com.emergentmud.core.repository.zonebuilder.polygonal.LloydsRelaxation;
-import com.emergentmud.core.repository.zonebuilder.polygonal.MoistureBuilder;
-import com.emergentmud.core.repository.zonebuilder.polygonal.PolygonalZoneBuilder;
-import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.repository.ZoneBuilder;
-import com.emergentmud.core.repository.ZoneRepository;
-import com.emergentmud.core.repository.zonebuilder.polygonal.RadialIslandShape;
-import com.emergentmud.core.repository.zonebuilder.polygonal.VoronoiGraphBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.inject.Inject;
 import java.util.Random;
 
 @Configuration
 public class WorldConfiguration {
     private @Value("${world.seed}") int seed;
-    private @Value("${world.sites}") int sites;
-    private @Value("${world.extent}") long extent;
-    private @Value("${world.lloyds}") int lloyds;
-
-    @Inject
-    private LloydsRelaxation lloydsRelaxation;
-
-    @Inject
-    private ZoneRepository zoneRepository;
-
-    @Inject
-    private BiomeRepository biomeRepository;
-
-    @Inject
-    private RoomRepository roomRepository;
-
-    @Inject
-    private BiomeSelector biomeSelector;
-
-    @Inject
-    private ImageBuilder imageBuilder;
-
-    @Inject
-    private VoronoiGraphBuilder voronoiGraphBuilder;
-
-    @Inject
-    private ElevationBuilder elevationBuilder;
-
-    @Inject
-    private MoistureBuilder moistureBuilder;
 
     @Bean(name = "worldSeed")
     public int getSeed() {
         return seed;
-    }
-
-    @Bean(name = "worldSites")
-    public int getSites() {
-        return sites;
-    }
-
-    @Bean(name = "worldExtent")
-    public long getExtent() {
-        return extent;
-    }
-
-    @Bean(name = "worldLloyds")
-    public int getLloyds() {
-        return lloyds;
     }
 
     @Bean(name = "worldRandom")
@@ -101,28 +42,5 @@ public class WorldConfiguration {
         random.setSeed(getSeed());
 
         return random;
-    }
-
-    @Bean
-    public IslandShape islandShape() {
-        return new RadialIslandShape(random());
-    }
-
-    @Bean
-    public ZoneBuilder zoneBuilder() {
-        return new PolygonalZoneBuilder(
-                random(),
-                getSites(),
-                getExtent(),
-                getLloyds(),
-                lloydsRelaxation,
-                zoneRepository,
-                biomeRepository,
-                roomRepository,
-                biomeSelector,
-                imageBuilder,
-                voronoiGraphBuilder,
-                elevationBuilder,
-                moistureBuilder);
     }
 }

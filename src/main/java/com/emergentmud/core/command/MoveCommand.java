@@ -20,9 +20,11 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
@@ -32,24 +34,23 @@ import org.springframework.context.ApplicationContext;
 public class MoveCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoveCommand.class);
 
-    private long[] differential;
+    private Direction direction;
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
+    private RoomBuilder roomBuilder;
     private EntityUtil entityUtil;
-    private String direction;
-    private String opposite;
 
     public MoveCommand(
-            long x, long y, long z, String direction, String opposite,
+            Direction direction,
             ApplicationContext applicationContext,
             WorldManager worldManager,
+            RoomBuilder roomBuilder,
             EntityUtil entityUtil) {
 
-        differential = new long[] {x, y, z};
         this.direction = direction;
-        this.opposite = opposite;
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
+        this.roomBuilder = roomBuilder;
         this.entityUtil = entityUtil;
 
         setDescription("Walk to an adjacent room.");
@@ -70,16 +71,23 @@ public class MoveCommand extends BaseCommand {
 
             LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
 
-            location[0] += differential[0];
-            location[1] += differential[1];
-            location[2] += differential[2];
+            location[0] += direction.getX();
+            location[1] += direction.getY();
+            location[2] += direction.getZ();
 
             if (!worldManager.test(location[0], location[1], location[2])) {
-                output.append("Alas, you cannot go that way.");
-                return output;
+                Room destination = roomBuilder.generateRoom(
+                        location[0],
+                        location[1],
+                        location[2]);
+
+                if (destination == null) {
+                    output.append("Alas, you cannot go that way.");
+                    return output;
+                }
             }
 
-            GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction));
+            GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
 
             entityUtil.sendMessageToRoom(room, entity, exitMessage);
 
@@ -88,7 +96,7 @@ public class MoveCommand extends BaseCommand {
             room = worldManager.put(entity, location[0], location[1], location[2]);
             LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
-            GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), opposite));
+            GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));
 
             entityUtil.sendMessageToRoom(room, entity, enterMessage);
 

@@ -44,7 +44,7 @@ public class CommandLoader {
     @PostConstruct
     public void loadCommands() {
         if (commandMetadataRepository.count() == 0) {
-            LOGGER.warn("No commands found! Bootstrapping default command set into the database...");
+            LOGGER.warn("No commands found! Loading default commands...");
 
             List<CommandMetadata> metadataList = new ArrayList<>();
 

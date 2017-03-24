@@ -33,11 +33,11 @@ import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -71,30 +71,30 @@ public class MainResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
+    private RoomBuilder roomBuilder;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
-    private Long worldExtent;
 
     @Inject
     public MainResource(ApplicationContext applicationContext,
-                        @Qualifier("worldExtent") Long worldExtent,
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         CommandMetadataRepository commandMetadataRepository,
+                        RoomBuilder roomBuilder,
                         WorldManager worldManager,
                         EntityUtil entityUtil) {
 
         this.applicationContext = applicationContext;
-        this.worldExtent = worldExtent;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
+        this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
     }
@@ -254,18 +254,16 @@ public class MainResource {
             entityUtil.sendMessageToEntity(entity, out);
         }
 
-        long worldCenter = worldExtent / 2;
-
-        if (worldManager.test(worldCenter, worldCenter, 0L)) {
-            Room room = worldManager.put(entity, worldCenter, worldCenter, 0L);
-            GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
-
-            entityUtil.sendMessageToRoom(room, entity, enterMessage);
-
-            LOGGER.info("{} has entered the game", entity.getName());
-        } else {
-            LOGGER.error("Starting room does not exist!");
+        if (!worldManager.test(0L, 0L, 0L)) {
+            roomBuilder.generateRoom(0L, 0L, 0L);
         }
+
+        Room room = worldManager.put(entity, 0L, 0L, 0L);
+        GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
+
+        entityUtil.sendMessageToRoom(room, entity, enterMessage);
+
+        LOGGER.info("{} has entered the game", entity.getName());
 
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();

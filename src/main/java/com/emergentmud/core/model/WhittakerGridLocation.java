@@ -28,19 +28,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @CompoundIndexes({
-        @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
+        @CompoundIndex(name = "biome_meta_idx", def = "{'elevation': 1, 'moisture': 1}")
 })
-public class Room {
+public class WhittakerGridLocation {
     @Id
     private String id;
 
     @DBRef
     private Biome biome;
+
     private Integer elevation;
     private Integer moisture;
-    private Long x;
-    private Long y;
-    private Long z;
+
+    public WhittakerGridLocation(int elevation, int moisture, Biome biome) {
+        this.elevation = elevation;
+        this.moisture = moisture;
+        this.biome = biome;
+    }
 
     public String getId() {
         return id;
@@ -72,35 +76,5 @@ public class Room {
 
     public void setMoisture(Integer moisture) {
         this.moisture = moisture;
-    }
-
-    public void setLocation(Long x, Long y, Long z) {
-        setX(x);
-        setY(y);
-        setZ(z);
-    }
-
-    public Long getX() {
-        return x;
-    }
-
-    public void setX(Long x) {
-        this.x = x;
-    }
-
-    public Long getY() {
-        return y;
-    }
-
-    public void setY(Long y) {
-        this.y = y;
-    }
-
-    public Long getZ() {
-        return z;
-    }
-
-    public void setZ(Long z) {
-        this.z = z;
     }
 }

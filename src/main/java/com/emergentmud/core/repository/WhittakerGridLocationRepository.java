@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,8 +20,8 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.Zone;
+import com.emergentmud.core.model.WhittakerGridLocation;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface ZoneBuilder {
-    Zone build(Long x, Long y, Long z);
+public interface WhittakerGridLocationRepository extends MongoRepository<WhittakerGridLocation, String> {
 }

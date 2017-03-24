@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -60,31 +61,28 @@ public class LookCommand extends BaseCommand {
             }
 
             roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
+            roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
 
             output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
                     roomName,
-                    entity.getRoom().getX(),
-                    entity.getRoom().getY(),
-                    entity.getRoom().getZ()));
+                    room.getX(),
+                    room.getY(),
+                    room.getZ()));
             output.append(String.format("[default]%s", roomDescription));
 
             StringBuilder exits = new StringBuilder("[dcyan]Exits:");
 
-            if (roomRepository.findByXAndYAndZ(room.getX(), room.getY() + 1, room.getZ()) != null) {
-                exits.append(" north");
-            }
+            Direction.DIRECTIONS.forEach(d -> {
+                exits.append(" ");
 
-            if (roomRepository.findByXAndYAndZ(room.getX() + 1, room.getY(), room.getZ()) != null) {
-                exits.append(" east");
-            }
+                Room neighbor = roomRepository.findByXAndYAndZ(
+                        room.getX() + d.getX(),
+                        room.getY() + d.getY(),
+                        room.getZ() + d.getZ());
 
-            if (roomRepository.findByXAndYAndZ(room.getX(), room.getY() - 1, room.getZ()) != null) {
-                exits.append(" south");
-            }
-
-            if (roomRepository.findByXAndYAndZ(room.getX() - 1, room.getY(), room.getZ()) != null) {
-                exits.append(" west");
-            }
+                exits.append(neighbor == null ? "[red]" : "[cyan]");
+                exits.append(d.getName());
+            });
 
             output.append(exits.toString());
 

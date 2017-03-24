@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,9 +29,6 @@ import static org.junit.Assert.*;
 
 public class RoomTest {
     @Mock
-    private Zone zone;
-
-    @Mock
     private Biome biome;
 
     private Room room = new Room();
@@ -53,13 +50,6 @@ public class RoomTest {
         room.setBiome(biome);
 
         assertEquals(biome, room.getBiome());
-    }
-
-    @Test
-    public void testZone() throws Exception {
-        room.setZone(zone);
-
-        assertEquals(zone, room.getZone());
     }
 
     @Test

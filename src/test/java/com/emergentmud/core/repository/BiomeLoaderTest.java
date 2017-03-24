@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -33,10 +33,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class WorldLoaderTest {
-    @Mock
-    private ZoneBuilder zoneBuilder;
-
+public class BiomeLoaderTest {
     @Mock
     private BiomeRepository biomeRepository;
 
@@ -46,13 +43,13 @@ public class WorldLoaderTest {
     @Captor
     private ArgumentCaptor<List<Biome>> biomeCaptor;
 
-    private WorldLoader worldLoader;
+    private BiomeLoader biomeLoader;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        worldLoader = new WorldLoader(zoneBuilder, biomeRepository, roomRepository);
+        biomeLoader = new BiomeLoader(biomeRepository);
     }
 
     @Test
@@ -60,7 +57,7 @@ public class WorldLoaderTest {
         when(biomeRepository.count()).thenReturn(0L);
         when(roomRepository.count()).thenReturn(0L);
 
-        worldLoader.loadWorld();
+        biomeLoader.loadWorld();
 
         verify(biomeRepository).count();
         verify(biomeRepository).save(biomeCaptor.capture());
@@ -71,9 +68,6 @@ public class WorldLoaderTest {
             assertNotNull(biome.getName());
             assertNotNull(biome.getColor());
         });
-
-        verify(roomRepository).count();
-        verify(zoneBuilder).build(0L, 0L, 0L);
     }
 
     @Test
@@ -81,12 +75,10 @@ public class WorldLoaderTest {
         when(biomeRepository.count()).thenReturn(1000L);
         when(roomRepository.count()).thenReturn(1000L);
 
-        worldLoader.loadWorld();
+        biomeLoader.loadWorld();
 
         verify(biomeRepository).count();
-        verify(roomRepository).count();
         verifyNoMoreInteractions(biomeRepository);
         verifyNoMoreInteractions(roomRepository);
-        verifyZeroInteractions(zoneBuilder);
     }
 }
