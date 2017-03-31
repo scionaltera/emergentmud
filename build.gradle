@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -71,9 +71,6 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-all:1.10.19'
-    testCompile 'org.powermock:powermock-core:1.6.5'
-    testCompile 'org.powermock:powermock-module-junit4:1.6.5'
-    testCompile 'org.powermock:powermock-api-mockito:1.6.5'
 }
 
 jar {
@@ -98,9 +95,7 @@ task buildDocker(type: Docker, dependsOn: build) {
 pitest {
     excludedClasses = [
             "com.emergentmud.core.EmergentMUD",
-            "com.emergentmud.core.config.*",
-            "opensimplex",
-            "com.hoten.*"
+            "com.emergentmud.core.config.*"
     ]
     coverageThreshold = 70
     mutationThreshold = 70

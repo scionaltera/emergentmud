@@ -25,6 +25,7 @@ import com.emergentmud.core.model.stomp.GameOutput;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class BaseCommand implements Command {
@@ -116,12 +117,12 @@ public abstract class BaseCommand implements Command {
 
     @Override
     public List<Parameter> getParameters() {
-        return parameters;
+        return Collections.unmodifiableList(parameters);
     }
 
     @Override
     public List<SubCommand> getSubCommands() {
-        return subCommands;
+        return Collections.unmodifiableList(subCommands);
     }
 
     protected void setDescription(String description) {
