@@ -20,7 +20,7 @@
 
 package com.emergentmud.core.config;
 
-import com.emergentmud.core.command.MoveCommand;
+import com.emergentmud.core.command.impl.MoveCommand;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;

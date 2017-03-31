@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class BaseCommandTest {
     @Spy
@@ -51,6 +50,16 @@ public class BaseCommandTest {
         baseCommand.setDescription("This is the description.");
 
         assertEquals("This is the description.", baseCommand.getDescription());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testThatParameterListIsUnmodifiable() throws Exception {
+        baseCommand.getParameters().remove(0);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testThatSubCommandListIsUnmodifiable() throws Exception {
+        baseCommand.getSubCommands().remove(0);
     }
 
     @Test
