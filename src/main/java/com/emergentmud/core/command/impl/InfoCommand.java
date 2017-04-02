@@ -68,7 +68,7 @@ public class InfoCommand extends BaseCommand {
 
         output.append("[cyan][ [dcyan]Entity ([cyan]" + target.getId() + "[dcyan]) [cyan]]");
         output.append("[dcyan]Name: [cyan]" + target.getName());
-        output.append("[dcyan]Admin: " + target.isAdmin());
+        output.append("[dcyan]Admin: [cyan]" + target.isAdmin());
         output.append("[dcyan]Social Username: [cyan]" + target.getStompUsername());
         output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
 

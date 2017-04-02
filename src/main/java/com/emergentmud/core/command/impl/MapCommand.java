@@ -54,6 +54,7 @@ public class MapCommand extends BaseCommand {
                 if (x == center.getX() && y == center.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
+                    // TODO do this in a batch
                     Room room = roomRepository.findByXAndYAndZ(x, y, center.getZ());
 
                     if (room != null) {
