@@ -21,6 +21,7 @@
 package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
@@ -70,6 +71,7 @@ public class WebSocketResource {
     private EmoteMetadataRepository emoteMetadataRepository;
     private PromptBuilder promptBuilder;
     private EntityUtil entityUtil;
+    private Emote emote;
 
     @Inject
     public WebSocketResource(String applicationVersion,
@@ -81,7 +83,8 @@ public class WebSocketResource {
                              CommandMetadataRepository commandMetadataRepository,
                              EmoteMetadataRepository emoteMetadataRepository,
                              PromptBuilder promptBuilder,
-                             EntityUtil entityUtil) {
+                             EntityUtil entityUtil,
+                             Emote emote) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
         this.applicationContext = applicationContext;
@@ -92,6 +95,7 @@ public class WebSocketResource {
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.promptBuilder = promptBuilder;
         this.entityUtil = entityUtil;
+        this.emote = emote;
     }
 
     @SubscribeMapping("/queue/output")
@@ -189,56 +193,8 @@ public class WebSocketResource {
 
                 if (optionalEmoteMetadata.isPresent()) {
                     EmoteMetadata metadata = optionalEmoteMetadata.get();
-                    Entity target = null;
 
-                    if (metadata.getToSelfUntargeted() == null
-                            || metadata.getToRoomUntargeted() == null
-                            || metadata.getToSelfWithTarget() == null
-                            || metadata.getToTarget() == null
-                            || metadata.getToRoomWithTarget() == null) {
-
-                        LOGGER.info("Emote '{}' is missing some fields and cannot be used.", metadata.getName());
-                        output.append("Huh?");
-                    } else {
-                        if (args.length > 0) {
-                            Optional<Entity> optionalTarget = entityRepository.findByRoom(entity.getRoom())
-                                    .stream()
-                                    .filter(e -> ("self".equals(args[0]) && e.getName().equals(entity.getName()))
-                                            || ("me".equals(args[0]) && e.getName().equals(entity.getName()))
-                                            || e.getName().toLowerCase().startsWith(args[0].toLowerCase()))
-                                    .findFirst();
-
-                            if (optionalTarget.isPresent()) {
-                                target = optionalTarget.get();
-                            }
-                        }
-
-                        if (target == null) {
-                            entityUtil.sendMessageToRoom(entity.getRoom(), entity, new GameOutput(replaceVariables(metadata.getToRoomUntargeted(), entity, null)));
-                            output.append(replaceVariables(metadata.getToSelfUntargeted(), entity, null));
-                        } else if (entity.equals(target)) {
-                            if (metadata.getToSelfAsTarget() != null && metadata.getToRoomTargetingSelf() != null) {
-                                List<Entity> others = entityRepository.findByRoom(entity.getRoom());
-
-                                others.remove(entity);
-                                others.remove(target);
-
-                                entityUtil.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomTargetingSelf(), entity, target)));
-                                output.append(replaceVariables(metadata.getToSelfAsTarget(), entity, target));
-                            } else {
-                                output.append("Sorry, this emote doesn't support targeting yourself.");
-                            }
-                        } else {
-                            List<Entity> others = entityRepository.findByRoom(entity.getRoom());
-
-                            others.remove(entity);
-                            others.remove(target);
-
-                            entityUtil.sendMessageToEntity(target, new GameOutput(replaceVariables(metadata.getToTarget(), entity, target)));
-                            entityUtil.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomWithTarget(), entity, target)));
-                            output.append(replaceVariables(metadata.getToSelfWithTarget(), entity, target));
-                        }
-                    }
+                    emote.execute(output, metadata, entity, args);
                 } else {
                     output.append("Huh?");
                 }
@@ -256,25 +212,5 @@ public class WebSocketResource {
         String sessionId = oAuth2AuthenticationDetails.getSessionId();
 
         return sessionRepository.getSession(sessionId);
-    }
-
-    private String replaceVariables(String message, Entity self, Entity target) {
-        if (self.equals(target)) {
-            message = message.replace("%self%", self.getName());
-            message = message.replace("%target%", target.getName());
-        } else {
-            message = message.replace("%self%", self.getName());
-            message = message.replace("%target%", (target == null ? "NULL" : target.getName()));
-        }
-
-        message = message.replace("%him%", "him");
-        message = message.replace("%selfpos%", self.getName() + "'s");
-        message = message.replace("%targetpos%", (target == null ? "NULL" : target.getName()) + "'s");
-        message = message.replace("%his%", "his");
-        message = message.replace("%he%", "he");
-        message = message.replace("%himself%", "himself");
-        message = message.replace("%hispos%", "his");
-
-        return StringUtils.capitalize(message);
     }
 }
