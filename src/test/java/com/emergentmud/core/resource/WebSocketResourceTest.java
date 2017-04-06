@@ -21,6 +21,7 @@
 package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
@@ -85,6 +86,9 @@ public class WebSocketResourceTest {
 
     @Mock
     private EntityUtil entityUtil;
+
+    @Mock
+    private Emote emote;
 
     @Mock
     private OAuth2Authentication principal;
@@ -183,7 +187,8 @@ public class WebSocketResourceTest {
                 commandMetadataRepository,
                 emoteMetadataRepository,
                 promptBuilder,
-                entityUtil
+                entityUtil,
+                emote
         );
     }
 
@@ -229,88 +234,8 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
-        assertEquals("You wink.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testEmoteMe() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("wink me");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
-        assertEquals("You scrunch up your face, trying to wink at yourself.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testEmoteSelf() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("wink self");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
-        assertEquals("You scrunch up your face, trying to wink at yourself.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testEmoteSelfByName() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("wink player");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
-        assertEquals("You scrunch up your face, trying to wink at yourself.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testEmoteSelfNotSupported() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("nod self");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil, never()).sendMessageToEntity(any(Entity.class), any(GameOutput.class));
-        verify(entityUtil, never()).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
-        assertEquals("Sorry, this emote doesn't support targeting yourself.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testEmoteAtTarget() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("wink target");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
-        verify(entityUtil).sendMessageToEntity(eq(target), any(GameOutput.class));
-        assertEquals("You wink at Target.", output.getOutput().get(0));
-    }
-
-    @Test
-    public void testOnIncompleteEmote() throws Exception {
-        UserInput input = mock(UserInput.class);
-
-        when(input.getInput()).thenReturn("smile");
-
-        GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
-
-        verify(applicationContext, never()).getBean(anyString());
-        verify(entityUtil, never()).sendMessageToRoom(any(Room.class), any(Entity.class), any(GameOutput.class));
-        assertEquals("Huh?", output.getOutput().get(0));
+        verify(emoteMetadataRepository).findAll(any(Sort.class));
+        verify(emote).execute(eq(output), any(EmoteMetadata.class), eq(entity), eq(new String[0]));
     }
 
     @Test
