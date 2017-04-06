@@ -56,9 +56,13 @@ public class InfoCommand extends BaseCommand {
             if (optional.isPresent()) {
                 target = optional.get();
             } else {
-                output.append("[yellow]There is nothing by that name here.");
+                target = entityRepository.findByNameStartingWithIgnoreCase(tokens[0]);
 
-                return output;
+                if (target == null) {
+                    output.append("[yellow]There is nothing by that name here.");
+
+                    return output;
+                }
             }
         } else {
             usage(output, command);
@@ -66,8 +70,18 @@ public class InfoCommand extends BaseCommand {
             return output;
         }
 
+        String location = "[black]Void";
+
+        if (target.getRoom() != null) {
+            location = String.format("[dcyan]([cyan]%d[dcyan], [cyan]%d[dcyan], [cyan]%d[dcyan])",
+                    target.getRoom().getX(),
+                    target.getRoom().getY(),
+                    target.getRoom().getZ());
+        }
+
         output.append("[cyan][ [dcyan]Entity ([cyan]" + target.getId() + "[dcyan]) [cyan]]");
         output.append("[dcyan]Name: [cyan]" + target.getName());
+        output.append("[dcyan]Location: " + location);
         output.append("[dcyan]Admin: [cyan]" + target.isAdmin());
         output.append("[dcyan]Social Username: [cyan]" + target.getStompUsername());
         output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());

@@ -66,6 +66,11 @@ public class InfoCommandTest {
     }
 
     @Test
+    public void testParameter() throws Exception {
+        assertTrue(command.getParameters().stream().anyMatch(p -> "target".equals(p.getName())));
+    }
+
+    @Test
     public void testDescription() throws Exception {
         assertNotEquals("No description.", command.getDescription());
     }
