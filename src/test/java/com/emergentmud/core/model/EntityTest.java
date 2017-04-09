@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class EntityTest {
     @Mock
@@ -134,6 +133,29 @@ public class EntityTest {
 
         assertFalse(o1.equals(o2));
     }
+
+    @Test
+    public void testEqualsWithoutId() throws Exception {
+        Entity o1 = new Entity();
+        Entity o2 = new Entity();
+
+        o1.setName("Alice");
+        o2.setName("Alice");
+
+        assertFalse(o1.equals(o2));
+    }
+
+    @Test
+    public void testNotEqualsWithoutId() throws Exception {
+        Entity o1 = new Entity();
+        Entity o2 = new Entity();
+
+        o1.setName("Alice");
+        o2.setName("Bob");
+
+        assertFalse(o1.equals(o2));
+    }
+
 
     @Test
     public void testHashCode() throws Exception {

@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <div class="row">
         <div class="col-md-4 col-md-offset-4 text-center">
     <#list networks as network>
-            <a class="btn btn-social btn-${network.id} social-btn" role="button" href="<@spring.url '/social/${network.id}'/>">
+            <a class="btn btn-social btn-${network.id} margin-bottom" role="button" href="<@spring.url '/social/${network.id}'/>">
                 <i class="fa fa-${network.id}"></i> Sign in with ${network.displayName}
             </a>
     </#list>
@@ -59,12 +59,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 text-center links">
-            [ <a href="<@spring.url '/commands'/>">Commands</a> ]
+        <div class="col-md-12 text-center margin-bottom">
+            [ <a href="<@spring.url '/public/commands'/>">Commands</a> ]
+            [ <a href="<@spring.url '/public/emotes'/>">Emotes</a> ]
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 text-center links">
+        <div class="col-md-12 text-center margin-bottom">
             [ <a href="https://emergentmud.blogspot.com" target="_blank">Development Blog</a> ]
             [ <a href="https://bitbucket.org/scionaltera/emergentmud" target="_blank">Source Repository</a> ]
             [ <a href="https://tree.taiga.io/project/scionaltera-emergentmud/" target="_blank">Issue Tracker</a> ]

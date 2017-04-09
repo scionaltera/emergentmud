@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -91,8 +91,7 @@ public class Entity {
 
         Entity entity = (Entity) o;
 
-        return getId().equals(entity.getId());
-
+        return getId() != null && getId().equals(entity.getId());
     }
 
     @Override

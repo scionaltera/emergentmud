@@ -20,9 +20,11 @@
 package com.emergentmud.core.resource;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
@@ -30,6 +32,7 @@ import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
+import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
@@ -71,9 +74,11 @@ public class MainResource {
     private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
+    private EmoteMetadataRepository emoteMetadataRepository;
     private RoomBuilder roomBuilder;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
+    private Emote emote;
 
     @Inject
     public MainResource(ApplicationContext applicationContext,
@@ -83,9 +88,11 @@ public class MainResource {
                         EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         CommandMetadataRepository commandMetadataRepository,
+                        EmoteMetadataRepository emoteMetadataRepository,
                         RoomBuilder roomBuilder,
                         WorldManager worldManager,
-                        EntityUtil entityUtil) {
+                        EntityUtil entityUtil,
+                        Emote emote) {
 
         this.applicationContext = applicationContext;
         this.networks = networks;
@@ -94,9 +101,11 @@ public class MainResource {
         this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
+        this.emoteMetadataRepository = emoteMetadataRepository;
         this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
+        this.emote = emote;
     }
 
     @RequestMapping("/")
@@ -281,10 +290,24 @@ public class MainResource {
         return "play";
     }
 
-    @RequestMapping("/commands")
-    public String commands(Model model) {
-        List<CommandMetadata> metadata = commandMetadataRepository.findByAdmin(false);
+    @RequestMapping("/public/commands")
+    public String commands(Model model, Principal principal, HttpSession httpSession) {
+        boolean includeAdminCommands = false;
+
+        if (principal != null) {
+            String network = (String)httpSession.getAttribute("social");
+            String networkId = principal.getName();
+            Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
+
+            if (essenceRepository.findByAccountId(account.getId()).stream().anyMatch(Essence::isAdmin)) {
+                includeAdminCommands = true;
+            }
+        }
+
         Map<String, Command> commandMap = new HashMap<>();
+        List<CommandMetadata> metadata = includeAdminCommands ?
+                commandMetadataRepository.findAll() :
+                commandMetadataRepository.findByAdmin(false);
 
         metadata.forEach(m -> {
             Command command = (Command)applicationContext.getBean(m.getBeanName());
@@ -295,6 +318,62 @@ public class MainResource {
         model.addAttribute("commandMap", commandMap);
 
         return "commands";
+    }
+
+    @RequestMapping("/public/emotes")
+    public String emotes(Model model, Principal principal, HttpSession httpSession) {
+        List<EmoteMetadata> metadata = emoteMetadataRepository.findAll();
+        Map<String, EmoteMetadata> emoteMap = new HashMap<>();
+        Entity self;
+        Entity target;
+
+        if (principal != null) {
+            String network = (String)httpSession.getAttribute("social");
+            String networkId = principal.getName();
+            Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
+            List<Essence> essences = essenceRepository.findByAccountId(account.getId());
+
+            if (essences.size() > 0) {
+                self = new Entity();
+                self.setName(essences.get(0).getName());
+            } else {
+                self = new Entity();
+                self.setName("Alice");
+            }
+
+            if (essences.size() > 1) {
+                target = new Entity();
+                target.setName(essences.get(1).getName());
+            } else {
+                target = new Entity();
+                target.setName("Bob");
+            }
+        } else {
+            self = new Entity();
+            self.setName("Alice");
+
+            target = new Entity();
+            target.setName("Bob");
+        }
+
+        metadata.forEach(m -> {
+            m.setToSelfUntargeted(emote.replaceVariables(m.getToSelfUntargeted(), self, null));
+            m.setToRoomUntargeted(emote.replaceVariables(m.getToRoomUntargeted(), self, null));
+            m.setToSelfWithTarget(emote.replaceVariables(m.getToSelfWithTarget(), self, target));
+            m.setToTarget(emote.replaceVariables(m.getToTarget(), self, target));
+            m.setToRoomWithTarget(emote.replaceVariables(m.getToRoomWithTarget(), self, target));
+            m.setToSelfAsTarget(emote.replaceVariables(m.getToSelfAsTarget(), self, self));
+            m.setToRoomTargetingSelf(emote.replaceVariables(m.getToRoomTargetingSelf(), self, self));
+
+            emoteMap.put(m.getName(), m);
+        });
+
+        model.addAttribute("self", self);
+        model.addAttribute("target", target);
+        model.addAttribute("metadataList", metadata);
+        model.addAttribute("emoteMap", emoteMap);
+
+        return "emotes";
     }
 
     @RequestMapping("/logout")

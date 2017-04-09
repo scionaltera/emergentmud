@@ -104,7 +104,11 @@ public class Emote {
         }
     }
 
-    private String replaceVariables(String message, Entity self, Entity target) {
+    public String replaceVariables(String message, Entity self, Entity target) {
+        if (message == null) {
+            return null;
+        }
+
         if (self.equals(target)) {
             message = message.replace("%self%", self.getName());
             message = message.replace("%target%", target.getName());

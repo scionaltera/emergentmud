@@ -111,7 +111,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(
                         "/",
-                        "/commands",
+                        "/public/**",
                         "/social/**",
                         "/login**",
                         "/webjars/**",

@@ -47,6 +47,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <div class="row">
                 <div class="col-md-12 command-heading">
                     <p>The following are the commands you can use while playing the game.</p>
+                    <p>Commands are how you interact with the game. They will perform actions such as walking to the
+                    next room, attacking a foe, picking up an object, or seeing who else is playing. Below is a list
+                    of all the commands in the game, descriptions of what they are used for, and how to use them.</p>
                 </div>
             </div>
             <#list metadataList as metadata>
@@ -95,12 +98,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 text-center links">
+        <div class="col-md-12 text-center margin-bottom">
             [ <a href="<@spring.url '/'/>">Home</a> ]
+            [ <a href="<@spring.url '/public/emotes'/>">Emotes</a> ]
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 text-center links">
+        <div class="col-md-12 text-center margin-bottom">
             [ <a href="https://emergentmud.blogspot.com" target="_blank">Development Blog</a> ]
             [ <a href="https://bitbucket.org/scionaltera/emergentmud" target="_blank">Source Repository</a> ]
             [ <a href="https://tree.taiga.io/project/scionaltera-emergentmud/" target="_blank">Issue Tracker</a> ]
