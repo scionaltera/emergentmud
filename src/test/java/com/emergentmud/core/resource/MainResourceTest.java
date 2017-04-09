@@ -20,8 +20,12 @@
 
 package com.emergentmud.core.resource;
 
+import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
@@ -29,6 +33,7 @@ import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
+import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.RoomBuilder;
@@ -83,6 +88,9 @@ public class MainResourceTest {
     private CommandMetadataRepository commandMetadataRepository;
 
     @Mock
+    private EmoteMetadataRepository emoteMetadataRepository;
+
+    @Mock
     private RoomBuilder roomBuilder;
 
     @Mock
@@ -90,6 +98,9 @@ public class MainResourceTest {
 
     @Mock
     private EntityUtil entityUtil;
+
+    @Mock
+    private Emote emote;
 
     @Mock
     private HttpSession httpSession;
@@ -106,10 +117,14 @@ public class MainResourceTest {
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
+    @Captor
+    private ArgumentCaptor<Entity> entityCaptor;
+
     private Account account;
     private Essence essence;
     private List<SocialNetwork> socialNetworks = new ArrayList<>();
     private List<Essence> essences = new ArrayList<>();
+    private List<EmoteMetadata> emoteMetadata = new ArrayList<>();
 
     private MainResource mainResource;
 
@@ -121,6 +136,7 @@ public class MainResourceTest {
         account = generateAccount();
         generateEssences();
         essence = essences.get(0);
+        generateEmoteMetadata();
 
         when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(true);
         when(httpSession.getAttribute(eq("social"))).thenReturn(NETWORK_ID);
@@ -151,9 +167,11 @@ public class MainResourceTest {
                 essenceRepository,
                 entityRepository,
                 commandMetadataRepository,
+                emoteMetadataRepository,
                 roomBuilder,
                 worldManager,
-                entityUtil
+                entityUtil,
+                emote
         );
     }
 
@@ -523,6 +541,176 @@ public class MainResourceTest {
     }
 
     @Test
+    public void testCommandsNotAuthenticated() throws Exception {
+        List<CommandMetadata> metadata = generateCommandMetadata(false);
+
+        when(commandMetadataRepository.findByAdmin(eq(false))).thenReturn(metadata);
+
+        String view = mainResource.commands(model, null, httpSession);
+
+        verifyZeroInteractions(httpSession);
+        verify(commandMetadataRepository).findByAdmin(eq(false));
+        verify(applicationContext, times(5)).getBean(startsWith("command"));
+        verify(model).addAttribute(eq("metadataList"), anyListOf(CommandMetadata.class));
+        verify(model).addAttribute(eq("commandMap"), anyMapOf(String.class, Command.class));
+
+        assertEquals("commands", view);
+    }
+
+    @Test
+    public void testCommandsAuthenticatedNoAdmins() throws Exception {
+        List<CommandMetadata> metadata = generateCommandMetadata(false);
+
+        when(commandMetadataRepository.findByAdmin(eq(false))).thenReturn(metadata);
+        when(httpSession.getAttribute(eq("social"))).thenReturn("alteraBook");
+        when(principal.getName()).thenReturn("2928749020");
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
+        when(account.getId()).thenReturn("accountId");
+        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(essences);
+
+        String view = mainResource.commands(model, principal, httpSession);
+
+        verify(httpSession).getAttribute(eq("social"));
+        verify(commandMetadataRepository).findByAdmin(eq(false));
+        verify(applicationContext, times(5)).getBean(startsWith("command"));
+        verify(model).addAttribute(eq("metadataList"), anyListOf(CommandMetadata.class));
+        verify(model).addAttribute(eq("commandMap"), anyMapOf(String.class, Command.class));
+
+        assertEquals("commands", view);
+    }
+
+    @Test
+    public void testCommandsAuthenticatedWithAdmins() throws Exception {
+        List<CommandMetadata> metadata = generateCommandMetadata(true);
+
+        when(commandMetadataRepository.findAll()).thenReturn(metadata);
+        when(httpSession.getAttribute(eq("social"))).thenReturn("alteraBook");
+        when(principal.getName()).thenReturn("2928749020");
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
+        when(account.getId()).thenReturn("accountId");
+        when(essences.get(2).isAdmin()).thenReturn(true);
+        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(essences);
+
+        String view = mainResource.commands(model, principal, httpSession);
+
+        verify(httpSession).getAttribute(eq("social"));
+        verify(commandMetadataRepository).findAll();
+        verify(applicationContext, times(5)).getBean(startsWith("command"));
+        verify(model).addAttribute(eq("metadataList"), anyListOf(CommandMetadata.class));
+        verify(model).addAttribute(eq("commandMap"), anyMapOf(String.class, Command.class));
+
+        assertEquals("commands", view);
+    }
+
+    @Test
+    public void testEmotesNotAuthenticated() throws Exception {
+        when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
+
+        String view = mainResource.emotes(model, null, httpSession);
+
+        verify(emoteMetadataRepository).findAll();
+        verifyZeroInteractions(httpSession);
+        verify(model).addAttribute(eq("self"), entityCaptor.capture());
+        verify(model).addAttribute(eq("target"), entityCaptor.capture());
+        verify(model).addAttribute(eq("metadataList"), anyListOf(EmoteMetadata.class));
+        verify(model).addAttribute(eq("emoteMap"), anyMapOf(String.class, EmoteMetadata.class));
+        verifyAllEmoteMetadata(emoteMetadata);
+
+        List<Entity> captures = entityCaptor.getAllValues();
+
+        assertEquals("emotes", view);
+        assertEquals("Alice", captures.get(0).getName());
+        assertEquals("Bob", captures.get(1).getName());
+    }
+
+    @Test
+    public void testEmotesAuthenticatedNoEssences() throws Exception {
+        when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
+        when(httpSession.getAttribute(eq("social"))).thenReturn("social");
+        when(principal.getName()).thenReturn("principal");
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
+        when(account.getId()).thenReturn("accountId");
+        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(new ArrayList<>());
+
+        String view = mainResource.emotes(model, principal, httpSession);
+
+        verify(emoteMetadataRepository).findAll();
+        verify(httpSession).getAttribute(eq("social"));
+        verify(model).addAttribute(eq("self"), entityCaptor.capture());
+        verify(model).addAttribute(eq("target"), entityCaptor.capture());
+        verify(model).addAttribute(eq("metadataList"), anyListOf(EmoteMetadata.class));
+        verify(model).addAttribute(eq("emoteMap"), anyMapOf(String.class, EmoteMetadata.class));
+        verifyAllEmoteMetadata(emoteMetadata);
+
+        List<Entity> captures = entityCaptor.getAllValues();
+
+        assertEquals("emotes", view);
+        assertEquals("Alice", captures.get(0).getName());
+        assertEquals("Bob", captures.get(1).getName());
+    }
+
+    @Test
+    public void testEmotesAuthenticatedOneEssence() throws Exception {
+        ArrayList<Essence> oneEssence = new ArrayList<>();
+
+        oneEssence.add(essences.get(0));
+
+        when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
+        when(httpSession.getAttribute(eq("social"))).thenReturn("social");
+        when(principal.getName()).thenReturn("principal");
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
+        when(account.getId()).thenReturn("accountId");
+        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(oneEssence);
+
+        String view = mainResource.emotes(model, principal, httpSession);
+
+        verify(emoteMetadataRepository).findAll();
+        verify(httpSession).getAttribute(eq("social"));
+        verify(model).addAttribute(eq("self"), entityCaptor.capture());
+        verify(model).addAttribute(eq("target"), entityCaptor.capture());
+        verify(model).addAttribute(eq("metadataList"), anyListOf(EmoteMetadata.class));
+        verify(model).addAttribute(eq("emoteMap"), anyMapOf(String.class, EmoteMetadata.class));
+        verifyAllEmoteMetadata(emoteMetadata);
+
+        List<Entity> captures = entityCaptor.getAllValues();
+
+        assertEquals("emotes", view);
+        assertEquals("EssenceA", captures.get(0).getName());
+        assertEquals("Bob", captures.get(1).getName());
+    }
+
+    @Test
+    public void testEmotesAuthenticatedTwoEssences() throws Exception {
+        ArrayList<Essence> twoEssences = new ArrayList<>();
+
+        twoEssences.add(essences.get(0));
+        twoEssences.add(essences.get(1));
+
+        when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
+        when(httpSession.getAttribute(eq("social"))).thenReturn("social");
+        when(principal.getName()).thenReturn("principal");
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
+        when(account.getId()).thenReturn("accountId");
+        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(twoEssences);
+
+        String view = mainResource.emotes(model, principal, httpSession);
+
+        verify(emoteMetadataRepository).findAll();
+        verify(httpSession).getAttribute(eq("social"));
+        verify(model).addAttribute(eq("self"), entityCaptor.capture());
+        verify(model).addAttribute(eq("target"), entityCaptor.capture());
+        verify(model).addAttribute(eq("metadataList"), anyListOf(EmoteMetadata.class));
+        verify(model).addAttribute(eq("emoteMap"), anyMapOf(String.class, EmoteMetadata.class));
+        verifyAllEmoteMetadata(emoteMetadata);
+
+        List<Entity> captures = entityCaptor.getAllValues();
+
+        assertEquals("emotes", view);
+        assertEquals("EssenceA", captures.get(0).getName());
+        assertEquals("EssenceB", captures.get(1).getName());
+    }
+
+    @Test
     public void testLogout() throws Exception {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -562,5 +750,49 @@ public class MainResourceTest {
 
             essences.add(essence);
         }
+    }
+
+    private List<CommandMetadata> generateCommandMetadata(boolean admin) {
+        List<CommandMetadata> commandMetadata = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            CommandMetadata metadata = mock(CommandMetadata.class);
+            Command command = mock(Command.class);
+
+            when(metadata.getBeanName()).thenReturn("command" + ALPHABET.charAt(i));
+            when(metadata.getName()).thenReturn("command" + ALPHABET.charAt(i));
+
+            if (admin) {
+                when(metadata.isAdmin()).thenReturn(i % 2 == 0);
+            } else {
+                when(metadata.isAdmin()).thenReturn(false);
+            }
+
+            when(applicationContext.getBean(eq(metadata.getBeanName()))).thenReturn(command);
+
+            commandMetadata.add(metadata);
+        }
+
+        return commandMetadata;
+    }
+
+    private void generateEmoteMetadata() {
+        for (int i = 0; i < 5; i++) {
+            EmoteMetadata metadata = mock(EmoteMetadata.class);
+
+            emoteMetadata.add(metadata);
+        }
+    }
+
+    private void verifyAllEmoteMetadata(List<EmoteMetadata> metadata) {
+        metadata.forEach(m -> {
+            verify(m).setToSelfUntargeted(anyString());
+            verify(m).setToRoomUntargeted(anyString());
+            verify(m).setToSelfWithTarget(anyString());
+            verify(m).setToTarget(anyString());
+            verify(m).setToRoomWithTarget(anyString());
+            verify(m).setToSelfAsTarget(anyString());
+            verify(m).setToRoomTargetingSelf(anyString());
+        });
     }
 }
