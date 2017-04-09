@@ -42,14 +42,14 @@ A few of the things on the [roadmap to v1.0](https://bitbucket.org/scionaltera/e
 
 # Running Locally
 ## Required Tools
-If you want to run a copy of EmergentMUD locally from the Docker image, you need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
+If you want to run a copy of EmergentMUD locally from the public Docker image, you need to have [Docker](https://www.docker.com/products/docker) installed. Make sure that when you install Docker on your machine you also get [Docker Compose](https://docs.docker.com/compose/). In most cases the installer will install both tools for you at once.
 
 These instructions assume that you are somewhat familiar with using the command line or terminal for typing commands in on your machine, that you have a working network connection, a programmer's text editor such as `vim` or `Sublime Text`, a web browser, and that you are comfortable with installing software.
 
 ## Required Configuration
-Make an empty directory somewhere on your computer, where you want the MUD's config files to live. You'll need to create two new text files in that directory: `secrets.env` and `docker-compose.yaml`.
+Make an empty directory somewhere on your computer, where you want the MUD's files to live. You'll need to create two new text files in that directory: `secrets.env` and `docker-compose.yaml`.
 
-The first file is called `secrets.env`. The file should look like [secrets.env.sample](https://bitbucket.org/scionaltera/emergentmud/src) in the git repository except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such.
+The first file is called `secrets.env`. The file should look like [secrets.env.sample](https://bitbucket.org/scionaltera/emergentmud/src) in the git repository except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such. Don't share them with other people and don't check them into your version control.
 
 The second file is called `docker-compose.yaml`. The file should look something like this:
 
@@ -75,10 +75,10 @@ services:
     env_file: secrets.env
 ```
 
-## Starting the Server
-The `docker-compose.yaml` file tells Docker Compose which services to start up, which ports they use, and how they link together. `secrets.env` contains environment variables that allow your particular copy of EmergentMUD to integrate with Facebook and Google and let people log in to the server using their social media accounts.
+This file tells Docker that you want a [Redis](https://redis.io) instance, a [MongoDB](https://www.mongodb.com) instance, and an EmergentMUD instance. It describes which ports to open on each, and how the networking should link together between them.
 
-The command to get everything started is to run `docker-compose up`. You should see it download and extract all the Docker images, then the logs as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
+## Starting the Server
+The command to get everything started is `docker-compose up`. You should see it download and extract all the Docker images, then the logs will scroll by as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
 
 # Local Development
 ## Terminology
@@ -93,7 +93,7 @@ Each account can have multiple `Essence` instances associated with it. An `Essen
 The `Entity` is the body that goes out into the world. If the `Essence` is the character sheet, the `Entity` is the character herself. If the `Entity` is killed while exploring the world, the `Essence` remains and we can use it to create another one.
 
 ## Required Tools
-The code is built using the Gradle wrapper. The project structure follows the typical Maven structure and is designed to be easy to set up locally for testing using Docker and Docker Compose. You will need the following tools installed and properly configured to run the site locally:
+The code is built using the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html). The project structure follows the typical [Maven structure](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html) and is designed to be easy to set up locally for testing using Docker and Docker Compose. You will need the following tools installed and properly configured to run the site locally:
 
 1. Java 8 or later.
 1. Docker and Docker Compose.
@@ -102,13 +102,16 @@ The code is built using the Gradle wrapper. The project structure follows the ty
 The configurable settings for integrating with Facebook and Google are stored in a file called `secrets.env`. There is a sample of this file included in the git repository which you will need to rename and fill out the information for your integrations. In order to get the API tokens you will need to register your application on the developer sites for [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com). Please remember that the OAuth secrets are *secret* and should be treated as such. Make sure not to check them in to your version control or share them with other people.
 
 ## Compiling the Project
-To start up the site after you set up the env file, you just need to run `./gradlew clean buildDocker` from the command line. That will build the project and the Docker image. To start everything up after it's done building, type `docker-compose up`.
+To start up the site after you set up the env file, you just need to run `./gradlew clean buildDocker` from the command line. That will build the project, run the tests, and finally build the Docker image. To start everything up after it's done building, type `docker-compose up`.
 
 ## Running the Project
 The first time you run `docker-compose up` will take some time because it needs to download the Redis and MongoDB containers. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at `http://localhost:8080` (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
 
 ## Developing New Code
-If you want to run your own copy of EmergentMUD there are probably a thousand things you want to customize. Your best bet is going to be to fork the project, write your new code and build your own Docker containers from your fork.
+If you want to run your own copy of EmergentMUD there are probably a thousand things you want to customize. Your best bet is going to be to fork the project on Bitbucket, write your new code and build your own Docker containers from your fork.
+
+## Debugging
+The Docker image produced by the Gradle build is already set up to enable the remote debugging port on port 5005. I use IDEA for development, which makes it very easy to [set up a remote debug profile](http://stackoverflow.com/questions/21114066/attach-intellij-idea-debugger-to-a-running-java-process). Once you're attached, you can set breakpoints and inspect variables to your heart's content.
 
 ## Considerations for Production Deployments
 ### Secrets
@@ -116,19 +119,21 @@ I recommend registering both a production and a test app in Facebook and Google.
 
 Facebook has built in functionality for creating a "test" version of your application in their console, while for Google you just need to generate two sets of credentials for your application. Put one `secrets.env` on your production box and the other in your dev environment, and you're all set.
 
+In Google you can simply create two sets of credentials for the same application.
+
 ### Data Stores
 The Docker containers for the Redis and MongoDB data stores are sufficient for development but are **not configured for security or performance** at all. They are just the default containers off the web. On my machine they both [complain about Transparent Huge Pages being enabled](https://www.digitalocean.com/company/blog/transparent-huge-pages-and-alternative-memory-allocators/) and will most likely gobble up large amounts of memory and eventually crash if you just leave them running long term. So far though, that's exactly what I've been doing and it has worked out well enough. I expect that will change when there is a regular player base.
 
 If you plan to run EmergentMUD for real, it would be a good idea to carefully configure your Redis and MongoDB instances according to the best practices spelled out in their documentation. You should also consider running them as clusters so they are highly available. How to do all of this is well out of scope for this document, but there are lots of resources on the internet that will tell you how to do it if you are curious.
 
-My plan for a production deployment of EmergentMUD is to build customized Docker containers for the data stores, based on the ones in use today but with an extra layer that applies the configuration changes that I need for deployment. That way I can still run my production cluster of services using `docker-compose` and I could even run my properly tuned data stores during development. Today, however, I'm just running the off-the-shelf images until they become a problem.
+My plan for a production deployment of EmergentMUD is to build customized Docker containers for the data stores, based on the ones in use today but with an extra layer that applies the configuration changes that I need for deployment. That way I can still run my production cluster of services using `docker-compose`, [Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/) or something similar. Today, however, I'm just running the off-the-shelf images until they become a problem.
 
 ### Reverse Proxy
 It is important to understand that OAuth2 is **not secure without HTTPS**. That means that for any production deployment to be secure you *must* purchase an **SSL certificate** and configure a SSL enabled reverse proxy in front of your copy of EmergentMUD. If you do not do this you **will** leak peoples' authentication secrets for their Google and Facebook accounts, and that is **really bad**.
 
 ![Service Architecture](https://bitbucket.org/repo/LBXMzk/images/96926331-em-docker-compose.png)
 
-What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe. If you are interested in seeing a redacted copy of the `docker-compose.yaml` I use for EmergentMUD, just let me know. 
+What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe. The data stores aren't accessible from the internet, which is great for their security. If you are interested in seeing a redacted copy of the `docker-compose.yaml` I use for EmergentMUD, just let me know. 
 
 # Contributing
 If you would like to contribute to the project, please feel free to submit a pull request. For the best chance of success getting your pull request merged, please do the following few things:
