@@ -38,6 +38,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.util.EntityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,8 +213,10 @@ public class MainResource {
         return "redirect:/";
     }
 
-    @RequestMapping("/play/{id}")
-    public String play(@PathVariable("id") String essenceId, HttpSession session, Principal principal, Model model) {
+    @RequestMapping(method=RequestMethod.POST, value="/play")
+    public String play(PlayRequest playRequest, HttpSession session, Principal principal, Model model) {
+        String essenceId = playRequest.getEssenceId();
+
         if (StringUtils.isEmpty(essenceId)) {
             LOGGER.info("No ID provided.");
             return "redirect:/";

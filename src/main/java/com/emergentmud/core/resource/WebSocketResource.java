@@ -33,7 +33,6 @@ import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.EssenceRepository;
-import com.emergentmud.core.util.EntityUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,6 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import java.security.Principal;
@@ -70,7 +68,6 @@ public class WebSocketResource {
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
     private PromptBuilder promptBuilder;
-    private EntityUtil entityUtil;
     private Emote emote;
 
     @Inject
@@ -83,7 +80,6 @@ public class WebSocketResource {
                              CommandMetadataRepository commandMetadataRepository,
                              EmoteMetadataRepository emoteMetadataRepository,
                              PromptBuilder promptBuilder,
-                             EntityUtil entityUtil,
                              Emote emote) {
         this.applicationVersion = applicationVersion;
         this.applicationBootDate = applicationBootDate;
@@ -94,7 +90,6 @@ public class WebSocketResource {
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.promptBuilder = promptBuilder;
-        this.entityUtil = entityUtil;
         this.emote = emote;
     }
 

@@ -36,7 +36,7 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(event) {
-    if (event.which == 38) { // up arrow
+    if (event.which === 38) { // up arrow
         commandHistoryIndex++;
 
         if (commandHistoryIndex >= commandHistory.length) {
@@ -46,7 +46,7 @@ $(document).keyup(function(event) {
         if (commandHistoryIndex >= 0) {
             $("#user-input").val(commandHistory[commandHistoryIndex]);
         }
-    } else if (event.which == 40) { // down arrow
+    } else if (event.which === 40) { // down arrow
         commandHistoryIndex--;
 
         if (commandHistoryIndex < 0) {
@@ -109,7 +109,7 @@ function showOutput(message) {
     var outputList = $("#output-list");
 
     for (var i = 0; i < message.length; i++) {
-        if ("" == message[i]) {
+        if ("" === message[i]) {
             outputList.append("<li>&nbsp;</li>");
         } else {
             outputList.append("<li>" + replaceColors(message[i]) + "</li>");
