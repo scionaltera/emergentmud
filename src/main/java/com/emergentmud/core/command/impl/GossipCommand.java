@@ -28,6 +28,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -52,9 +53,9 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
             return output;
         }
 
-        output.append(String.format("[green]You gossip '%s[green]'", htmlEscape(raw)));
+        output.append(String.format("[green]You gossip '%s[green]'", HtmlUtils.htmlEscape(raw)));
 
-        GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), htmlEscape(raw)));
+        GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
         List<Entity> contents = entityRepository.findByRoomIsNotNull();
 

@@ -28,6 +28,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
 
@@ -68,9 +69,9 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
             return output;
         }
 
-        output.append(String.format("[red]You tell %s '%s[red]'", target.getName(), htmlEscape(message)));
+        output.append(String.format("[red]You tell %s '%s[red]'", target.getName(), HtmlUtils.htmlEscape(message)));
 
-        GameOutput toTarget = new GameOutput(String.format("[red]%s tells you '%s[red]'", entity.getName(), htmlEscape(message)));
+        GameOutput toTarget = new GameOutput(String.format("[red]%s tells you '%s[red]'", entity.getName(), HtmlUtils.htmlEscape(message)));
 
         entityUtil.sendMessageToEntity(target, toTarget);
 

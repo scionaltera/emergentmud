@@ -27,6 +27,7 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
 
@@ -48,7 +49,7 @@ public class EmoteCommand extends BaseCommunicationCommand implements Command {
             return output;
         }
 
-        String message = String.format("%s %s", entity.getName(), htmlEscape(raw));
+        String message = String.format("%s %s", entity.getName(), HtmlUtils.htmlEscape(raw));
 
         output.append(message);
 

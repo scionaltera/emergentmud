@@ -27,6 +27,7 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
 
@@ -48,9 +49,9 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
             return output;
         }
 
-        output.append(String.format("[cyan]You say '%s[cyan]'", htmlEscape(raw)));
+        output.append(String.format("[cyan]You say '%s[cyan]'", HtmlUtils.htmlEscape(raw)));
 
-        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), htmlEscape(raw)));
+        GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
         entityUtil.sendMessageToRoom(entity.getRoom(), entity, toRoom);
 
