@@ -109,6 +109,7 @@ pitest {
 
 dependencyCheck {
     failBuildOnCVSS 7
+    suppressionFile "codequality/cve-suppressions.xml"
 }
 
 test.finalizedBy project.tasks.pitest, project.tasks.dependencyCheck
