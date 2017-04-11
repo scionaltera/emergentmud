@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <a class="btn btn-danger" role="button" href="<@spring.url '/logout'/>">
                 <i class="fa fa-power-off"></i> Log Out
             </a>
-            <a class="btn btn-primary" role="button" href="<@spring.url '/new-essence'/>">
+            <a class="btn btn-primary" role="button" href="<@spring.url '/essence'/>">
                 <i class="fa fa-heart"></i> Create Essence
             </a>
         </div>

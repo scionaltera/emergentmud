@@ -148,12 +148,12 @@ public class MainResource {
         return "redirect:/login/" + network;
     }
 
-    @RequestMapping("/new-essence")
+    @RequestMapping("/essence")
     public String newEssence() {
         return "new-essence";
     }
 
-    @RequestMapping(method=RequestMethod.POST, value="/new-essence")
+    @RequestMapping(method=RequestMethod.POST, value="/essence")
     public String saveNewEssence(HttpSession session, Principal principal, Essence essence, Model model) {
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
