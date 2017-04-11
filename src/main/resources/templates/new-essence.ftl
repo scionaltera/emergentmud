@@ -1,6 +1,6 @@
 <#--
 EmergentMUD - A modern MUD with a procedurally generated world.
-Copyright (C) 2016 Peter Keeler
+Copyright (C) 2016-2017 Peter Keeler
 
 This file is part of EmergentMUD.
 
@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <a role="button" class="btn btn-danger" href="<@spring.url '/'/>">
                         <i class="fa fa-times"></i> Cancel
                     </a>
-                    <button role="button" class="btn btn-primary" formmethod="post" formaction="<@spring.url '/new-essence'/>">
+                    <button role="button" class="btn btn-primary" formmethod="post" formaction="<@spring.url '/essence'/>">
                         <i class="fa fa-heart"></i> Save Essence
                     </button>
                 </div>

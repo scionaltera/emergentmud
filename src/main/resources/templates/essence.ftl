@@ -52,15 +52,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <tr>
                 <td>${essence.name}</td>
                 <td>
-                    <#if (essence.entity.x)?? || (essence.entity.y)?? || (essence.entity.z)??>
-                    <a class="btn btn-warning" role="button" href="<@spring.url '/play/${essence.id}'/>">
-                        <i class="fa fa-play"></i> Reconnect
-                    </a>
-                    <#else>
-                    <a class="btn btn-success" role="button" href="<@spring.url '/play/${essence.id}'/>">
-                        <i class="fa fa-play"></i> Play
-                    </a>
-                    </#if>
+                    <form>
+                        <input type="hidden" name="essenceId" value="${essence.id}"/>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button role="button" class="btn btn-success" formmethod="post" formaction="<@spring.url '/play'/>">
+                            <i class="fa fa-play"></i> Play
+                        </button>
+                    </form>
                 </td>
             </tr>
         </#list>
@@ -72,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <a class="btn btn-danger" role="button" href="<@spring.url '/logout'/>">
                 <i class="fa fa-power-off"></i> Log Out
             </a>
-            <a class="btn btn-primary" role="button" href="<@spring.url '/new-essence'/>">
+            <a class="btn btn-primary" role="button" href="<@spring.url '/essence'/>">
                 <i class="fa fa-heart"></i> Create Essence
             </a>
         </div>

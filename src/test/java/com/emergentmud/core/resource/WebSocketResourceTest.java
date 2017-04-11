@@ -187,7 +187,6 @@ public class WebSocketResourceTest {
                 commandMetadataRepository,
                 emoteMetadataRepository,
                 promptBuilder,
-                entityUtil,
                 emote
         );
     }
