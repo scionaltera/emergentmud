@@ -26,14 +26,4 @@ import com.emergentmud.core.util.EntityUtil;
 public abstract class BaseCommunicationCommand extends BaseCommand {
     protected EntityUtil entityUtil;
     protected EntityRepository entityRepository;
-
-    protected String htmlEscape(String input) {
-        return input
-                .replace("&", "&amp;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\\", "&#x2F;");
-    }
 }

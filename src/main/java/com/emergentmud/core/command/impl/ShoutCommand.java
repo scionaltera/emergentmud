@@ -31,6 +31,7 @@ import com.emergentmud.core.util.EntityUtil;
 import com.emergentmud.core.util.RoomUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -65,9 +66,9 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
             return output;
         }
 
-        output.append(String.format("[dyellow]You shout '%s[dyellow]'", htmlEscape(raw)));
+        output.append(String.format("[dyellow]You shout '%s[dyellow]'", HtmlUtils.htmlEscape(raw)));
 
-        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), htmlEscape(raw)));
+        GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
         Room entityRoom = entity.getRoom();
         List<Room> rooms = roomRepository.findByXBetweenAndYBetweenAndZBetween(
