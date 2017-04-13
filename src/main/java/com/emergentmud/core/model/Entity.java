@@ -32,6 +32,8 @@ public class Entity {
     private Boolean admin;
     private String stompUsername;
     private String stompSessionId;
+    private String remoteAddr;
+    private String userAgent;
 
     @DBRef
     private Room room;
@@ -74,6 +76,22 @@ public class Entity {
 
     public void setStompSessionId(String stompSessionId) {
         this.stompSessionId = stompSessionId;
+    }
+
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     public Room getRoom() {

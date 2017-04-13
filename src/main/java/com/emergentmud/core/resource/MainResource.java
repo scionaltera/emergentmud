@@ -214,7 +214,7 @@ public class MainResource {
     }
 
     @RequestMapping(method=RequestMethod.POST, value="/play")
-    public String play(PlayRequest playRequest, HttpSession session, Principal principal, Model model) {
+    public String play(PlayRequest playRequest, HttpSession session, HttpServletRequest httpServletRequest, Principal principal, Model model) {
         String essenceId = playRequest.getEssenceId();
 
         if (StringUtils.isEmpty(essenceId)) {
@@ -259,6 +259,9 @@ public class MainResource {
         essence.setLastLoginDate(System.currentTimeMillis());
         essence = essenceRepository.save(essence);
 
+        entity.setRemoteAddr(httpServletRequest.getRemoteAddr());
+        entity.setUserAgent(httpServletRequest.getHeader("User-Agent"));
+
         if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
@@ -275,7 +278,7 @@ public class MainResource {
 
         entityUtil.sendMessageToRoom(room, entity, enterMessage);
 
-        LOGGER.info("{} has entered the game", entity.getName());
+        LOGGER.info("{} has entered the game from {}", entity.getName(), entity.getRemoteAddr());
 
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();
