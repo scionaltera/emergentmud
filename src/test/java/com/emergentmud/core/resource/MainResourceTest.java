@@ -107,6 +107,9 @@ public class MainResourceTest {
     private HttpSession httpSession;
 
     @Mock
+    private HttpServletRequest httpServletRequest;
+
+    @Mock
     private OAuth2Authentication principal;
 
     @Mock
@@ -411,7 +414,7 @@ public class MainResourceTest {
 
     @Test
     public void testPlayExisting() throws Exception {
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
         Entity entity = essence.getEntity();
 
         verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
@@ -438,7 +441,7 @@ public class MainResourceTest {
     public void testPlayNoWorld() throws Exception {
         when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(false);
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
         Entity entity = essence.getEntity();
 
         verify(roomBuilder).generateRoom(eq(0L), eq(0L), eq(0L));
@@ -461,7 +464,7 @@ public class MainResourceTest {
     public void testPlayNoId() throws Exception {
         when(playRequest.getEssenceId()).thenReturn(null);
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verifyZeroInteractions(model);
         verifyZeroInteractions(httpSession);
@@ -472,7 +475,7 @@ public class MainResourceTest {
     public void testPlayNoAccount() throws Exception {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(httpSession).getAttribute(eq("social"));
         verifyNoMoreInteractions(httpSession);
@@ -484,7 +487,7 @@ public class MainResourceTest {
     public void testPlayNoEssence() throws Exception {
         when(essenceRepository.findByAccountId(anyString())).thenReturn(new ArrayList<>());
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(httpSession).getAttribute(eq("social"));
         verifyNoMoreInteractions(httpSession);
@@ -499,7 +502,7 @@ public class MainResourceTest {
         when(essence1.getEntity()).thenReturn(null);
         when(playRequest.getEssenceId()).thenReturn("essence1");
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(entityRepository).save(any(Entity.class));
@@ -533,7 +536,7 @@ public class MainResourceTest {
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 
-        String view = mainResource.play(playRequest, httpSession, principal, model);
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityUtil).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
