@@ -1,6 +1,6 @@
 <#--
 EmergentMUD - A modern MUD with a procedurally generated world.
-Copyright (C) 2016 Peter Keeler
+Copyright (C) 2016-2017 Peter Keeler
 
 This file is part of EmergentMUD.
 
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>EmergentMUD</title>
+    <title>Play - EmergentMUD</title>
     <meta name="description" content=""/>
     <meta name="viewport" content="width=device-width"/>
     <base href="/"/>

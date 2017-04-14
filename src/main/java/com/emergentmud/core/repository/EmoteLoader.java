@@ -145,6 +145,15 @@ public class EmoteLoader {
                     "%self% looks at you, raising one eyebrow.",
                     "%self% looks at %target%, raising one eyebrow."
             }));
+            emotes.add(setEmoteFields(new EmoteMetadata("wave", 100), new String[] {
+                    "You wave.",
+                    "%self% waves.",
+                    "You wave to %target%.",
+                    "%self% waves to you.",
+                    "%self% waves to %target%.",
+                    "You move your body from side to side, channeling the ocean waves.",
+                    "%self% moves %his% body from side to side, channeling the ocean waves."
+            }));
 
             emoteMetadataRepository.save(emotes);
         }

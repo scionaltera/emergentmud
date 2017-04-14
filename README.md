@@ -11,34 +11,28 @@
 EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It will be a modern game with an old school feel. Just like most other MUDs back in the 90s, you will play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.
 
 # Current State
-EmergentMUD is a brand new project and the groundwork is still in its very first stages of development. I have an [actively running server](https://emergentmud.com) for demonstration purposes. If you are interested in seeing what the current state of the MUD looks like, please drop in and take a look around. Please be aware that the version is fixed at v0.1.0-SNAPSHOT for a reason: while I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
+The codebase has been in active development for about a year now. If you are interested in seeing what the current state of the MUD looks like, please [drop in](https://www.emergentmud.com) and take a look around. While I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
 
-That being said, I do welcome visitors and would love for people to drop in and look around.
+If you're a programmer, check out the source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [Bitbucket](https://bitbucket.org/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
 
-The following major features are already complete:
+Release `Playable World` is currently in development. It is focused on all the most basic necessities of a MUD:
 
-* Players can authenticate through their Facebook or Google accounts
-* Players can create multiple essences (characters) within their accounts
-* Players can log into the game and see a familiar SMAUG-like text UI
-* LOOK and directional commands work
-* Players can talk to each other using TELL, SAY, SHOUT and GOSSIP
-* Rooms are computed on the fly as you walk around the world, making it very, very large: Room coordinates can range from `-2^63` to `2^63-1` in 3 dimensions
-* Detailed terrain types
-* Socials (smile, nod, wink, etc.)
+* Underlying application framework and architecture
+* Production deployment with Docker
+* Administrative commands and tools
+* Basic room generation
+* Communication, emotes and movement commands
+* Help files
 
-A few of the things on the [roadmap to v1.0](https://bitbucket.org/scionaltera/emergentmud/wiki/Product%20Roadmap):
+Release `The Environment` is coming up next and will focus on developing the natural world inside the game:
 
-* High availability (run multiple instances behind a load balancer, clustered datastores, real STOMP message broker)
-* Plants and foliage
-* Time, day/night cycle, seasons
+* Rivers, lakes and oceans
+* Calendars
+* Day/night cycle
+* Seasons
 * Weather
-* Temperature adjustments based on elevation and latitude
-* Objects, containers and wear locations
-* Dynamically generated room descriptions
-* Character attributes (gender, species, race, height, weight, etc.)
-* Skills
-* NPCs and animals
-* Much, much more!
+* Plants
+* Animals
 
 # Running Locally
 ## Required Tools
