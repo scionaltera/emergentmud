@@ -85,6 +85,8 @@ public class InfoCommand extends BaseCommand {
         output.append("[dcyan]Admin: [cyan]" + target.isAdmin());
         output.append("[dcyan]Social Username: [cyan]" + target.getStompUsername());
         output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
+        output.append("[dcyan]Remote Address: [cyan]" + target.getRemoteAddr());
+        output.append("[dcyan]User Agent: [cyan]" + target.getUserAgent());
 
         return output;
     }
