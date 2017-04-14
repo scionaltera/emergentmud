@@ -17,23 +17,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-body {
-    background-color: black;
-    color: #ccc;
-    font-family: 'Inconsolata', monospace;
-    font-weight: 400;
-}
 
-.heading {
-    font-family: 'Inconsolata', monospace;
-    font-weight: 700;
-    font-size: 72px;
-}
+package com.emergentmud.core.resource.model;
 
-.margin-bottom {
-    margin-bottom: 15px;
-}
+import org.junit.Before;
+import org.junit.Test;
 
-.description span {
-    font-size: 36px;
+import static org.junit.Assert.*;
+
+public class PlayRequestTest {
+    private PlayRequest playRequest;
+
+    @Before
+    public void setUp() throws Exception {
+        playRequest = new PlayRequest();
+    }
+
+    @Test
+    public void testEssenceId() throws Exception {
+        playRequest.setEssenceId("Steve");
+        assertEquals("Steve", playRequest.getEssenceId());
+    }
 }
