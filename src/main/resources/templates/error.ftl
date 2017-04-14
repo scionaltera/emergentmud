@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>EmergentMUD</title>
+    <title>${message} - EmergentMUD</title>
     <meta name="description" content=""/>
     <meta name="viewport" content="width=device-width"/>
     <base href="/"/>
@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </div>
     <div class="row">
         <div class="col-md-10 col-md-offset-1 description">
-            <span>${httpStatus}: ${message}</span>
+            <span class="heading2">${httpStatus}: ${message}</span>
             <p>Alas, you cannot go that way. Maybe one of these links will take you where you want to go?</p>
         </div>
     </div>

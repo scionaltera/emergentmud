@@ -57,6 +57,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -259,7 +261,7 @@ public class MainResource {
         essence.setLastLoginDate(System.currentTimeMillis());
         essence = essenceRepository.save(essence);
 
-        entity.setRemoteAddr(httpServletRequest.getRemoteAddr());
+        entity.setRemoteAddr(extractRemoteIp(httpServletRequest));
         entity.setUserAgent(httpServletRequest.getHeader("User-Agent"));
 
         if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
@@ -396,5 +398,27 @@ public class MainResource {
         securityContextLogoutHandler.logout(request, response, authentication);
 
         return "redirect:/";
+    }
+
+    private String extractRemoteIp(HttpServletRequest request) {
+        String forwardedHeader = request.getHeader("x-forwarded-for");
+
+        if (forwardedHeader != null) {
+            String[] addresses = forwardedHeader.split("[,]");
+
+            for (String address : addresses) {
+                try {
+                    InetAddress inetAddress = InetAddress.getByName(address);
+
+                    if (!inetAddress.isSiteLocalAddress()) {
+                        return inetAddress.getHostAddress();
+                    }
+                } catch (UnknownHostException e) {
+                    LOGGER.debug("Failed to resolve IP for address: {}", address);
+                }
+            }
+        }
+
+        return request.getRemoteAddr();
     }
 }
