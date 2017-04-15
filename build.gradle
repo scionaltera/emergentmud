@@ -87,7 +87,7 @@ jar {
 task buildDocker(type: Docker, dependsOn: build) {
     push = false
     applicationName = jar.getBaseName()
-    dockerfile = file('src/main/docker/Dockerfile')
+    dockerfile = file('src/test/docker/Dockerfile')
     tagVersion = "latest"
     doFirst {
         copy {
