@@ -136,6 +136,11 @@ public class MainResource {
 
         List<Essence> essences = essenceRepository.findByAccountId(account.getId());
 
+        if (essences.isEmpty()) {
+            httpSession.setAttribute("firstLogin", "true");
+            return "new-essence";
+        }
+
         model.addAttribute("account", account);
         model.addAttribute("essences", essences);
 
@@ -212,7 +217,23 @@ public class MainResource {
         essence = essenceRepository.save(essence);
         LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
 
+        if ("true".equals(session.getAttribute("firstLogin"))) {
+            session.removeAttribute("firstLogin");
+            session.setAttribute("essenceId", essence.getId());
+            return "redirect:/play";
+        }
+
         return "redirect:/";
+    }
+
+    @RequestMapping(method=RequestMethod.GET, value="/play")
+    public String getPlay(HttpSession session, Model model) {
+        String essenceId = (String)session.getAttribute("essenceId");
+
+        model.addAttribute("essenceId", essenceId);
+        session.removeAttribute("essenceId");
+
+        return "play-post";
     }
 
     @RequestMapping(method=RequestMethod.POST, value="/play")
