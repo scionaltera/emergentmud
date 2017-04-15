@@ -8,10 +8,12 @@
 [![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 
 # Vision
-EmergentMUD is a free, retro text based game that runs in your browser using HTML5 and Websockets. It's a modern MUD with an old school feel. Just like most other MUDs back in the 90s, you play a character in a medieval fantasy setting. The MUD has a rich set of ways you can interact both with the environment and with other players. The modern part is that the entire game is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.
+EmergentMUD is a free, text based "Multi-User Domain" that you play in your browser. It's a modern MUD with an old school retro feel. Just like most other MUDs back in the 90s you play a character in a medieval fantasy setting. The modern aspect is that the entire game world is procedurally generated on the fly and is fully interactive. All parts of the world from the species of plants and animals, societies of sentient creatures, geography, weather, and even quests are created on demand as players explore. All the different game systems interact with one another to create fun and unexpected *emergent behavior*. This world is alive.
+
+Help an NPC gather resources to build his house and he'll build his house - not just continue asking everyone he sees for resources. Steal the gold from the King's vault and he won't be able to fund the war he's waging - having a direct effect on international politics. Burn down a village and maybe it will be rebuilt - but maybe it won't. Help someone in need and make an ally you can rely on later. Start a business and hire NPCs to work for you. Head out in a direction that isn't on the map yet and it will be created as you begin to walk through it - complete with new plants, animals, NPCs, religions, cultures and discoveries that the world has never seen before. Everything you do in this world has a real effect. You won't see any quest vendors and you won't experience the same "content" that everyone else has already devoured before you. You can forge your own path, create your own destiny, and leave your own mark upon the world in the process.
 
 # Current State
-The codebase has been in active development for about a year now. If you are interested in seeing what the current state of the MUD looks like, please [drop in](https://www.emergentmud.com) and take a look around. While I make my best effort to keep the MUD up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
+The code has been in active development for about a year now, and still going strong although there is still a very long way to go. Please [drop in](https://emergentmud.com) and take a look around, and pardon the dust. Let me know what you think. New things are being added on a regular basis.
 
 If you're a programmer, check out the MUD's source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [Bitbucket](https://bitbucket.org/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
 
@@ -24,15 +26,14 @@ Our current release is called `Playable World`. It is focused on all the most ba
 * Communication, emotes and movement commands
 * Help files
 
-Our next release is called `The Environment`. It will focus on developing the natural world inside the MUD.
+Our next release is called `People`. It will focus on developing the natural world inside the MUD.
 
-* Rivers, lakes and oceans
-* Calendars
-* Day/night cycle
-* Seasons
-* Weather
-* Plants
-* Animals
+* Character attributes (gender, strength, etc.)
+* Animals and NPCs
+* Plants and Trees
+* Minerals, Metals and Other Natural Resources
+* Items and Equipment
+* Bodies of Water
 
 # Running Locally
 ## Required Tools
