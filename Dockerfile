@@ -1,5 +1,5 @@
 #    EmergentMUD - A modern MUD with a procedurally generated world.
-#    Copyright (C) 2016 Peter Keeler
+#    Copyright (C) 2016-2017 Peter Keeler
 #
 #    This file is part of EmergentMUD.
 #
@@ -25,8 +25,8 @@ RUN mkdir -p /opt/mud \
 && apk update \
 && apk upgrade \
 && apk add --no-cache bash \
-&& ./gradlew clean build \
+&& ./gradlew clean build -x check \
 && cp -v build/libs/emergentmud*.jar /opt/mud/app.jar \
 && cd /opt/mud \
 && rm -rf /tmp/* /var/cache/apk/* /opt/build ~/.m2 ~/.gradle
-CMD ["/usr/bin/java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["/usr/bin/java","-jar","/opt/mud/app.jar"]
