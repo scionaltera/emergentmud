@@ -116,7 +116,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/login**",
                         "/webjars/**",
                         "/img/**",
-                        "/css/**").permitAll()
+                        "/css/**",
+                        "/robots.txt").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().logoutSuccessUrl("/").permitAll()
                 .and().formLogin().loginPage("/")

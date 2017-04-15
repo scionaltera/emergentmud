@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <#else>
     <title>EmergentMUD</title>
     </#if>
-    <meta name="description" content="EmergentMUD is a free, retro text based game that runs in your browser using HTML5 and Websockets. It's a modern MUD with an old school feel."/>
+    <meta name="description" content="EmergentMUD is a free, text based Multi-User Domain that you play in your browser. It's a modern MUD with an old school retro feel."/>
     <meta name="viewport" content="width=device-width"/>
     <link rel="canonical" href="https://emergentmud.com${path!}"/>
     <link rel="stylesheet" type="text/css" href="<@spring.url 'https://fonts.googleapis.com/css?family=Inconsolata'/>">
