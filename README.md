@@ -8,23 +8,23 @@
 [![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 
 # Vision
-EmergentMUD is a text based game that runs in your browser using HTML5 and Websockets. It will be a modern game with an old school feel. Just like most other MUDs back in the 90s, you will play a character in a medieval fantasy setting where the world has a rich range of features and ways you can interact both with the environment and with other players. The modern part is that the entire world is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players (or the developers) yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.
+EmergentMUD is a free, retro text based game that runs in your browser using HTML5 and Websockets. It's a modern MUD with an old school feel. Just like most other MUDs back in the 90s, you play a character in a medieval fantasy setting. The MUD has a rich set of ways you can interact both with the environment and with other players. The modern part is that the entire game is procedurally generated and fully interactive. It's gigantic, and most of it has never been visited by any human players yet. You will be able to get immersed in this world in ways that you never could on traditional MUDs.
 
 # Current State
-The codebase has been in active development for about a year now. If you are interested in seeing what the current state of the MUD looks like, please [drop in](https://www.emergentmud.com) and take a look around. While I make my best effort to keep it up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
+The codebase has been in active development for about a year now. If you are interested in seeing what the current state of the MUD looks like, please [drop in](https://www.emergentmud.com) and take a look around. While I make my best effort to keep the MUD up and running, there are no guarantees at this point that it will be available or fast, that anything will work properly, or that it will be fun to play. It is likely to be rebooted often and the database may be wiped at any time.
 
-If you're a programmer, check out the source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [Bitbucket](https://bitbucket.org/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
+If you're a programmer, check out the MUD's source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [Bitbucket](https://bitbucket.org/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
 
-Release `Playable World` is currently in development. It is focused on all the most basic necessities of a MUD:
+Our current release is called `Playable World`. It is focused on all the most basic necessities of a MUD.
 
-* Underlying application framework and architecture
+* Application framework and architecture
 * Production deployment with Docker
 * Administrative commands and tools
 * Basic room generation
 * Communication, emotes and movement commands
 * Help files
 
-Release `The Environment` is coming up next and will focus on developing the natural world inside the game:
+Our next release is called `The Environment`. It will focus on developing the natural world inside the MUD.
 
 * Rivers, lakes and oceans
 * Calendars
