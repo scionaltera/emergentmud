@@ -20,20 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#import "/spring.ftl" as spring>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>Play - EmergentMUD</title>
-    <meta name="description" content=""/>
-    <meta name="viewport" content="width=device-width"/>
-    <base href="/"/>
-    <link rel='stylesheet' type='text/css' href="<@spring.url 'https://fonts.googleapis.com/css?family=Inconsolata'/>">
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/bootstrap/css/bootstrap.min.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/font-awesome/css/font-awesome.min.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/bootstrap-social.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/color.css'/>">
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/play.css'/>">
-</head>
+<#assign title="Play">
+<#assign path="/play">
+<#assign links = [ "/css/color.css", "/css/play.css" ]>
+<#include "header.inc.ftl">
 <body>
 <form id="redirectForm" action="<@spring.url '/play'/>" method="post">
     <input name="essenceId" type="hidden" value="${essenceId}"/>

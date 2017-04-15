@@ -20,21 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#import "/spring.ftl" as spring>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <title>New Essence - EmergentMUD</title>
-    <meta name="description" content=""/>
-    <meta name="viewport" content="width=device-width"/>
-    <base href="/"/>
-    <link rel='stylesheet' type='text/css' href="<@spring.url 'https://fonts.googleapis.com/css?family=Inconsolata'/>">
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/bootstrap/css/bootstrap.min.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/webjars/font-awesome/css/font-awesome.min.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/bootstrap-social.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<@spring.url '/css/index.css'/>">
-</head>
+<#assign title="Create Essence">
+<#assign path="/essence">
+<#assign links = [ "/css/index.css" ]>
+<#include "header.inc.ftl">
 <body>
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12 text-center heading">
@@ -65,10 +55,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </div>
 </div>
 
-<script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<script src="//static.getclicky.com/js" type="text/javascript"></script>
-<script type="text/javascript">try{ clicky.init(100986651); }catch(e){}</script>
-<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/100986651ns.gif" /></p></noscript>
+<#include "scripts.inc.ftl">
 </body>
 </html>

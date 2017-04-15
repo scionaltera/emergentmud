@@ -60,6 +60,8 @@ public class ErrorResource extends AbstractErrorController {
                 attributes.get("message"),
                 attributes.get("path"));
 
+        model.addAttribute("title", getStatus(request).getReasonPhrase());
+        model.addAttribute("path", request.getContextPath());
         model.addAttribute("message", getStatus(request).getReasonPhrase());
         model.addAttribute("httpStatus", getStatus(request).value());
 
