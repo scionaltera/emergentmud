@@ -19,7 +19,7 @@
 FROM frolvlad/alpine-oraclejdk8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
-COPY . /opt/build/
+COPY / /opt/build/
 RUN mkdir -p /opt/mud \
 && cd /opt/build \
 && apk update \
