@@ -32,7 +32,6 @@ import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -78,9 +77,6 @@ public class WebSocketResourceTest {
 
     @Mock
     private PromptBuilder promptBuilder;
-
-    @Mock
-    private EntityUtil entityUtil;
 
     @Mock
     private Emote emote;
