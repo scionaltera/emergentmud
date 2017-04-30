@@ -29,6 +29,12 @@ public class Entity {
     @Id
     private String id;
     private String name;
+
+    @DBRef
+    private Account account;
+
+    private Long creationDate;
+    private Long lastLoginDate;
     private Boolean admin;
     private String stompUsername;
     private String stompSessionId;
@@ -52,6 +58,30 @@ public class Entity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Long getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Long lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     public Boolean isAdmin() {

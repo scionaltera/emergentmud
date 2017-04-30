@@ -34,8 +34,8 @@ public class PlayRequestTest {
     }
 
     @Test
-    public void testEssenceId() throws Exception {
-        playRequest.setEssenceId("Steve");
-        assertEquals("Steve", playRequest.getEssenceId());
+    public void testEntityId() throws Exception {
+        playRequest.setEntityId("Steve");
+        assertEquals("Steve", playRequest.getEntityId());
     }
 }

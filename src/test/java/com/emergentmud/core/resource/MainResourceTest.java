@@ -27,7 +27,6 @@ import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -35,7 +34,6 @@ import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
@@ -78,9 +76,6 @@ public class MainResourceTest {
 
     @Mock
     private AccountRepository accountRepository;
-
-    @Mock
-    private EssenceRepository essenceRepository;
 
     @Mock
     private EntityRepository entityRepository;
@@ -128,9 +123,9 @@ public class MainResourceTest {
     private ArgumentCaptor<Entity> entityCaptor;
 
     private Account account;
-    private Essence essence;
+    private Entity entity;
     private List<SocialNetwork> socialNetworks = new ArrayList<>();
-    private List<Essence> essences = new ArrayList<>();
+    private List<Entity> entities = new ArrayList<>();
     private List<EmoteMetadata> emoteMetadata = new ArrayList<>();
 
     private MainResource mainResource;
@@ -141,8 +136,8 @@ public class MainResourceTest {
 
         generateSocialNetworks();
         account = generateAccount();
-        generateEssences();
-        essence = essences.get(0);
+        generateEntities();
+        entity = entities.get(0);
         generateEmoteMetadata();
 
         when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(true);
@@ -153,26 +148,21 @@ public class MainResourceTest {
             account.setId(UUID.randomUUID().toString());
             return account;
         });
-        when(essenceRepository.save(any(Essence.class))).thenAnswer(invocation -> {
-            Essence essence = (Essence)invocation.getArguments()[0];
-            essence.setId(UUID.randomUUID().toString());
-            return essence;
-        });
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
             entity.setId(UUID.randomUUID().toString());
             return entity;
         });
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(account);
-        when(essenceRepository.findByAccountId(anyString())).thenReturn(essences);
-        when(playRequest.getEssenceId()).thenReturn("essence0");
+        when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
+        when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
+        when(playRequest.getEntityId()).thenReturn("entity0");
 
         mainResource = new MainResource(
                 applicationContext,
                 socialNetworks,
                 securityContextLogoutHandler,
                 accountRepository,
-                essenceRepository,
                 entityRepository,
                 commandMetadataRepository,
                 emoteMetadataRepository,
@@ -189,7 +179,6 @@ public class MainResourceTest {
 
         verify(model).addAttribute(eq("networks"), eq(socialNetworks));
         verifyZeroInteractions(accountRepository);
-        verifyZeroInteractions(essenceRepository);
         assertEquals("index", view);
     }
 
@@ -203,9 +192,9 @@ public class MainResourceTest {
 
         verify(model).addAttribute(eq("networks"), eq(socialNetworks));
         verify(accountRepository).save(accountCaptor.capture());
-        verify(model).addAttribute(eq("account"), any(Account.class));
-        verify(model).addAttribute(eq("essences"), eq(essences));
-        assertEquals("essence", view);
+        verify(model, never()).addAttribute(eq("account"), any(Account.class));
+        verify(model, never()).addAttribute(eq("entities"), eq(entities));
+        assertEquals("new-entity", view);
 
         Account generated = accountCaptor.getValue();
 
@@ -222,8 +211,8 @@ public class MainResourceTest {
         verify(account, never()).setSocialNetwork(anyString());
         verify(account, never()).setSocialNetworkId(anyString());
         verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("essences"), eq(essences));
-        assertEquals("essence", view);
+        verify(model).addAttribute(eq("entities"), eq(entities));
+        assertEquals("entity", view);
     }
 
     @Test
@@ -235,187 +224,186 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testNewEssence() throws Exception {
-        String view = mainResource.newEssence();
+    public void testNewEntity() throws Exception {
+        String view = mainResource.newEntity();
 
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveFirstNewEssence() throws Exception {
-        when(essenceRepository.count()).thenReturn(0L);
+    public void testSaveFirstNewEntity() throws Exception {
+        when(entityRepository.count()).thenReturn(0L);
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence).setAccountId(eq(ACCOUNT_ID));
-        verify(essence).setAdmin(eq(true));
-        verify(essence).setCreationDate(anyLong());
+        verify(entity).setAccount(eq(account));
+        verify(entity).setAdmin(eq(true));
+        verify(entity).setCreationDate(anyLong());
         assertEquals("redirect:/", view);
     }
 
     @Test
-    public void testSaveNewEssence() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
+    public void testSaveNewEntity() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(essence).setCreationDate(anyLong());
+        verify(entity).setAccount(eq(account));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(entity).setCreationDate(anyLong());
         assertEquals("redirect:/", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameTooShort() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("A");
+    public void testSaveNewEntityNameTooShort() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("A");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("A"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("A"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameTooLong() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Supercalifragilisticexpealadocious");
+    public void testSaveNewEntityNameTooLong() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Supercalifragilisticexpealadocious");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Supercalifragilisticexpealadocious"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Supercalifragilisticexpealadocious"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameNotCapitalized() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("abraham");
+    public void testSaveNewEntityNameNotCapitalized() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("abraham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("abraham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameInvalidCharacters() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Abra!ham");
+    public void testSaveNewEntityNameInvalidCharacters() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Abra!ham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Abra!ham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Abra!ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameStartsWithHyphen() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("-Abraham");
+    public void testSaveNewEntityNameStartsWithHyphen() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("-Abraham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("-Abraham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("-Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameStartsWithApostrophe() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("'Abraham");
+    public void testSaveNewEntityNameStartsWithApostrophe() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("'Abraham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("'Abraham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("'Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameEndsWithHyphen() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Abraham-");
+    public void testSaveNewEntityNameEndsWithHyphen() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Abraham-");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Abraham-"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Abraham-"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameEndsWithApostrophe() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Abraham'");
+    public void testSaveNewEntityNameEndsWithApostrophe() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Abraham'");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Abraham'"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Abraham'"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameMultipleSymbols1() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Abra--ham");
+    public void testSaveNewEntityNameMultipleSymbols1() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Abra--ham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Abra--ham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Abra--ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test
-    public void testSaveNewEssenceNameMultipleSymbols2() throws Exception {
-        when(essenceRepository.count()).thenReturn(100L);
-        when(essence.getName()).thenReturn("Ab-ra-ham");
+    public void testSaveNewEntityNameMultipleSymbols2() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entity.getName()).thenReturn("Ab-ra-ham");
 
-        String view = mainResource.saveNewEssence(httpSession, principal, essence, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
-        verify(essence, never()).setAccountId(eq(ACCOUNT_ID));
-        verify(essence, never()).setAdmin(anyBoolean());
-        verify(model).addAttribute(eq("essenceName"), eq("Ab-ra-ham"));
+        verify(entity, never()).setAccount(any(Account.class));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("Ab-ra-ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
-        assertEquals("new-essence", view);
+        assertEquals("new-entity", view);
     }
 
     @Test(expected = NoAccountException.class)
     public void testSaveNewEssenceMissingAccount() throws Exception {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
-        mainResource.saveNewEssence(httpSession, principal, essence, model);
+        mainResource.saveNewEntity(httpSession, principal, entity, model);
     }
 
     @Test
-    public void testPlayExisting() throws Exception {
+    public void testPlay() throws Exception {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
-        Entity entity = essence.getEntity();
 
         verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
@@ -423,7 +411,7 @@ public class MainResourceTest {
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("essence"), eq(essence));
+        verify(model).addAttribute(eq("entity"), eq(entity));
         assertEquals("play", view);
 
         GameOutput output = outputCaptor.getValue();
@@ -433,7 +421,6 @@ public class MainResourceTest {
         Map<String, String> sessionMap = mapCaptor.getValue();
 
         assertEquals(account.getId(), sessionMap.get("account"));
-        assertEquals(essence.getId(), sessionMap.get("essence"));
         assertEquals(entity.getId(), sessionMap.get("entity"));
     }
 
@@ -442,7 +429,6 @@ public class MainResourceTest {
         when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(false);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
-        Entity entity = essence.getEntity();
 
         verify(roomBuilder).generateRoom(eq(0L), eq(0L), eq(0L));
         verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
@@ -450,19 +436,18 @@ public class MainResourceTest {
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("essence"), eq(essence));
+        verify(model).addAttribute(eq("entity"), eq(entity));
         assertEquals("play", view);
 
         Map<String, String> sessionMap = mapCaptor.getValue();
 
         assertEquals(account.getId(), sessionMap.get("account"));
-        assertEquals(essence.getId(), sessionMap.get("essence"));
         assertEquals(entity.getId(), sessionMap.get("entity"));
     }
 
     @Test
     public void testPlayNoId() throws Exception {
-        when(playRequest.getEssenceId()).thenReturn(null);
+        when(playRequest.getEntityId()).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
@@ -484,53 +469,9 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayNoEssence() throws Exception {
-        when(essenceRepository.findByAccountId(anyString())).thenReturn(new ArrayList<>());
-
-        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
-
-        verify(httpSession).getAttribute(eq("social"));
-        verifyNoMoreInteractions(httpSession);
-        verifyZeroInteractions(model);
-        assertEquals("redirect:/", view);
-    }
-
-    @Test
-    public void testPlayNoEntity() throws Exception {
-        Essence essence1 = essences.get(1);
-
-        when(essence1.getEntity()).thenReturn(null);
-        when(playRequest.getEssenceId()).thenReturn("essence1");
-
-        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
-
-        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
-        verify(entityRepository).save(any(Entity.class));
-        verify(essence1).setEntity(any(Entity.class));
-        verify(essenceRepository).save(eq(essence1));
-        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
-        verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
-        verify(model).addAttribute(eq("breadcrumb"), anyString());
-        verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("essence"), eq(essence1));
-        assertEquals("play", view);
-
-        GameOutput output = outputCaptor.getValue();
-
-        assertTrue(output.getOutput().get(0).startsWith("[yellow]"));
-
-        Map<String, String> sessionMap = mapCaptor.getValue();
-
-        assertEquals(account.getId(), sessionMap.get("account"));
-        assertEquals(essence1.getId(), sessionMap.get("essence"));
-        assertTrue(sessionMap.containsKey("entity"));
-    }
-
-    @Test
     public void testPlayReconnect() throws Exception {
         Room room = mock(Room.class);
-        Essence essence0 = essences.get(0);
-        Entity entity0 = essence0.getEntity();
+        Entity entity0 = entity;
 
         when(entity0.getRoom()).thenReturn(room);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
@@ -543,7 +484,7 @@ public class MainResourceTest {
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("essence"), eq(essence));
+        verify(model).addAttribute(eq("entity"), eq(entity));
         assertEquals("play", view);
 
         GameOutput output = outputCaptor.getValue();
@@ -577,7 +518,7 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(essences);
+        when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
 
         String view = mainResource.commands(model, principal, httpSession);
 
@@ -599,8 +540,8 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(essences.get(2).isAdmin()).thenReturn(true);
-        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(essences);
+        when(entities.get(2).isAdmin()).thenReturn(true);
+        when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
 
         String view = mainResource.commands(model, principal, httpSession);
 
@@ -641,7 +582,7 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(new ArrayList<>());
+        when(entityRepository.findByAccount(eq(account))).thenReturn(new ArrayList<>());
 
         String view = mainResource.emotes(model, principal, httpSession);
 
@@ -662,16 +603,16 @@ public class MainResourceTest {
 
     @Test
     public void testEmotesAuthenticatedOneEssence() throws Exception {
-        ArrayList<Essence> oneEssence = new ArrayList<>();
+        ArrayList<Entity> oneEntity = new ArrayList<>();
 
-        oneEssence.add(essences.get(0));
+        oneEntity.add(entities.get(0));
 
         when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(oneEssence);
+        when(entityRepository.findByAccount(eq(account))).thenReturn(oneEntity);
 
         String view = mainResource.emotes(model, principal, httpSession);
 
@@ -686,23 +627,23 @@ public class MainResourceTest {
         List<Entity> captures = entityCaptor.getAllValues();
 
         assertEquals("emotes", view);
-        assertEquals("EssenceA", captures.get(0).getName());
+        assertEquals("EntityA", captures.get(0).getName());
         assertEquals("Bob", captures.get(1).getName());
     }
 
     @Test
     public void testEmotesAuthenticatedTwoEssences() throws Exception {
-        ArrayList<Essence> twoEssences = new ArrayList<>();
+        ArrayList<Entity> twoEntities = new ArrayList<>();
 
-        twoEssences.add(essences.get(0));
-        twoEssences.add(essences.get(1));
+        twoEntities.add(entities.get(0));
+        twoEntities.add(entities.get(1));
 
         when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(essenceRepository.findByAccountId(eq("accountId"))).thenReturn(twoEssences);
+        when(entityRepository.findByAccount(eq(account))).thenReturn(twoEntities);
 
         String view = mainResource.emotes(model, principal, httpSession);
 
@@ -717,8 +658,8 @@ public class MainResourceTest {
         List<Entity> captures = entityCaptor.getAllValues();
 
         assertEquals("emotes", view);
-        assertEquals("EssenceA", captures.get(0).getName());
-        assertEquals("EssenceB", captures.get(1).getName());
+        assertEquals("EntityA", captures.get(0).getName());
+        assertEquals("EntityB", captures.get(1).getName());
     }
 
     @Test
@@ -746,20 +687,15 @@ public class MainResourceTest {
         return account;
     }
 
-    private void generateEssences() {
+    private void generateEntities() {
         for (int i = 0; i < 3; i++) {
-            Essence essence = mock(Essence.class);
             Entity entity = mock(Entity.class);
-
-            when(essence.getId()).thenReturn("essence" + i);
-            when(essence.getName()).thenReturn("Essence" + ALPHABET.charAt(i));
-            when(essence.getAccountId()).thenReturn(ACCOUNT_ID);
-            when(essence.getEntity()).thenReturn(entity);
 
             when(entity.getId()).thenReturn("entity" + i);
             when(entity.getName()).thenReturn("Entity" + ALPHABET.charAt(i));
+            when(entity.getAccount()).thenReturn(account);
 
-            essences.add(essence);
+            entities.add(entity);
         }
     }
 

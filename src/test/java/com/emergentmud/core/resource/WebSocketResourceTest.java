@@ -26,14 +26,12 @@ import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,9 +68,6 @@ public class WebSocketResourceTest {
     private SessionRepository sessionRepository;
 
     @Mock
-    private EssenceRepository essenceRepository;
-
-    @Mock
     private EntityRepository entityRepository;
 
     @Mock
@@ -98,9 +93,6 @@ public class WebSocketResourceTest {
 
     @Mock
     private Session httpSession;
-
-    @Mock
-    private Essence essence;
 
     @Mock
     private Room room;
@@ -151,7 +143,7 @@ public class WebSocketResourceTest {
         when(oauth2Details.getSessionId()).thenReturn(httpSessionId);
         when(httpSession.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(sessionRepository.getSession(eq(httpSessionId))).thenReturn(httpSession);
-        when(essenceRepository.findOne(eq(ESSENCE_ID))).thenReturn(essence);
+        when(entityRepository.findOne(eq(ENTITY_ID))).thenReturn(entity);
         when(entityRepository.findByRoom(eq(room))).thenReturn(roomContents);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
@@ -170,7 +162,6 @@ public class WebSocketResourceTest {
 
             return output;
         });
-        when(essence.getEntity()).thenReturn(entity);
         doAnswer(invocation -> {
             GameOutput message = invocation.getArgumentAt(0, GameOutput.class);
             message.append("").append("[red]UnitTest> ");
@@ -182,7 +173,6 @@ public class WebSocketResourceTest {
                 APPLICATION_BOOT_DATE,
                 applicationContext,
                 sessionRepository,
-                essenceRepository,
                 entityRepository,
                 commandMetadataRepository,
                 emoteMetadataRepository,
@@ -253,7 +243,7 @@ public class WebSocketResourceTest {
     public void testOnInputIsAnAdmin() throws Exception {
         UserInput input = mock(UserInput.class);
 
-        when(essence.isAdmin()).thenReturn(true);
+        when(entity.isAdmin()).thenReturn(true);
         when(input.getInput()).thenReturn("info");
 
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
@@ -301,7 +291,7 @@ public class WebSocketResourceTest {
         UserInput input = mock(UserInput.class);
 
         when(input.getInput()).thenReturn("look");
-        when(essence.getEntity()).thenReturn(null);
+        when(entityRepository.findOne(anyString())).thenReturn(null);
 
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 

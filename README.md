@@ -76,17 +76,6 @@ This file tells Docker that you want a [Redis](https://redis.io) instance, a [Mo
 The command to get everything started is `docker-compose up`. You should see it download and extract all the Docker images, then the logs will scroll by as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
 
 # Local Development
-## Terminology
-EmergentMUD uses slightly different terminology from other MUDs, mostly because the word "Character" is already used by `java.lang.Character` and making your own `Character` class seems to really confuse most Java IDEs. So, EmergentMUD uses three main classes when talking about players: `Account`, `Essence`, and `Entity`.
-
-![emergentmud-models.png](https://bitbucket.org/repo/LBXMzk/images/3867473848-emergentmud-models.png)
-
-Your `Account` is what is linked to your social network, such as Facebook or Google. It stores information about who the human being is that is connected to EmergentMUD.
-
-Each account can have multiple `Essence` instances associated with it. An `Essence` is to an `Entity` as a class is to an instance in Java. It's basically your character sheet.
-
-The `Entity` is the body that goes out into the world. If the `Essence` is the character sheet, the `Entity` is the character herself. If the `Entity` is killed while exploring the world, the `Essence` remains and we can use it to create another one.
-
 ## Required Tools
 The code is built using the [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html). The project structure follows the typical [Maven structure](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html) and is designed to be easy to set up locally for testing using Docker and Docker Compose. You will need the following tools installed and properly configured to run the site locally:
 

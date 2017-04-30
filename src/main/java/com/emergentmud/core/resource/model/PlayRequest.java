@@ -21,13 +21,13 @@
 package com.emergentmud.core.resource.model;
 
 public class PlayRequest {
-    private String essenceId;
+    private String entityId;
 
-    public String getEssenceId() {
-        return essenceId;
+    public String getEntityId() {
+        return entityId;
     }
 
-    public void setEssenceId(String essenceId) {
-        this.essenceId = essenceId;
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
     }
 }

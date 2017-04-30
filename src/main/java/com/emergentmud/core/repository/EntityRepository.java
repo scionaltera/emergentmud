@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.repository;
 
+import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -29,10 +30,13 @@ import java.util.List;
 
 @Repository
 public interface EntityRepository extends MongoRepository<Entity, String> {
+    Entity findByAccountAndId(Account account, String id);
     Entity findByNameStartingWithIgnoreCase(String name);
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
     List<Entity> findByRoom(Room room);
     List<Entity> findByRoomIn(List<Room> rooms);
     List<Entity> findByRoomIsNotNull();
     List<Entity> findByAdminAndRoomIsNotNull(boolean admin);
+    List<Entity> findByAccount(Account account);
+    List<Entity> findByAccountIsNotNull();
 }

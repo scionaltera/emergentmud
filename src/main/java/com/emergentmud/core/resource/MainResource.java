@@ -26,16 +26,13 @@ import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
-import com.emergentmud.core.repository.EntityBuilder;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.EssenceRepository;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
@@ -63,7 +60,6 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -74,7 +70,6 @@ public class MainResource {
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private AccountRepository accountRepository;
-    private EssenceRepository essenceRepository;
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
@@ -88,7 +83,6 @@ public class MainResource {
                         List<SocialNetwork> networks,
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
-                        EssenceRepository essenceRepository,
                         EntityRepository entityRepository,
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
@@ -101,7 +95,6 @@ public class MainResource {
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
-        this.essenceRepository = essenceRepository;
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
@@ -134,17 +127,17 @@ public class MainResource {
 
         LOGGER.info("Successful login for: {}:{}", network, networkId);
 
-        List<Essence> essences = essenceRepository.findByAccountId(account.getId());
+        List<Entity> entities = entityRepository.findByAccount(account);
 
-        if (essences.isEmpty()) {
+        if (entities.isEmpty()) {
             httpSession.setAttribute("firstLogin", "true");
-            return "new-essence";
+            return "new-entity";
         }
 
         model.addAttribute("account", account);
-        model.addAttribute("essences", essences);
+        model.addAttribute("entities", entities);
 
-        return "essence";
+        return "entity";
     }
 
     @RequestMapping("/social/{network}")
@@ -156,13 +149,13 @@ public class MainResource {
         return "redirect:/login/" + network;
     }
 
-    @RequestMapping("/essence")
-    public String newEssence() {
-        return "new-essence";
+    @RequestMapping("/entity")
+    public String newEntity() {
+        return "new-entity";
     }
 
-    @RequestMapping(method=RequestMethod.POST, value="/essence")
-    public String saveNewEssence(HttpSession session, Principal principal, Essence essence, Model model) {
+    @RequestMapping(method=RequestMethod.POST, value="/entity")
+    public String saveNewEntity(HttpSession session, Principal principal, Entity entity, Model model) {
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
@@ -171,55 +164,55 @@ public class MainResource {
             throw new NoAccountException(network, networkId);
         }
 
-        if (essence.getName().length() < 3) {
-            model.addAttribute("essenceName", essence.getName());
+        if (entity.getName().length() < 3) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names must be at least 3 letters long.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (essence.getName().length() > 30) {
-            model.addAttribute("essenceName", essence.getName());
+        if (entity.getName().length() > 30) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names must be less than 30 letters long.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (!essence.getName().matches("^[A-Z].+$")) {
-            model.addAttribute("essenceName", essence.getName());
+        if (!entity.getName().matches("^[A-Z].+$")) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names must begin with a capital letter.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (!essence.getName().matches("^[A-Za-z'-]+$")) {
-            model.addAttribute("essenceName", essence.getName());
+        if (!entity.getName().matches("^[A-Za-z'-]+$")) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names may only contain letters, hyphens and apostrophes.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (essence.getName().matches("^[A-Za-z'-]\\w+['-]$")) {
-            model.addAttribute("essenceName", essence.getName());
+        if (entity.getName().matches("^[A-Za-z'-]\\w+['-]$")) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names may not end with a hyphen or apostrophe.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (essence.getName().matches("^\\w+['-].*['-]\\w+$")) {
-            model.addAttribute("essenceName", essence.getName());
+        if (entity.getName().matches("^\\w+['-].*['-]\\w+$")) {
+            model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names may only contain one hyphen or apostrophe.");
-            return "new-essence";
+            return "new-entity";
         }
 
-        if (essenceRepository.count() == 0) {
-            LOGGER.info("Making {} into an administrator", essence.getName());
-            essence.setAdmin(true);
+        if (entityRepository.count() == 0) {
+            LOGGER.info("Making {} into an administrator", entity.getName());
+            entity.setAdmin(true);
         }
 
-        essence.setCreationDate(System.currentTimeMillis());
-        essence.setAccountId(account.getId());
-        essence = essenceRepository.save(essence);
-        LOGGER.info("Saved new Essence: {} -> {}", essence.getName(), essence.getId());
+        entity.setCreationDate(System.currentTimeMillis());
+        entity.setAccount(account);
+        entity = entityRepository.save(entity);
+        LOGGER.info("Saved new Entity: {} -> {}", entity.getName(), entity.getId());
 
         if ("true".equals(session.getAttribute("firstLogin"))) {
             session.removeAttribute("firstLogin");
-            session.setAttribute("essenceId", essence.getId());
+            session.setAttribute("entityId", entity.getId());
             return "redirect:/play";
         }
 
@@ -228,19 +221,19 @@ public class MainResource {
 
     @RequestMapping(method=RequestMethod.GET, value="/play")
     public String getPlay(HttpSession session, Model model) {
-        String essenceId = (String)session.getAttribute("essenceId");
+        String entityId = (String)session.getAttribute("entityId");
 
-        model.addAttribute("essenceId", essenceId);
-        session.removeAttribute("essenceId");
+        model.addAttribute("entityId", entityId);
+        session.removeAttribute("entityId");
 
         return "play-post";
     }
 
     @RequestMapping(method=RequestMethod.POST, value="/play")
     public String play(PlayRequest playRequest, HttpSession session, HttpServletRequest httpServletRequest, Principal principal, Model model) {
-        String essenceId = playRequest.getEssenceId();
+        String entityId = playRequest.getEntityId();
 
-        if (StringUtils.isEmpty(essenceId)) {
+        if (StringUtils.isEmpty(entityId)) {
             LOGGER.info("No ID provided.");
             return "redirect:/";
         }
@@ -254,36 +247,20 @@ public class MainResource {
             return "redirect:/";
         }
 
-        List<Essence> essences = essenceRepository.findByAccountId(account.getId());
-        Optional<Essence> eOptional = essences.stream()
-                .filter(e -> essenceId.equals(e.getId()))
-                .findFirst();
+        // It's important to verify that the Entity has the right ID -and- belongs to the account
+        // because we can't trust that the client didn't change the ID in the request.
+        Entity entity = entityRepository.findByAccountAndId(account, entityId);
 
-        if (!eOptional.isPresent()) {
-            LOGGER.info("No such essence: {}", essenceId);
+        if (entity == null) {
+            LOGGER.info("No such entity: {}", entityId);
             return "redirect:/";
         }
 
-        Essence essence = eOptional.get();
-        Entity entity = essence.getEntity();
-
-        if (entity == null) {
-            LOGGER.info("Creating a new entity for {}", essence.getName());
-            entity = new EntityBuilder()
-                    .withName(essence.getName())
-                    .withAdmin(essence.isAdmin())
-                    .build();
-
-            entity = entityRepository.save(entity);
-
-            essence.setEntity(entity);
-        }
-
-        essence.setLastLoginDate(System.currentTimeMillis());
-        essence = essenceRepository.save(essence);
-
+        entity.setLastLoginDate(System.currentTimeMillis());
         entity.setRemoteAddr(extractRemoteIp(httpServletRequest));
         entity.setUserAgent(httpServletRequest.getHeader("User-Agent"));
+
+        entity = entityRepository.save(entity);
 
         if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
@@ -307,14 +284,13 @@ public class MainResource {
         Map<String, String> sessionMap = new HashMap<>();
 
         sessionMap.put("account", account.getId());
-        sessionMap.put("essence", essence.getId());
         sessionMap.put("entity", entity.getId());
 
         session.setAttribute(breadcrumb, sessionMap);
 
         model.addAttribute("breadcrumb", breadcrumb);
         model.addAttribute("account", account);
-        model.addAttribute("essence", essence);
+        model.addAttribute("entity", entity);
 
         return "play";
     }
@@ -328,7 +304,7 @@ public class MainResource {
             String networkId = principal.getName();
             Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
 
-            if (essenceRepository.findByAccountId(account.getId()).stream().anyMatch(Essence::isAdmin)) {
+            if (entityRepository.findByAccount(account).stream().anyMatch(Entity::isAdmin)) {
                 includeAdminCommands = true;
             }
         }
@@ -360,19 +336,19 @@ public class MainResource {
             String network = (String)httpSession.getAttribute("social");
             String networkId = principal.getName();
             Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
-            List<Essence> essences = essenceRepository.findByAccountId(account.getId());
+            List<Entity> entities = entityRepository.findByAccount(account);
 
-            if (essences.size() > 0) {
+            if (entities.size() > 0) {
                 self = new Entity();
-                self.setName(essences.get(0).getName());
+                self.setName(entities.get(0).getName());
             } else {
                 self = new Entity();
                 self.setName("Alice");
             }
 
-            if (essences.size() > 1) {
+            if (entities.size() > 1) {
                 target = new Entity();
-                target.setName(essences.get(1).getName());
+                target.setName(entities.get(1).getName());
             } else {
                 target = new Entity();
                 target.setName("Bob");
