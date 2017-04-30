@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.WhittakerGridLocation;
+import com.emergentmud.core.repository.BiomeRepository;
+import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
