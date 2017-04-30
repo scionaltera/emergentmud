@@ -23,6 +23,7 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
@@ -30,6 +31,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
@@ -73,6 +75,7 @@ public class MainResource {
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
+    private CapabilityRepository capabilityRepository;
     private RoomBuilder roomBuilder;
     private WorldManager worldManager;
     private EntityUtil entityUtil;
@@ -86,6 +89,7 @@ public class MainResource {
                         EntityRepository entityRepository,
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
+                        CapabilityRepository capabilityRepository,
                         RoomBuilder roomBuilder,
                         WorldManager worldManager,
                         EntityUtil entityUtil,
@@ -98,6 +102,7 @@ public class MainResource {
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
+        this.capabilityRepository = capabilityRepository;
         this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
         this.entityUtil = entityUtil;
@@ -120,6 +125,10 @@ public class MainResource {
             account = new Account();
             account.setSocialNetwork(network);
             account.setSocialNetworkId(networkId);
+
+            account.addCapabilities(capabilityRepository.findByName(CommandRole.CHAR_NEW.name()));
+            account.addCapabilities(capabilityRepository.findByName(CommandRole.CHAR_PLAY.name()));
+
             account = accountRepository.save(account);
 
             LOGGER.info("Created new account {}:{} -> {}", network, networkId, account.getId());
@@ -164,6 +173,12 @@ public class MainResource {
             throw new NoAccountException(network, networkId);
         }
 
+        if (!account.isCapable(capabilityRepository.findByName(CommandRole.CHAR_NEW.name()))) {
+            model.addAttribute("entityName", entity.getName());
+            model.addAttribute("errorName", "You are not allowed to create new characters at this time.");
+            return "new-entity";
+        }
+
         if (entity.getName().length() < 3) {
             model.addAttribute("entityName", entity.getName());
             model.addAttribute("errorName", "Names must be at least 3 letters long.");
@@ -202,12 +217,25 @@ public class MainResource {
 
         if (entityRepository.count() == 0) {
             LOGGER.info("Making {} into an administrator", entity.getName());
+
             entity.setAdmin(true);
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.SUPER.name()));
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.TELEPORT.name()));
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.CMDEDIT.name()));
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTEEDIT.name()));
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.DATA.name()));
         }
+
+        entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTE.name()));
+        entity.addCapabilities(capabilityRepository.findByName(CommandRole.BASIC.name()));
+        entity.addCapabilities(capabilityRepository.findByName(CommandRole.MOVE.name()));
+        entity.addCapabilities(capabilityRepository.findByName(CommandRole.SEE.name()));
+        entity.addCapabilities(capabilityRepository.findByName(CommandRole.TALK.name()));
 
         entity.setCreationDate(System.currentTimeMillis());
         entity.setAccount(account);
         entity = entityRepository.save(entity);
+
         LOGGER.info("Saved new Entity: {} -> {}", entity.getName(), entity.getId());
 
         if ("true".equals(session.getAttribute("firstLogin"))) {
@@ -244,6 +272,11 @@ public class MainResource {
 
         if (account == null) {
             LOGGER.info("No such account: {}:{}", network, networkId);
+            return "redirect:/";
+        }
+
+        if (!account.isCapable(capabilityRepository.findByName(CommandRole.CHAR_PLAY.name()))) {
+            LOGGER.info("Account {} is not allowed to play.", account.getId());
             return "redirect:/";
         }
 

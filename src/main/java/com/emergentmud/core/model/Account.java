@@ -23,17 +23,26 @@ package com.emergentmud.core.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @Document
 @CompoundIndexes({
         @CompoundIndex(name = "social_idx", def = "{'socialNetwork': 1, 'socialNetworkId': 1}", unique = true)
 })
-public class Account {
+public class Account implements Capable {
     @Id
     private String id;
     private String socialNetwork;
     private String socialNetworkId;
+
+    @DBRef
+    private List<Capability> capabilities = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -57,6 +66,36 @@ public class Account {
 
     public void setSocialNetworkId(String socialNetworkId) {
         this.socialNetworkId = socialNetworkId;
+    }
+
+    @Override
+    public void addCapabilities(Capability ... capability) {
+        capabilities.addAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void addCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.addAll(capabilities);
+    }
+
+    @Override
+    public void removeCapabilities(Capability ... capability) {
+        capabilities.removeAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void removeCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.removeAll(capabilities);
+    }
+
+    @Override
+    public List<Capability> getCapabilities() {
+        return new ArrayList<>(capabilities);
+    }
+
+    @Override
+    public boolean isCapable(Capability capability) {
+        return capabilities.contains(capability);
     }
 
     @Override

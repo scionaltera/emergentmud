@@ -24,10 +24,12 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
@@ -64,6 +66,7 @@ public class WebSocketResource {
     private EntityRepository entityRepository;
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
+    private CapabilityRepository capabilityRepository;
     private PromptBuilder promptBuilder;
     private Emote emote;
 
@@ -75,6 +78,7 @@ public class WebSocketResource {
                              EntityRepository entityRepository,
                              CommandMetadataRepository commandMetadataRepository,
                              EmoteMetadataRepository emoteMetadataRepository,
+                             CapabilityRepository capabilityRepository,
                              PromptBuilder promptBuilder,
                              Emote emote) {
         this.applicationVersion = applicationVersion;
@@ -84,6 +88,7 @@ public class WebSocketResource {
         this.entityRepository = entityRepository;
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
+        this.capabilityRepository = capabilityRepository;
         this.promptBuilder = promptBuilder;
         this.emote = emote;
     }
@@ -163,7 +168,7 @@ public class WebSocketResource {
             Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
                     .stream()
                     .filter(cm -> cm.getName().startsWith(cmd.toLowerCase().trim()))
-                    .filter(cm -> entity.isAdmin() || !cm.isAdmin())
+                    .filter(cm -> entity.isCapable(cm.getCapability()) || entity.isCapable(capabilityRepository.findByName(CommandRole.SUPER.name())))
                     .findFirst();
 
             if (optionalCommandMetadata.isPresent()) {
@@ -171,7 +176,7 @@ public class WebSocketResource {
                 Command command = (Command) applicationContext.getBean(metadata.getBeanName());
 
                 command.execute(output, entity, cmd, args, raw);
-            } else {
+            } else if (entity.isCapable(capabilityRepository.findByName(CommandRole.EMOTE.name()))) {
                 List<EmoteMetadata> emoteMetadataList = emoteMetadataRepository.findAll(SORT);
 
                 Optional<EmoteMetadata> optionalEmoteMetadata = emoteMetadataList
@@ -186,6 +191,8 @@ public class WebSocketResource {
                 } else {
                     output.append("Huh?");
                 }
+            } else {
+                output.append("Huh?");
             }
         }
 

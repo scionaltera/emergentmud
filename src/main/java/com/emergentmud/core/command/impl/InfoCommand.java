@@ -83,6 +83,12 @@ public class InfoCommand extends BaseCommand {
         output.append("[dcyan]Name: [cyan]" + target.getName());
         output.append("[dcyan]Location: " + location);
         output.append("[dcyan]Admin: [cyan]" + target.isAdmin());
+
+        if (entity.getAccount() != null) {
+            output.append("[dcyan]Account Capabilities: [cyan]" + target.getAccount().getCapabilities());
+        }
+
+        output.append("[dcyan]Entity Capabilities: [cyan]" + target.getCapabilities());
         output.append("[dcyan]Social Username: [cyan]" + target.getStompUsername());
         output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
         output.append("[dcyan]Remote Address: [cyan]" + target.getRemoteAddr());

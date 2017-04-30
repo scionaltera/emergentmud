@@ -24,14 +24,22 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 @Document
-public class Entity {
+public class Entity implements Capable {
     @Id
     private String id;
     private String name;
 
     @DBRef
     private Account account;
+
+    @DBRef
+    private List<Capability> capabilities = new ArrayList<>();
 
     private Long creationDate;
     private Long lastLoginDate;
@@ -130,6 +138,36 @@ public class Entity {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    @Override
+    public void addCapabilities(Capability ... capability) {
+        capabilities.addAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void addCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.addAll(capabilities);
+    }
+
+    @Override
+    public void removeCapabilities(Capability ... capability) {
+        capabilities.removeAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void removeCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.removeAll(capabilities);
+    }
+
+    @Override
+    public List<Capability> getCapabilities() {
+        return new ArrayList<>(capabilities);
+    }
+
+    @Override
+    public boolean isCapable(Capability capability) {
+        return capabilities.contains(capability);
     }
 
     @Override
