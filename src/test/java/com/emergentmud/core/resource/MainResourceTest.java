@@ -24,13 +24,16 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
@@ -87,6 +90,9 @@ public class MainResourceTest {
     private EmoteMetadataRepository emoteMetadataRepository;
 
     @Mock
+    private CapabilityRepository capabilityRepository;
+
+    @Mock
     private RoomBuilder roomBuilder;
 
     @Mock
@@ -97,6 +103,12 @@ public class MainResourceTest {
 
     @Mock
     private Emote emote;
+
+    @Mock
+    private Capability playCapability;
+
+    @Mock
+    private Capability newCharCapability;
 
     @Mock
     private HttpSession httpSession;
@@ -157,6 +169,8 @@ public class MainResourceTest {
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
         when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
         when(playRequest.getEntityId()).thenReturn("entity0");
+        when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
+        when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
 
         mainResource = new MainResource(
                 applicationContext,
@@ -166,6 +180,7 @@ public class MainResourceTest {
                 entityRepository,
                 commandMetadataRepository,
                 emoteMetadataRepository,
+                capabilityRepository,
                 roomBuilder,
                 worldManager,
                 entityUtil,
@@ -683,6 +698,8 @@ public class MainResourceTest {
         when(account.getId()).thenReturn(ACCOUNT_ID);
         when(account.getSocialNetwork()).thenReturn(NETWORK_ID);
         when(account.getSocialNetworkId()).thenReturn(NETWORK_USER);
+        when(account.isCapable(eq(playCapability))).thenReturn(true);
+        when(account.isCapable(eq(newCharCapability))).thenReturn(true);
 
         return account;
     }

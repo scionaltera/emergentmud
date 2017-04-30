@@ -23,12 +23,15 @@ package com.emergentmud.core.resource;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.command.PromptBuilder;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
@@ -76,6 +79,9 @@ public class WebSocketResourceTest {
     private EmoteMetadataRepository emoteMetadataRepository;
 
     @Mock
+    private CapabilityRepository capabilityRepository;
+
+    @Mock
     private PromptBuilder promptBuilder;
 
     @Mock
@@ -89,6 +95,24 @@ public class WebSocketResourceTest {
 
     @Mock
     private Session httpSession;
+
+    @Mock
+    private Capability superCapability;
+
+    @Mock
+    private Capability emoteCapability;
+
+    @Mock
+    private Capability seeCapability;
+
+    @Mock
+    private Capability talkCapability;
+
+    @Mock
+    private Capability dataCapability;
+
+    @Mock
+    private Capability cmdEditCapability;
 
     @Mock
     private Room room;
@@ -134,6 +158,9 @@ public class WebSocketResourceTest {
         when(entity.getStompSessionId()).thenReturn("simpSessionId");
         when(entity.getRoom()).thenReturn(room);
         when(entity.getName()).thenReturn("Player");
+        when(entity.isCapable(eq(seeCapability))).thenReturn(true);
+        when(entity.isCapable(eq(talkCapability))).thenReturn(true);
+        when(entity.isCapable(eq(emoteCapability))).thenReturn(true);
         when(target.getName()).thenReturn("Target");
         when(observer.getName()).thenReturn("Observer");
         when(oauth2Details.getSessionId()).thenReturn(httpSessionId);
@@ -150,6 +177,8 @@ public class WebSocketResourceTest {
         });
         when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commandList);
         when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emoteList);
+        when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(superCapability);
+        when(capabilityRepository.findByName(eq(CommandRole.EMOTE.name()))).thenReturn(emoteCapability);
         when(applicationContext.getBean(anyString())).thenReturn(mockCommand);
         when(mockCommand.execute(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             GameOutput output = (GameOutput)invocation.getArguments()[0];
@@ -172,6 +201,7 @@ public class WebSocketResourceTest {
                 entityRepository,
                 commandMetadataRepository,
                 emoteMetadataRepository,
+                capabilityRepository,
                 promptBuilder,
                 emote
         );
@@ -239,6 +269,7 @@ public class WebSocketResourceTest {
     public void testOnInputIsAnAdmin() throws Exception {
         UserInput input = mock(UserInput.class);
 
+        when(entity.isCapable(eq(dataCapability))).thenReturn(true);
         when(entity.isAdmin()).thenReturn(true);
         when(input.getInput()).thenReturn("info");
 
@@ -323,10 +354,10 @@ public class WebSocketResourceTest {
     private List<CommandMetadata> generateCommandList() {
         List<CommandMetadata> metadataList = new ArrayList<>();
 
-        metadataList.add(new CommandMetadata("look", "lookCommand", 100, false));
-        metadataList.add(new CommandMetadata("say", "sayCommand", 200, false));
-        metadataList.add(new CommandMetadata("info", "infoCommand", 300, true));
-        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true));
+        metadataList.add(new CommandMetadata("look", "lookCommand", 100, false, seeCapability));
+        metadataList.add(new CommandMetadata("say", "sayCommand", 200, false, talkCapability));
+        metadataList.add(new CommandMetadata("info", "infoCommand", 300, true, dataCapability));
+        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true, cmdEditCapability));
 
         return metadataList;
     }

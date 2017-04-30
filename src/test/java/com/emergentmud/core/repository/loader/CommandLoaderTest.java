@@ -21,6 +21,7 @@
 package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,9 @@ import static org.junit.Assert.*;
 
 public class CommandLoaderTest {
     private CommandLoader commandLoader;
+
+    @Mock
+    private CapabilityRepository capabilityRepository;
 
     @Mock
     private CommandMetadataRepository commandMetadataRepository;
@@ -57,7 +61,7 @@ public class CommandLoaderTest {
             return metadataList;
         });
 
-        commandLoader = new CommandLoader(commandMetadataRepository);
+        commandLoader = new CommandLoader(commandMetadataRepository, capabilityRepository);
     }
 
     @Test
