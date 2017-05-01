@@ -22,14 +22,31 @@ package com.emergentmud.core.model;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class AccountTest {
+    @Mock
+    private Capability capabilityA;
+
+    @Mock
+    private Capability capabilityB;
+
+    @Mock
+    private Capability capabilityC;
+
     private Account account;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
         account = new Account();
     }
 
@@ -58,6 +75,47 @@ public class AccountTest {
         account.setSocialNetworkId(socialNetworkId);
 
         assertEquals(socialNetworkId, account.getSocialNetworkId());
+    }
+
+    @Test
+    public void testCapabilityVararg() throws Exception {
+        account.addCapabilities(capabilityA, capabilityB);
+
+        assertTrue(account.isCapable(capabilityA));
+        assertTrue(account.isCapable(capabilityB));
+        assertFalse(account.isCapable(capabilityC));
+
+        account.removeCapabilities(capabilityB);
+
+        assertTrue(account.isCapable(capabilityA));
+        assertFalse(account.isCapable(capabilityB));
+        assertFalse(account.isCapable(capabilityC));
+    }
+
+    @Test
+    public void testCapabilityCollection() throws Exception {
+        account.addCapabilities(Arrays.asList(capabilityA, capabilityB));
+
+        assertTrue(account.isCapable(capabilityA));
+        assertTrue(account.isCapable(capabilityB));
+        assertFalse(account.isCapable(capabilityC));
+
+        account.removeCapabilities(Collections.singletonList(capabilityB));
+
+        assertTrue(account.isCapable(capabilityA));
+        assertFalse(account.isCapable(capabilityB));
+        assertFalse(account.isCapable(capabilityC));
+    }
+
+    @Test
+    public void testGetCapabilities() throws Exception {
+        account.addCapabilities(Arrays.asList(capabilityA, capabilityB));
+
+        List<Capability> capabilities = account.getCapabilities();
+
+        assertTrue(capabilities.contains(capabilityA));
+        assertTrue(capabilities.contains(capabilityB));
+        assertFalse(capabilities.contains(capabilityC));
     }
 
     @Test

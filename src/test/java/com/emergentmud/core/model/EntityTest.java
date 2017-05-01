@@ -24,11 +24,27 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class EntityTest {
     @Mock
     private Room room;
+
+    @Mock
+    private Account account;
+
+    @Mock
+    private Capability capabilityA;
+
+    @Mock
+    private Capability capabilityB;
+
+    @Mock
+    private Capability capabilityC;
 
     private Entity entity = new Entity();
 
@@ -52,6 +68,27 @@ public class EntityTest {
         entity.setName(name);
 
         assertEquals(name, entity.getName());
+    }
+
+    @Test
+    public void testAccount() throws Exception {
+        entity.setAccount(account);
+
+        assertEquals(account, entity.getAccount());
+    }
+
+    @Test
+    public void testCreationDate() throws Exception {
+        entity.setCreationDate(1L);
+
+        assertEquals(1L, (long)entity.getCreationDate());
+    }
+
+    @Test
+    public void testLastLoginDate() throws Exception {
+        entity.setLastLoginDate(1L);
+
+        assertEquals(1L, (long)entity.getLastLoginDate());
     }
 
     @Test
@@ -86,6 +123,24 @@ public class EntityTest {
     }
 
     @Test
+    public void testRemoteAddr() throws Exception {
+        String remoteAddr = "remote-address";
+
+        entity.setRemoteAddr(remoteAddr);
+
+        assertEquals(remoteAddr, entity.getRemoteAddr());
+    }
+
+    @Test
+    public void testUserAgent() throws Exception {
+        String userAgent = "user-agent";
+
+        entity.setUserAgent(userAgent);
+
+        assertEquals(userAgent, entity.getUserAgent());
+    }
+
+    @Test
     public void setRoom() throws Exception {
         entity.setRoom(room);
 
@@ -94,6 +149,47 @@ public class EntityTest {
         entity.setRoom(null);
 
         assertNull(entity.getRoom());
+    }
+
+    @Test
+    public void testCapabilityVararg() throws Exception {
+        entity.addCapabilities(capabilityA, capabilityB);
+
+        assertTrue(entity.isCapable(capabilityA));
+        assertTrue(entity.isCapable(capabilityB));
+        assertFalse(entity.isCapable(capabilityC));
+
+        entity.removeCapabilities(capabilityB);
+
+        assertTrue(entity.isCapable(capabilityA));
+        assertFalse(entity.isCapable(capabilityB));
+        assertFalse(entity.isCapable(capabilityC));
+    }
+
+    @Test
+    public void testCapabilityCollection() throws Exception {
+        entity.addCapabilities(Arrays.asList(capabilityA, capabilityB));
+
+        assertTrue(entity.isCapable(capabilityA));
+        assertTrue(entity.isCapable(capabilityB));
+        assertFalse(entity.isCapable(capabilityC));
+
+        entity.removeCapabilities(Collections.singletonList(capabilityB));
+
+        assertTrue(entity.isCapable(capabilityA));
+        assertFalse(entity.isCapable(capabilityB));
+        assertFalse(entity.isCapable(capabilityC));
+    }
+
+    @Test
+    public void testGetCapabilities() throws Exception {
+        entity.addCapabilities(Arrays.asList(capabilityA, capabilityB));
+
+        List<Capability> capabilities = entity.getCapabilities();
+
+        assertTrue(capabilities.contains(capabilityA));
+        assertTrue(capabilities.contains(capabilityB));
+        assertFalse(capabilities.contains(capabilityC));
     }
 
     @Test

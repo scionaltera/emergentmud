@@ -165,6 +165,7 @@ public class MainResourceTest {
             entity.setId(UUID.randomUUID().toString());
             return entity;
         });
+        when(account.isCapable(eq(playCapability))).thenReturn(true);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(account);
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
         when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
@@ -254,6 +255,8 @@ public class MainResourceTest {
         verify(entity).setAccount(eq(account));
         verify(entity).setAdmin(eq(true));
         verify(entity).setCreationDate(anyLong());
+        verify(entity, times(10)).addCapabilities(any(Capability.class));
+
         assertEquals("redirect:/", view);
     }
 
@@ -266,7 +269,23 @@ public class MainResourceTest {
         verify(entity).setAccount(eq(account));
         verify(entity, never()).setAdmin(anyBoolean());
         verify(entity).setCreationDate(anyLong());
+        verify(entity, times(5)).addCapabilities(any(Capability.class));
+
         assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testSaveNewEntityNotAllowed() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(null);
+
+        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+
+        verify(entity, never()).setAccount(eq(account));
+        verify(entity, never()).setAdmin(anyBoolean());
+        verify(model).addAttribute(eq("entityName"), eq("EntityA"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-entity", view);
     }
 
     @Test
@@ -417,6 +436,18 @@ public class MainResourceTest {
     }
 
     @Test
+    public void testPlayGet() throws Exception {
+        when(httpSession.getAttribute(eq("entityId"))).thenReturn("entityId");
+
+        String view = mainResource.getPlay(httpSession, model);
+
+        verify(model).addAttribute(eq("entityId"), eq("entityId"));
+        verify(httpSession).removeAttribute(eq("entityId"));
+
+        assertEquals("play-post", view);
+    }
+
+    @Test
     public void testPlay() throws Exception {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
@@ -427,6 +458,9 @@ public class MainResourceTest {
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
         verify(model).addAttribute(eq("entity"), eq(entity));
+        verify(entity).setLastLoginDate(anyLong());
+        verify(entity).setRemoteAddr(anyString());
+        verify(entity).setUserAgent(anyString());
         assertEquals("play", view);
 
         GameOutput output = outputCaptor.getValue();
@@ -474,6 +508,30 @@ public class MainResourceTest {
     @Test
     public void testPlayNoAccount() throws Exception {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
+
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
+
+        verify(httpSession).getAttribute(eq("social"));
+        verifyNoMoreInteractions(httpSession);
+        verifyZeroInteractions(model);
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testPlayNotAllowed() throws Exception {
+        when(account.isCapable(eq(playCapability))).thenReturn(false);
+
+        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
+
+        verify(httpSession).getAttribute(eq("social"));
+        verifyNoMoreInteractions(httpSession);
+        verifyZeroInteractions(model);
+        assertEquals("redirect:/", view);
+    }
+
+    @Test
+    public void testPlayNoEntity() throws Exception {
+        when(entityRepository.findByAccountAndId(any(Account.class), anyString())).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 

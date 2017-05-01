@@ -27,7 +27,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document
 public class Entity implements Capable {
@@ -39,7 +41,7 @@ public class Entity implements Capable {
     private Account account;
 
     @DBRef
-    private List<Capability> capabilities = new ArrayList<>();
+    private Set<Capability> capabilities = new HashSet<>();
 
     private Long creationDate;
     private Long lastLoginDate;
