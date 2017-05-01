@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.repository.CapabilityRepository;
+import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,6 +38,9 @@ import static org.junit.Assert.*;
 
 public class CommandLoaderTest {
     private CommandLoader commandLoader;
+
+    @Mock
+    private CapabilityRepository capabilityRepository;
 
     @Mock
     private CommandMetadataRepository commandMetadataRepository;
@@ -56,7 +61,7 @@ public class CommandLoaderTest {
             return metadataList;
         });
 
-        commandLoader = new CommandLoader(commandMetadataRepository);
+        commandLoader = new CommandLoader(commandMetadataRepository, capabilityRepository);
     }
 
     @Test

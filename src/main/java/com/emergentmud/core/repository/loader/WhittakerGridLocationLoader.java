@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.WhittakerGridLocation;
+import com.emergentmud.core.repository.BiomeRepository;
+import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

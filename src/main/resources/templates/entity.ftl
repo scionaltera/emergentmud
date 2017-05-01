@@ -37,12 +37,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <th>Name</th>
                 <th>Actions</th>
             </tr>
-        <#list essences as essence>
+        <#list entities as entity>
             <tr>
-                <td>${essence.name}</td>
+                <td>${entity.name}</td>
                 <td>
                     <form>
-                        <input type="hidden" name="essenceId" value="${essence.id}"/>
+                        <input type="hidden" name="entityId" value="${entity.id}"/>
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <button role="button" class="btn btn-success" formmethod="post" formaction="<@spring.url '/play'/>">
                             <i class="fa fa-play"></i> Play
@@ -59,8 +59,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <a class="btn btn-danger" role="button" href="<@spring.url '/logout'/>">
                 <i class="fa fa-power-off"></i> Log Out
             </a>
-            <a class="btn btn-primary" role="button" href="<@spring.url '/essence'/>">
-                <i class="fa fa-heart"></i> Create Essence
+            <a class="btn btn-primary" role="button" href="<@spring.url '/entity'/>">
+                <i class="fa fa-heart"></i> Create Character
             </a>
         </div>
     </div>

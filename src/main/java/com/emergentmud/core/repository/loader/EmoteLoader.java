@@ -18,9 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.EmoteMetadata;
+import com.emergentmud.core.repository.EmoteMetadataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

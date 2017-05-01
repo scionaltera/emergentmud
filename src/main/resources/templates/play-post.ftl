@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#include "header.inc.ftl">
 <body>
 <form id="redirectForm" action="<@spring.url '/play'/>" method="post">
-    <input name="essenceId" type="hidden" value="${essenceId}"/>
+    <input name="entityId" type="hidden" value="${entityId}"/>
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     <noscript>
         <p>It seems your browser doesn't support Javascript! Websocket relies on

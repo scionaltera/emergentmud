@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,6 +22,7 @@ package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -35,19 +36,19 @@ public class CommandMetadata {
     @Indexed
     private Integer priority;
 
-    private boolean admin;
-
+    @DBRef
+    private Capability capability;
     private String beanName;
 
     public CommandMetadata() {
         // this method intentionally left blank
     }
 
-    public CommandMetadata(String name, String beanName, Integer priority, boolean admin) {
+    public CommandMetadata(String name, String beanName, Integer priority, Capability capability) {
         setName(name);
         setBeanName(beanName);
         setPriority(priority);
-        setAdmin(admin);
+        setCapability(capability);
     }
 
     public String getId() {
@@ -74,12 +75,12 @@ public class CommandMetadata {
         this.priority = priority;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public Capability getCapability() {
+        return capability;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setCapability(Capability capability) {
+        this.capability = capability;
     }
 
     public String getBeanName() {

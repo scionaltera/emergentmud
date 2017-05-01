@@ -23,10 +23,8 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.AccountRepository;
-import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.EntityRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -36,16 +34,14 @@ import java.util.List;
 
 @Component
 public class DataCommand extends BaseCommand {
-    private EssenceRepository essenceRepository;
-    private AccountRepository accountRepository;
+    private EntityRepository entityRepository;
 
     @Inject
-    public DataCommand(EssenceRepository essenceRepository, AccountRepository accountRepository) {
-        this.essenceRepository = essenceRepository;
-        this.accountRepository = accountRepository;
+    public DataCommand(EntityRepository entityRepository) {
+        this.entityRepository = entityRepository;
 
         setDescription("Show the contents of database entries.");
-        addSubcommand("essence", "Show all Essence objects.");
+        addSubcommand("entity", "Show all Entity objects that are associated with an Account.");
     }
 
     @Override
@@ -54,10 +50,10 @@ public class DataCommand extends BaseCommand {
             usage(output, command);
 
             return output;
-        } else if ("essence".equals(tokens[0])) {
-            List<Essence> essences = essenceRepository.findAll();
+        } else if ("entity".equals(tokens[0])) {
+            List<Entity> entities = entityRepository.findByAccountIsNotNull();
 
-            output.append("[dyellow][ [yellow]Essences in Database [dyellow]]");
+            output.append("[dyellow][ [yellow]Player Characters in Database [dyellow]]");
 
             StringBuilder buf = new StringBuilder();
 
@@ -65,9 +61,9 @@ public class DataCommand extends BaseCommand {
             buf.append("<tr><th>[dyellow]Name</th><th>[dyellow]Social Network</th><th>[dyellow]Social ID</th>" +
                     "<th>[dyellow]Created</th><th>[dyellow]Last Login</th></tr>");
 
-            essences.sort(Comparator.comparing(Essence::getName));
-            essences.forEach(e -> {
-                Account account = accountRepository.findOne(e.getAccountId());
+            entities.sort(Comparator.comparing(Entity::getName));
+            entities.forEach(e -> {
+                Account account = e.getAccount();
 
                 buf.append(String.format("<tr><td>[yellow]%s</td><td>[yellow]%s</td><td>[yellow]%s</td>" +
                                 "<td>[yellow]%s</td><td>[yellow]%s</td></tr>",
@@ -80,9 +76,9 @@ public class DataCommand extends BaseCommand {
 
             buf.append("</table>");
             output.append(buf.toString());
-            output.append(String.format("[dyellow]%d Essence%s listed.",
-                    essences.size(),
-                    essences.size() == 1 ? "" : "s"));
+            output.append(String.format("[dyellow]%d %s listed.",
+                    entities.size(),
+                    entities.size() == 1 ? "Entity" : "Entities"));
         } else {
             usage(output, command);
         }

@@ -22,10 +22,8 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Essence;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.AccountRepository;
-import com.emergentmud.core.repository.EssenceRepository;
+import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,19 +38,16 @@ import static org.mockito.Mockito.*;
 
 public class DataCommandTest {
     @Mock
-    private EssenceRepository essenceRepository;
-
-    @Mock
-    private AccountRepository accountRepository;
+    private EntityRepository entityRepository;
 
     @Mock
     private Entity entity;
 
     @Mock
-    private Essence able;
+    private Entity able;
 
     @Mock
-    private Essence baker;
+    private Entity baker;
 
     @Mock
     private Account ableAccount;
@@ -63,7 +58,7 @@ public class DataCommandTest {
     @Spy
     private GameOutput output;
 
-    private List<Essence> essences = new ArrayList<>();
+    private List<Entity> entities = new ArrayList<>();
 
     private DataCommand command;
 
@@ -75,16 +70,14 @@ public class DataCommandTest {
         when(baker.getName()).thenReturn("Baker");
 
         // purposefully not in alphabetical order
-        essences.add(baker);
-        essences.add(able);
+        entities.add(baker);
+        entities.add(able);
 
-        when(essenceRepository.findAll()).thenReturn(essences);
-        when(able.getAccountId()).thenReturn("able");
-        when(baker.getAccountId()).thenReturn("baker");
-        when(accountRepository.findOne(eq("able"))).thenReturn(ableAccount);
-        when(accountRepository.findOne(eq("baker"))).thenReturn(bakerAccount);
+        when(entityRepository.findByAccountIsNotNull()).thenReturn(entities);
+        when(able.getAccount()).thenReturn(ableAccount);
+        when(baker.getAccount()).thenReturn(bakerAccount);
 
-        command = new DataCommand(essenceRepository, accountRepository);
+        command = new DataCommand(entityRepository);
     }
 
     @Test
@@ -101,25 +94,25 @@ public class DataCommandTest {
 
     @Test
     public void testExecuteEssence() throws Exception {
-        GameOutput result = command.execute(output, entity, "data", new String[] { "essence" }, "essence");
+        GameOutput result = command.execute(output, entity, "data", new String[] { "entity" }, "entity");
 
-        assertTrue(result.getOutput().get(0).contains("Essences in Database"));
+        assertTrue(result.getOutput().get(0).contains("Player Characters in Database"));
         assertTrue(result.getOutput().get(1).contains("Name"));
         assertTrue(result.getOutput().get(1).contains("Able"));
         assertTrue(result.getOutput().get(1).contains("Baker"));
-        assertTrue(result.getOutput().get(2).contains("2 Essences listed."));
+        assertTrue(result.getOutput().get(2).contains("2 Entities listed."));
     }
 
     @Test
     public void testExecuteSingleEssence() throws Exception {
-        essences.remove(baker);
+        entities.remove(baker);
 
-        GameOutput result = command.execute(output, entity, "data", new String[] { "essence" }, "essence");
+        GameOutput result = command.execute(output, entity, "data", new String[] { "entity" }, "entity");
 
-        assertTrue(result.getOutput().get(0).contains("Essences in Database"));
+        assertTrue(result.getOutput().get(0).contains("Player Characters in Database"));
         assertTrue(result.getOutput().get(1).contains("Name"));
         assertTrue(result.getOutput().get(1).contains("Able"));
-        assertTrue(result.getOutput().get(2).contains("1 Essence listed."));
+        assertTrue(result.getOutput().get(2).contains("1 Entity listed."));
     }
 
     @Test

@@ -24,12 +24,27 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Document
-public class Entity {
+public class Entity implements Capable {
     @Id
     private String id;
     private String name;
-    private Boolean admin;
+
+    @DBRef
+    private Account account;
+
+    @DBRef
+    private Set<Capability> capabilities = new HashSet<>();
+
+    private Long creationDate;
+    private Long lastLoginDate;
     private String stompUsername;
     private String stompSessionId;
     private String remoteAddr;
@@ -54,12 +69,28 @@ public class Entity {
         this.name = name;
     }
 
-    public Boolean isAdmin() {
-        return admin == null ? false : admin;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setAdmin(Boolean admin) {
-        this.admin = admin;
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public Long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Long getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Long lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     public String getStompUsername() {
@@ -100,6 +131,36 @@ public class Entity {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    @Override
+    public void addCapabilities(Capability ... capability) {
+        capabilities.addAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void addCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.addAll(capabilities);
+    }
+
+    @Override
+    public void removeCapabilities(Capability ... capability) {
+        capabilities.removeAll(Arrays.asList(capability));
+    }
+
+    @Override
+    public void removeCapabilities(Collection<Capability> capabilities) {
+        this.capabilities.removeAll(capabilities);
+    }
+
+    @Override
+    public List<Capability> getCapabilities() {
+        return new ArrayList<>(capabilities);
+    }
+
+    @Override
+    public boolean isCapable(Capability capability) {
+        return capabilities.contains(capability);
     }
 
     @Override

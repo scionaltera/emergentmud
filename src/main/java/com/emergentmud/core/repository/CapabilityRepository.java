@@ -18,24 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.resource.model;
+package com.emergentmud.core.repository;
 
-import org.junit.Before;
-import org.junit.Test;
+import com.emergentmud.core.model.Capability;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import static org.junit.Assert.*;
-
-public class PlayRequestTest {
-    private PlayRequest playRequest;
-
-    @Before
-    public void setUp() throws Exception {
-        playRequest = new PlayRequest();
-    }
-
-    @Test
-    public void testEntityId() throws Exception {
-        playRequest.setEntityId("Steve");
-        assertEquals("Steve", playRequest.getEntityId());
-    }
+@Repository
+public interface CapabilityRepository extends MongoRepository<Capability, String> {
+    Capability findByName(String name);
 }

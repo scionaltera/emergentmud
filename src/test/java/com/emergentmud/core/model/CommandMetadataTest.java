@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -52,17 +52,6 @@ public class CommandMetadataTest {
         commandMetadata.setPriority(999);
 
         assertEquals(Integer.valueOf(999), commandMetadata.getPriority());
-    }
-
-    @Test
-    public void testAdmin() throws Exception {
-        commandMetadata.setAdmin(true);
-
-        assertEquals(true, commandMetadata.isAdmin());
-
-        commandMetadata.setAdmin(false);
-
-        assertEquals(false, commandMetadata.isAdmin());
     }
 
     @Test

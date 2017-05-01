@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,37 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.Entity;
+import java.util.Collection;
+import java.util.List;
 
-public class EntityBuilder {
-    private Entity entity = new Entity();
-
-    public EntityBuilder() {
-        entity = new Entity();
-    }
-
-    EntityBuilder(Entity entity) {
-        this.entity = entity;
-    }
-
-    public EntityBuilder withId(String id) {
-        entity.setId(id);
-        return this;
-    }
-
-    public EntityBuilder withName(String name) {
-        entity.setName(name);
-        return this;
-    }
-
-    public EntityBuilder withAdmin(boolean admin) {
-        entity.setAdmin(admin);
-        return this;
-    }
-
-    public Entity build() {
-        return entity;
-    }
+public interface Capable {
+    void addCapabilities(Capability ... capability);
+    void addCapabilities(Collection<Capability> capabilities);
+    void removeCapabilities(Capability ... capability);
+    void removeCapabilities(Collection<Capability> capabilities);
+    List<Capability> getCapabilities();
+    boolean isCapable(Capability capability);
 }

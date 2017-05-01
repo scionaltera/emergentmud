@@ -21,15 +21,22 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Sort;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -40,6 +47,24 @@ public class HelpCommandTest {
 
     @Mock
     private CommandMetadataRepository commandMetadataRepository;
+
+    @Mock
+    private CapabilityRepository capabilityRepository;
+
+    @Mock
+    private Capability normalCapability;
+
+    @Mock
+    private Capability adminCapability;
+
+    @Mock
+    private Capability superCapability;
+
+    @Mock
+    private Command normalCommand;
+
+    @Mock
+    private Command adminCommand;
 
     @Mock
     private GameOutput output;
@@ -53,7 +78,30 @@ public class HelpCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        command = new HelpCommand(applicationContext, commandMetadataRepository);
+        List<CommandMetadata> metadata = new ArrayList<>();
+        CommandMetadata normal = mock(CommandMetadata.class);
+        CommandMetadata admin = mock(CommandMetadata.class);
+
+        when(normal.getName()).thenReturn("normal");
+        when(normal.getBeanName()).thenReturn("normalCommand");
+        when(normal.getCapability()).thenReturn(normalCapability);
+
+        when(admin.getName()).thenReturn("admin");
+        when(admin.getBeanName()).thenReturn("adminCommand");
+        when(admin.getCapability()).thenReturn(adminCapability);
+
+        metadata.add(normal);
+        metadata.add(admin);
+
+        when(normalCommand.getDescription()).thenReturn("A normal command.");
+        when(adminCommand.getDescription()).thenReturn("An admin command.");
+        when(applicationContext.getBean(eq("normalCommand"))).thenReturn(normalCommand);
+        when(applicationContext.getBean(eq("adminCommand"))).thenReturn(adminCommand);
+        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(metadata);
+        when(entity.isCapable(eq(normalCapability))).thenReturn(true);
+        when(capabilityRepository.findByName(CommandRole.SUPER.name())).thenReturn(superCapability);
+
+        command = new HelpCommand(applicationContext, commandMetadataRepository, capabilityRepository);
     }
 
     @Test
@@ -67,6 +115,38 @@ public class HelpCommandTest {
 
         assertEquals(output, result);
         verify(output, atLeastOnce()).append(anyString());
+        verify(entity).isCapable(eq(normalCapability));
+        verify(entity).isCapable(eq(adminCapability));
+        verify(normalCommand).getDescription();
+        verify(adminCommand, never()).getDescription();
+    }
+
+    @Test
+    public void testExecuteNoArgsAsAdmin() throws Exception {
+        when(entity.isCapable(eq(adminCapability))).thenReturn(true);
+
+        GameOutput result = command.execute(output, entity, "help", new String[0], "help");
+
+        assertEquals(output, result);
+        verify(output, atLeastOnce()).append(anyString());
+        verify(entity).isCapable(eq(normalCapability));
+        verify(entity).isCapable(eq(adminCapability));
+        verify(normalCommand).getDescription();
+        verify(adminCommand).getDescription();
+    }
+
+    @Test
+    public void testExecuteNoArgsAsSuper() throws Exception {
+        when(entity.isCapable(eq(superCapability))).thenReturn(true);
+
+        GameOutput result = command.execute(output, entity, "help", new String[0], "help");
+
+        assertEquals(output, result);
+        verify(output, atLeastOnce()).append(anyString());
+        verify(entity).isCapable(eq(normalCapability));
+        verify(entity).isCapable(eq(adminCapability));
+        verify(normalCommand).getDescription();
+        verify(adminCommand).getDescription();
     }
 
     @Test
@@ -83,8 +163,7 @@ public class HelpCommandTest {
     public void testExecuteHiddenCommand() throws Exception {
         CommandMetadata metadata = mock(CommandMetadata.class);
 
-        when(entity.isAdmin()).thenReturn(false);
-        when(metadata.isAdmin()).thenReturn(true);
+        when(metadata.getCapability()).thenReturn(adminCapability);
 
         GameOutput result = command.execute(output, entity, "help", new String[] {"admin"}, "help admin");
 
@@ -101,8 +180,7 @@ public class HelpCommandTest {
 
         when(commandMetadataRepository.findByName(eq("cmd"))).thenReturn(metadata);
         when(applicationContext.getBean(eq("cmdCommand"))).thenReturn(adminCommand);
-        when(entity.isAdmin()).thenReturn(false);
-        when(metadata.isAdmin()).thenReturn(false);
+        when(metadata.getCapability()).thenReturn(normalCapability);
         when(metadata.getName()).thenReturn("cmd");
         when(metadata.getBeanName()).thenReturn("cmdCommand");
 
@@ -122,8 +200,29 @@ public class HelpCommandTest {
 
         when(commandMetadataRepository.findByName(eq("admin"))).thenReturn(metadata);
         when(applicationContext.getBean(eq("adminCommand"))).thenReturn(adminCommand);
-        when(entity.isAdmin()).thenReturn(true);
-        when(metadata.isAdmin()).thenReturn(true);
+        when(entity.isCapable(eq(adminCapability))).thenReturn(true);
+        when(metadata.getCapability()).thenReturn(adminCapability);
+        when(metadata.getName()).thenReturn("admin");
+        when(metadata.getBeanName()).thenReturn("adminCommand");
+
+        GameOutput result = command.execute(output, entity, "help", new String[] {"admin"}, "help admin");
+
+        assertEquals(output, result);
+        verify(commandMetadataRepository).findByName(eq("admin"));
+        verify(applicationContext).getBean("adminCommand");
+        verify(adminCommand).usage(eq(output), eq("admin"));
+        verify(adminCommand, never()).execute(any(GameOutput.class), any(Entity.class), anyString(), any(String[].class), anyString());
+    }
+
+    @Test
+    public void testExecuteAdminCommandAsSuper() throws Exception {
+        CommandMetadata metadata = mock(CommandMetadata.class);
+        Command adminCommand = mock(Command.class);
+
+        when(commandMetadataRepository.findByName(eq("admin"))).thenReturn(metadata);
+        when(applicationContext.getBean(eq("adminCommand"))).thenReturn(adminCommand);
+        when(entity.isCapable(eq(superCapability))).thenReturn(true);
+        when(metadata.getCapability()).thenReturn(adminCapability);
         when(metadata.getName()).thenReturn("admin");
         when(metadata.getBeanName()).thenReturn("adminCommand");
 

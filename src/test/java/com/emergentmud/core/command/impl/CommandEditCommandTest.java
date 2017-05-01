@@ -20,9 +20,11 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +49,9 @@ public class CommandEditCommandTest {
     private CommandMetadataRepository commandMetadataRepository;
 
     @Mock
+    private CapabilityRepository capabilityRepository;
+
+    @Mock
     private GameOutput output;
 
     @Mock
@@ -54,6 +59,9 @@ public class CommandEditCommandTest {
 
     @Mock
     private CommandMetadata metadata;
+
+    @Mock
+    private Capability capability;
 
     private List<CommandMetadata> commands = new ArrayList<>();
     private String cmd = "cmdedit";
@@ -64,14 +72,22 @@ public class CommandEditCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        when(capability.getName()).thenReturn("CAP");
+
         for (int i = 0; i < 3; i++) {
-            commands.add(mock(CommandMetadata.class));
+            CommandMetadata mock = mock(CommandMetadata.class);
+
+            when(mock.getName()).thenReturn("command" + i);
+            when(mock.getCapability()).thenReturn(capability);
+
+            commands.add(mock);
         }
 
         when(commandMetadataRepository.findAll(eq(CommandEditCommand.SORT))).thenReturn(commands);
         when(commandMetadataRepository.findByName(eq("test"))).thenReturn(metadata);
+        when(capabilityRepository.findByName(eq("CAP"))).thenReturn(capability);
 
-        command = new CommandEditCommand(commandMetadataRepository);
+        command = new CommandEditCommand(commandMetadataRepository, capabilityRepository);
     }
 
     @Test
@@ -122,8 +138,8 @@ public class CommandEditCommandTest {
 
     @Test
     public void testAddNonIntegerPriority() throws Exception {
-        String[] tokens = new String[] { "add", "test", "testCommand", "important" };
-        String raw = "add test testCommand important";
+        String[] tokens = new String[] { "add", "test", "testCommand", "important", "CAP" };
+        String raw = "add test testCommand important CAP";
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
@@ -134,8 +150,8 @@ public class CommandEditCommandTest {
 
     @Test
     public void testAddValid() throws Exception {
-        String[] tokens = new String[] { "add", "test", "testCommand", "42" };
-        String raw = "add test testCommand 42";
+        String[] tokens = new String[] { "add", "test", "testCommand", "42", "CAP" };
+        String raw = "add test testCommand 42 CAP";
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
@@ -148,7 +164,7 @@ public class CommandEditCommandTest {
         assertNotNull(commandMetadata);
         assertEquals("test", commandMetadata.getName());
         assertEquals("testCommand", commandMetadata.getBeanName());
-        assertEquals(true, commandMetadata.isAdmin());
+        assertEquals(capability, commandMetadata.getCapability());
         assertEquals((Integer)42, commandMetadata.getPriority());
     }
 
@@ -190,9 +206,9 @@ public class CommandEditCommandTest {
     }
 
     @Test
-    public void testAdminWrongArgs() throws Exception {
-        String[] tokens = new String[] { "admin", "test" };
-        String raw = "admin test";
+    public void testCapabilityWrongArgs() throws Exception {
+        String[] tokens = new String[] { "capability", "wrong" };
+        String raw = "capability wrong";
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
@@ -201,28 +217,28 @@ public class CommandEditCommandTest {
     }
 
     @Test
-    public void testAdminTrue() throws Exception {
-        String[] tokens = new String[] { "admin", "test", "true" };
-        String raw = "admin test true";
+    public void testCapabilityNotFound() throws Exception {
+        String[] tokens = new String[] { "capability", "test", "BAZ" };
+        String raw = "capability test BAZ";
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(metadata).setAdmin(eq(true));
-        verify(commandMetadataRepository).save(any(CommandMetadata.class));
+        verify(capabilityRepository).findByName(eq("BAZ"));
+        verify(commandMetadataRepository, never()).save(any(CommandMetadata.class));
     }
 
     @Test
-    public void testAdminFalse() throws Exception {
-        String[] tokens = new String[] { "admin", "test", "false" };
-        String raw = "admin test false";
+    public void testCapability() throws Exception {
+        String[] tokens = new String[] { "capability", "test", "CAP" };
+        String raw = "capability test CAP";
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(commandMetadataRepository).findByName(eq("test"));
-        verify(metadata).setAdmin(eq(false));
+        verify(capabilityRepository).findByName("CAP");
         verify(commandMetadataRepository).save(any(CommandMetadata.class));
     }
 

@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#import "/spring.ftl" as spring>
 <!DOCTYPE html>
 <html lang="en">
-<#assign title="Create Essence">
+<#assign title="Create Character">
 <#assign path="/essence">
 <#assign links = [ "/css/index.css" ]>
 <#include "header.inc.ftl">
@@ -33,11 +33,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </div>
 
     <div class="row">
-        <form id="new-essence-form" class="form-horizontal">
+        <form id="new-entity-form" class="form-horizontal">
             <div class="form-group">
                 <div class="col-md-4 col-md-push-4">
                     <label for="name">First Name <#if errorName??>- <span style="color: red;">${errorName}</span></#if></label>
-                    <input type="text" class="form-control" name="name" id="name" value="${essenceName!}" placeholder="First Name" autofocus>
+                    <input type="text" class="form-control" name="name" id="name" value="${entityName!}" placeholder="First Name" autofocus>
                 </div>
             </div>
             <div class="form-group">
@@ -46,8 +46,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <a role="button" class="btn btn-danger" href="<@spring.url '/'/>">
                         <i class="fa fa-times"></i> Cancel
                     </a>
-                    <button role="button" class="btn btn-primary" formmethod="post" formaction="<@spring.url '/essence'/>">
-                        <i class="fa fa-heart"></i> Save Essence
+                    <button role="button" class="btn btn-primary" formmethod="post" formaction="<@spring.url '/entity'/>">
+                        <i class="fa fa-heart"></i> Save Character
                     </button>
                 </div>
             </div>

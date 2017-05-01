@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,15 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.Essence;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+public enum CommandRole {
+    SUPER,
 
-import java.util.List;
+    TELEPORT,
+    CMDEDIT,
+    EMOTEEDIT,
+    DATA,
+    LOG,
 
-@Repository
-public interface EssenceRepository extends MongoRepository<Essence, String> {
-    List<Essence> findByAccountId(String accountId);
+    EMOTE,
+    CHAR_NEW,
+    CHAR_PLAY,
+    BASIC,
+    MOVE,
+    SEE,
+    TALK
 }

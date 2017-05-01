@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,22 +21,23 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Essence {
+public class Capability {
     @Id
     private String id;
 
-    @DBRef
-    private Entity entity;
-
-    private Long creationDate;
-    private Long lastLoginDate;
-    private String accountId;
+    @Indexed(unique = true)
     private String name;
-    private Boolean admin;
+
+    private String description;
+
+    public Capability(String name, String description) {
+        setName(name);
+        setDescription(description);
+    }
 
     public String getId() {
         return id;
@@ -44,38 +45,6 @@ public class Essence {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
-    }
-
-    public Long getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Long creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Long getLastLoginDate() {
-        return lastLoginDate;
-    }
-
-    public void setLastLoginDate(Long lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
     }
 
     public String getName() {
@@ -86,23 +55,27 @@ public class Essence {
         this.name = name;
     }
 
-    public boolean isAdmin() {
-        return admin == null ? false : admin;
+    public String getDescription() {
+        return description;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return getDescription();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Essence)) return false;
+        if (!(o instanceof Capability)) return false;
 
-        Essence essence = (Essence) o;
+        Capability that = (Capability) o;
 
-        return getId().equals(essence.getId());
-
+        return getId().equals(that.getId());
     }
 
     @Override
