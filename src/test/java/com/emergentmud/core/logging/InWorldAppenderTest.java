@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,9 +20,12 @@
 
 package com.emergentmud.core.logging;
 
+import com.emergentmud.core.model.Capability;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.util.EntityUtil;
 import com.emergentmud.core.util.SpringContextSingleton;
@@ -47,6 +50,9 @@ public class InWorldAppenderTest {
     private EntityRepository entityRepository;
 
     @Mock
+    private CapabilityRepository capabilityRepository;
+
+    @Mock
     private Entity admin;
 
     @Mock
@@ -61,6 +67,9 @@ public class InWorldAppenderTest {
     @Mock
     private Room room;
 
+    @Mock
+    private Capability capability;
+
     private String eventObject = "I am a log message!";
     private SpringContextSingleton singleton = new SpringContextSingleton();
 
@@ -72,13 +81,12 @@ public class InWorldAppenderTest {
 
         singleton.setup();
 
-        when(admin.isAdmin()).thenReturn(true);
-        when(adminOffline.isAdmin()).thenReturn(true);
+        when(capabilityRepository.findByName(eq(CommandRole.LOG.name()))).thenReturn(capability);
+        when(admin.isCapable(eq(capability))).thenReturn(true);
+        when(adminOffline.isCapable(eq(capability))).thenReturn(true);
         when(admin.getRoom()).thenReturn(room);
         when(player.getRoom()).thenReturn(room);
-        when(entityRepository.findByAdminAndRoomIsNotNull(true)).thenReturn(Arrays.asList(
-                admin
-        ));
+        when(entityRepository.findByRoomIsNotNull()).thenReturn(Arrays.asList(admin, player));
 
         inWorldAppender = new InWorldAppender<>();
     }
@@ -117,13 +125,15 @@ public class InWorldAppenderTest {
 
         when(applicationContext.getBean("entityUtil")).thenReturn(entityUtil);
         when(applicationContext.getBean("entityRepository")).thenReturn(entityRepository);
+        when(applicationContext.getBean("capabilityRepository")).thenReturn(capabilityRepository);
 
         inWorldAppender.append(eventObject);
 
-        verify(entityRepository).findByAdminAndRoomIsNotNull(true);
+        verify(entityRepository).findByRoomIsNotNull();
         verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
+        verify(admin).isCapable(eq(capability));
+        verify(player).isCapable(eq(capability));
         verifyZeroInteractions(adminOffline);
-        verifyZeroInteractions(player);
         verifyZeroInteractions(playerOffline);
     }
 }

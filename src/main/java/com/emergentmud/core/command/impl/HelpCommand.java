@@ -23,8 +23,10 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
@@ -38,13 +40,16 @@ public class HelpCommand extends BaseCommand {
 
     private ApplicationContext applicationContext;
     private CommandMetadataRepository commandMetadataRepository;
+    private CapabilityRepository capabilityRepository;
 
     @Inject
     public HelpCommand(ApplicationContext applicationContext,
-                       CommandMetadataRepository commandMetadataRepository) {
+                       CommandMetadataRepository commandMetadataRepository,
+                       CapabilityRepository capabilityRepository) {
 
         this.applicationContext = applicationContext;
         this.commandMetadataRepository = commandMetadataRepository;
+        this.capabilityRepository = capabilityRepository;
 
         setDescription("Shows the documentation for a command.");
         addParameter("command", true);
@@ -59,17 +64,17 @@ public class HelpCommand extends BaseCommand {
 
             commandMetadataRepository.findAll(SORT)
                     .stream()
-                    .filter(cm -> !cm.isAdmin() || entity.isAdmin())
+                    .filter(cm -> entity.isCapable(cm.getCapability()) || entity.isCapable(capabilityRepository.findByName(CommandRole.SUPER.name())))
                     .forEach(cm -> {
                         Command bean = (Command)applicationContext.getBean(cm.getBeanName());
 
                         output.append(String.format("[white]%s [dwhite]- [white]%s",
-                                cm.getName(), bean.getDescription()));
+                                cm.getName().toUpperCase(), bean.getDescription()));
                     });
         } else {
             CommandMetadata commandMetadata = commandMetadataRepository.findByName(tokens[0]);
 
-            if (commandMetadata != null && (entity.isAdmin() || !commandMetadata.isAdmin())) {
+            if (commandMetadata != null && (entity.isCapable(commandMetadata.getCapability()) || entity.isCapable(capabilityRepository.findByName(CommandRole.SUPER.name())))) {
                 Command cmd = (Command)applicationContext.getBean(commandMetadata.getBeanName());
 
                 cmd.usage(output, commandMetadata.getName());

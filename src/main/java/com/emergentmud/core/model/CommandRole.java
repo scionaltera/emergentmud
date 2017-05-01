@@ -27,6 +27,7 @@ public enum CommandRole {
     CMDEDIT,
     EMOTEEDIT,
     DATA,
+    LOG,
 
     EMOTE,
     CHAR_NEW,

@@ -22,9 +22,11 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Parameter;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -36,39 +38,43 @@ public class CommandEditCommand extends BaseCommand {
     static final Sort SORT = new Sort("priority", "name");
 
     private CommandMetadataRepository commandMetadataRepository;
+    private CapabilityRepository capabilityRepository;
 
     @Inject
-    public CommandEditCommand(CommandMetadataRepository commandMetadataRepository) {
+    public CommandEditCommand(CommandMetadataRepository commandMetadataRepository,
+                              CapabilityRepository capabilityRepository) {
         this.commandMetadataRepository = commandMetadataRepository;
+        this.capabilityRepository = capabilityRepository;
 
         setDescription("Edit and prioritize commands.");
         addSubcommand("list", "List all commands.");
         addSubcommand("add", "Add a new command.",
                 new Parameter("command name", true),
                 new Parameter("bean name", true),
-                new Parameter("priority", true));
+                new Parameter("priority", true),
+                new Parameter("capability", true));
         addSubcommand("priority", "Set priority for a command.",
                 new Parameter("command name", true),
                 new Parameter("priority", true));
-        addSubcommand("admin", "Restrict a command to administrators.",
+        addSubcommand("capability", "Set the capability group for a command.",
                 new Parameter("command name", true),
-                new Parameter("true|false", true));
+                new Parameter("capability", true));
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
-                output.append("[yellow]Priority\tName\tAdmin");
+                output.append("[yellow]Priority\tName\tCapability");
                 output.append("[yellow]---------------------");
 
                 commandMetadataRepository.findAll(SORT)
                         .forEach(cm -> output.append(String.format("[yellow]%d\t%s\t%s",
                                 cm.getPriority(),
-                                cm.getName(),
-                                cm.isAdmin())));
+                                cm.getName().toUpperCase(),
+                                cm.getCapability().getName())));
             } else if ("add".equals(tokens[0])) {
-                if (tokens.length != 4) {
+                if (tokens.length != 5) {
                     usage(output, command);
 
                     return output;
@@ -78,7 +84,6 @@ public class CommandEditCommand extends BaseCommand {
 
                 metadata.setName(tokens[1]);
                 metadata.setBeanName(tokens[2]);
-                metadata.setAdmin(true); // all new commands default to admin-only as a safety measure
 
                 try {
                     metadata.setPriority(Integer.valueOf(tokens[3]));
@@ -87,6 +92,16 @@ public class CommandEditCommand extends BaseCommand {
 
                     return output;
                 }
+
+                Capability capability = capabilityRepository.findByName(tokens[4]);
+
+                if (capability == null) {
+                    output.append("[yellow]No such capability found.");
+
+                    return output;
+                }
+
+                metadata.setCapability(capability);
 
                 commandMetadataRepository.save(metadata);
 
@@ -111,7 +126,7 @@ public class CommandEditCommand extends BaseCommand {
                 commandMetadataRepository.save(metadata);
 
                 output.append("[yellow]Updated priority.");
-            } else if ("admin".equals(tokens[0])) {
+            } else if ("capability".equals(tokens[0])) {
                 if (tokens.length != 3) {
                     usage(output, command);
 
@@ -119,12 +134,18 @@ public class CommandEditCommand extends BaseCommand {
                 }
 
                 CommandMetadata metadata = commandMetadataRepository.findByName(tokens[1]);
+                Capability capability = capabilityRepository.findByName(tokens[2]);
 
-                metadata.setAdmin(Boolean.valueOf(tokens[2]));
+                if (metadata == null) {
+                    output.append("[yellow]No such command found.");
+                } else if (capability == null) {
+                    output.append("[yellow]No such capability found.");
+                } else {
+                    metadata.setCapability(capability);
+                    commandMetadataRepository.save(metadata);
 
-                commandMetadataRepository.save(metadata);
-
-                output.append("[yellow]Updated admin flag.");
+                    output.append("[yellow]Updated capability.");
+                }
             } else {
                 usage(output, command);
             }

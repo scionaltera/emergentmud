@@ -82,7 +82,6 @@ public class InfoCommand extends BaseCommand {
         output.append("[cyan][ [dcyan]Entity ([cyan]" + target.getId() + "[dcyan]) [cyan]]");
         output.append("[dcyan]Name: [cyan]" + target.getName());
         output.append("[dcyan]Location: " + location);
-        output.append("[dcyan]Admin: [cyan]" + target.isAdmin());
 
         if (entity.getAccount() != null) {
             output.append("[dcyan]Account Capabilities: [cyan]" + target.getAccount().getCapabilities());

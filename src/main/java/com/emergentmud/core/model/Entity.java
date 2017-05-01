@@ -45,7 +45,6 @@ public class Entity implements Capable {
 
     private Long creationDate;
     private Long lastLoginDate;
-    private Boolean admin;
     private String stompUsername;
     private String stompSessionId;
     private String remoteAddr;
@@ -92,14 +91,6 @@ public class Entity implements Capable {
 
     public void setLastLoginDate(Long lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
-    }
-
-    public Boolean isAdmin() {
-        return admin == null ? false : admin;
-    }
-
-    public void setAdmin(Boolean admin) {
-        this.admin = admin;
     }
 
     public String getStompUsername() {

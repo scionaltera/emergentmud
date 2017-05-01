@@ -270,7 +270,6 @@ public class WebSocketResourceTest {
         UserInput input = mock(UserInput.class);
 
         when(entity.isCapable(eq(dataCapability))).thenReturn(true);
-        when(entity.isAdmin()).thenReturn(true);
         when(input.getInput()).thenReturn("info");
 
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
@@ -354,10 +353,10 @@ public class WebSocketResourceTest {
     private List<CommandMetadata> generateCommandList() {
         List<CommandMetadata> metadataList = new ArrayList<>();
 
-        metadataList.add(new CommandMetadata("look", "lookCommand", 100, false, seeCapability));
-        metadataList.add(new CommandMetadata("say", "sayCommand", 200, false, talkCapability));
-        metadataList.add(new CommandMetadata("info", "infoCommand", 300, true, dataCapability));
-        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true, cmdEditCapability));
+        metadataList.add(new CommandMetadata("look", "lookCommand", 100, seeCapability));
+        metadataList.add(new CommandMetadata("say", "sayCommand", 200, talkCapability));
+        metadataList.add(new CommandMetadata("info", "infoCommand", 300, dataCapability));
+        metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, cmdEditCapability));
 
         return metadataList;
     }

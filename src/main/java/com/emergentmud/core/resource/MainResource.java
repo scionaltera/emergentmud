@@ -23,6 +23,7 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
@@ -60,9 +61,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainResource {
@@ -218,12 +222,12 @@ public class MainResource {
         if (entityRepository.count() == 0) {
             LOGGER.info("Making {} into an administrator", entity.getName());
 
-            entity.setAdmin(true);
             entity.addCapabilities(capabilityRepository.findByName(CommandRole.SUPER.name()));
             entity.addCapabilities(capabilityRepository.findByName(CommandRole.TELEPORT.name()));
             entity.addCapabilities(capabilityRepository.findByName(CommandRole.CMDEDIT.name()));
             entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTEEDIT.name()));
             entity.addCapabilities(capabilityRepository.findByName(CommandRole.DATA.name()));
+            entity.addCapabilities(capabilityRepository.findByName(CommandRole.LOG.name()));
         }
 
         entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTE.name()));
@@ -330,26 +334,37 @@ public class MainResource {
 
     @RequestMapping("/public/commands")
     public String commands(Model model, Principal principal, HttpSession httpSession) {
-        boolean includeAdminCommands = false;
+        Capability superCapability = capabilityRepository.findByName(CommandRole.SUPER.name());
+        Set<Capability> capabilities = new HashSet<>();
 
         if (principal != null) {
             String network = (String)httpSession.getAttribute("social");
             String networkId = principal.getName();
             Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
 
-            if (entityRepository.findByAccount(account).stream().anyMatch(Entity::isAdmin)) {
-                includeAdminCommands = true;
+            if (account != null) {
+                List<Entity> entities = entityRepository.findByAccount(account);
+
+                capabilities.addAll(account.getCapabilities());
+                entities.forEach(e -> capabilities.addAll(e.getCapabilities()));
             }
+        } else {
+            capabilities.add(capabilityRepository.findByName(CommandRole.EMOTE.name()));
+            capabilities.add(capabilityRepository.findByName(CommandRole.BASIC.name()));
+            capabilities.add(capabilityRepository.findByName(CommandRole.MOVE.name()));
+            capabilities.add(capabilityRepository.findByName(CommandRole.SEE.name()));
+            capabilities.add(capabilityRepository.findByName(CommandRole.TALK.name()));
         }
 
         Map<String, Command> commandMap = new HashMap<>();
-        List<CommandMetadata> metadata = includeAdminCommands ?
-                commandMetadataRepository.findAll() :
-                commandMetadataRepository.findByAdmin(false);
+        List<CommandMetadata> metadata = commandMetadataRepository.findAll()
+                .stream()
+                .filter(m -> capabilities.contains(m.getCapability()) || capabilities.contains(superCapability))
+                .collect(Collectors.toList());
 
         metadata.forEach(m -> {
-            Command command = (Command)applicationContext.getBean(m.getBeanName());
-            commandMap.put(m.getName(), command);
+                Command command = (Command) applicationContext.getBean(m.getBeanName());
+                commandMap.put(m.getName(), command);
         });
 
         model.addAttribute("metadataList", metadata);

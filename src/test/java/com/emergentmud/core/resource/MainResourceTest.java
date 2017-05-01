@@ -57,6 +57,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -109,6 +111,12 @@ public class MainResourceTest {
 
     @Mock
     private Capability newCharCapability;
+
+    @Mock
+    private Capability normalCapability;
+
+    @Mock
+    private Capability adminCapability;
 
     @Mock
     private HttpSession httpSession;
@@ -170,6 +178,8 @@ public class MainResourceTest {
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
         when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
         when(playRequest.getEntityId()).thenReturn("entity0");
+        when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(adminCapability);
+        when(capabilityRepository.findByName(eq(CommandRole.BASIC.name()))).thenReturn(normalCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
 
@@ -253,9 +263,8 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity).setAccount(eq(account));
-        verify(entity).setAdmin(eq(true));
         verify(entity).setCreationDate(anyLong());
-        verify(entity, times(10)).addCapabilities(any(Capability.class));
+        verify(entity, times(11)).addCapabilities(any(Capability.class));
 
         assertEquals("redirect:/", view);
     }
@@ -267,7 +276,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity).setAccount(eq(account));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(entity).setCreationDate(anyLong());
         verify(entity, times(5)).addCapabilities(any(Capability.class));
 
@@ -282,7 +290,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(eq(account));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("EntityA"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -296,7 +303,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("A"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -310,7 +316,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Supercalifragilisticexpealadocious"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -324,7 +329,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -338,7 +342,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Abra!ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -352,7 +355,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("-Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -366,7 +368,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("'Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -380,7 +381,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Abraham-"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -394,7 +394,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Abraham'"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -408,7 +407,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Abra--ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -422,7 +420,6 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
 
         verify(entity, never()).setAccount(any(Account.class));
-        verify(entity, never()).setAdmin(anyBoolean());
         verify(model).addAttribute(eq("entityName"), eq("Ab-ra-ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -569,12 +566,12 @@ public class MainResourceTest {
     public void testCommandsNotAuthenticated() throws Exception {
         List<CommandMetadata> metadata = generateCommandMetadata(false);
 
-        when(commandMetadataRepository.findByAdmin(eq(false))).thenReturn(metadata);
+        when(commandMetadataRepository.findAll()).thenReturn(metadata);
 
         String view = mainResource.commands(model, null, httpSession);
 
         verifyZeroInteractions(httpSession);
-        verify(commandMetadataRepository).findByAdmin(eq(false));
+        verify(commandMetadataRepository).findAll();
         verify(applicationContext, times(5)).getBean(startsWith("command"));
         verify(model).addAttribute(eq("metadataList"), anyListOf(CommandMetadata.class));
         verify(model).addAttribute(eq("commandMap"), anyMapOf(String.class, Command.class));
@@ -586,7 +583,7 @@ public class MainResourceTest {
     public void testCommandsAuthenticatedNoAdmins() throws Exception {
         List<CommandMetadata> metadata = generateCommandMetadata(false);
 
-        when(commandMetadataRepository.findByAdmin(eq(false))).thenReturn(metadata);
+        when(commandMetadataRepository.findAll()).thenReturn(metadata);
         when(httpSession.getAttribute(eq("social"))).thenReturn("alteraBook");
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
@@ -596,7 +593,7 @@ public class MainResourceTest {
         String view = mainResource.commands(model, principal, httpSession);
 
         verify(httpSession).getAttribute(eq("social"));
-        verify(commandMetadataRepository).findByAdmin(eq(false));
+        verify(commandMetadataRepository).findAll();
         verify(applicationContext, times(5)).getBean(startsWith("command"));
         verify(model).addAttribute(eq("metadataList"), anyListOf(CommandMetadata.class));
         verify(model).addAttribute(eq("commandMap"), anyMapOf(String.class, Command.class));
@@ -613,7 +610,8 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
         when(account.getId()).thenReturn("accountId");
-        when(entities.get(2).isAdmin()).thenReturn(true);
+        when(entities.get(2).isCapable(eq(adminCapability))).thenReturn(true);
+        when(entities.get(2).getCapabilities()).thenReturn(Arrays.asList(normalCapability, adminCapability));
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
 
         String view = mainResource.commands(model, principal, httpSession);
@@ -769,6 +767,8 @@ public class MainResourceTest {
             when(entity.getId()).thenReturn("entity" + i);
             when(entity.getName()).thenReturn("Entity" + ALPHABET.charAt(i));
             when(entity.getAccount()).thenReturn(account);
+            when(entity.isCapable(eq(normalCapability))).thenReturn(true);
+            when(entity.getCapabilities()).thenReturn(Collections.singletonList(normalCapability));
 
             entities.add(entity);
         }
@@ -784,10 +784,10 @@ public class MainResourceTest {
             when(metadata.getBeanName()).thenReturn("command" + ALPHABET.charAt(i));
             when(metadata.getName()).thenReturn("command" + ALPHABET.charAt(i));
 
-            if (admin) {
-                when(metadata.isAdmin()).thenReturn(i % 2 == 0);
+            if (admin && (i % 2 == 0)) {
+                when(metadata.getCapability()).thenReturn(adminCapability);
             } else {
-                when(metadata.isAdmin()).thenReturn(false);
+                when(metadata.getCapability()).thenReturn(normalCapability);
             }
 
             when(applicationContext.getBean(eq(metadata.getBeanName()))).thenReturn(command);

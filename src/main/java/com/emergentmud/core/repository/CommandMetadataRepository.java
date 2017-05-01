@@ -24,10 +24,7 @@ import com.emergentmud.core.model.CommandMetadata;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface CommandMetadataRepository extends MongoRepository<CommandMetadata, String> {
     CommandMetadata findByName(String name);
-    List<CommandMetadata> findByAdmin(boolean isAdmin);
 }

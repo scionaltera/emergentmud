@@ -60,6 +60,7 @@ public class CommandLoader {
             capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor"));
             capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor"));
             capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands"));
+            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages"));
 
             capabilityList.add(new Capability(CommandRole.CHAR_NEW.name(), "create characters"));
             capabilityList.add(new Capability(CommandRole.CHAR_PLAY.name(), "play the game"));
@@ -78,25 +79,25 @@ public class CommandLoader {
 
             List<CommandMetadata> metadataList = new ArrayList<>();
 
-            metadataList.add(new CommandMetadata("north", "northCommand", 10, false, capabilityRepository.findByName(CommandRole.MOVE.name())));
-            metadataList.add(new CommandMetadata("east", "eastCommand", 10, false, capabilityRepository.findByName(CommandRole.MOVE.name())));
-            metadataList.add(new CommandMetadata("south", "southCommand", 10, false, capabilityRepository.findByName(CommandRole.MOVE.name())));
-            metadataList.add(new CommandMetadata("west", "westCommand", 10, false, capabilityRepository.findByName(CommandRole.MOVE.name())));
-            metadataList.add(new CommandMetadata("goto", "gotoCommand", 15, true, capabilityRepository.findByName(CommandRole.TELEPORT.name())));
-            metadataList.add(new CommandMetadata("look", "lookCommand", 100, false, capabilityRepository.findByName(CommandRole.SEE.name())));
-            metadataList.add(new CommandMetadata("say", "sayCommand", 200, false, capabilityRepository.findByName(CommandRole.TALK.name())));
-            metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, false, capabilityRepository.findByName(CommandRole.TALK.name())));
-            metadataList.add(new CommandMetadata("gossip", "gossipCommand", 210, false, capabilityRepository.findByName(CommandRole.TALK.name())));
-            metadataList.add(new CommandMetadata("tell", "tellCommand", 215, false, capabilityRepository.findByName(CommandRole.TALK.name())));
-            metadataList.add(new CommandMetadata("who", "whoCommand", 220, false, capabilityRepository.findByName(CommandRole.SEE.name())));
-            metadataList.add(new CommandMetadata("emote", "emoteCommand", 250, false, capabilityRepository.findByName(CommandRole.TALK.name())));
-            metadataList.add(new CommandMetadata("info", "infoCommand", 300, true, capabilityRepository.findByName(CommandRole.DATA.name())));
-            metadataList.add(new CommandMetadata("map", "mapCommand", 400, false, capabilityRepository.findByName(CommandRole.SEE.name())));
-            metadataList.add(new CommandMetadata("help", "helpCommand", 500, false, capabilityRepository.findByName(CommandRole.BASIC.name())));
-            metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, true, capabilityRepository.findByName(CommandRole.CMDEDIT.name())));
-            metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, true, capabilityRepository.findByName(CommandRole.EMOTEEDIT.name())));
-            metadataList.add(new CommandMetadata("data", "dataCommand", 1000, true, capabilityRepository.findByName(CommandRole.DATA.name())));
-            metadataList.add(new CommandMetadata("quit", "quitCommand", 2000, false, capabilityRepository.findByName(CommandRole.BASIC.name())));
+            metadataList.add(new CommandMetadata("north", "northCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
+            metadataList.add(new CommandMetadata("east", "eastCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
+            metadataList.add(new CommandMetadata("south", "southCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
+            metadataList.add(new CommandMetadata("west", "westCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
+            metadataList.add(new CommandMetadata("goto", "gotoCommand", 15, capabilityRepository.findByName(CommandRole.TELEPORT.name())));
+            metadataList.add(new CommandMetadata("look", "lookCommand", 100, capabilityRepository.findByName(CommandRole.SEE.name())));
+            metadataList.add(new CommandMetadata("say", "sayCommand", 200, capabilityRepository.findByName(CommandRole.TALK.name())));
+            metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, capabilityRepository.findByName(CommandRole.TALK.name())));
+            metadataList.add(new CommandMetadata("gossip", "gossipCommand", 210, capabilityRepository.findByName(CommandRole.TALK.name())));
+            metadataList.add(new CommandMetadata("tell", "tellCommand", 215, capabilityRepository.findByName(CommandRole.TALK.name())));
+            metadataList.add(new CommandMetadata("who", "whoCommand", 220, capabilityRepository.findByName(CommandRole.SEE.name())));
+            metadataList.add(new CommandMetadata("emote", "emoteCommand", 250, capabilityRepository.findByName(CommandRole.TALK.name())));
+            metadataList.add(new CommandMetadata("info", "infoCommand", 300, capabilityRepository.findByName(CommandRole.DATA.name())));
+            metadataList.add(new CommandMetadata("map", "mapCommand", 400, capabilityRepository.findByName(CommandRole.SEE.name())));
+            metadataList.add(new CommandMetadata("help", "helpCommand", 500, capabilityRepository.findByName(CommandRole.BASIC.name())));
+            metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, capabilityRepository.findByName(CommandRole.CMDEDIT.name())));
+            metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, capabilityRepository.findByName(CommandRole.EMOTEEDIT.name())));
+            metadataList.add(new CommandMetadata("data", "dataCommand", 1000, capabilityRepository.findByName(CommandRole.DATA.name())));
+            metadataList.add(new CommandMetadata("quit", "quitCommand", 2000, capabilityRepository.findByName(CommandRole.BASIC.name())));
 
             commandMetadataRepository.save(metadataList);
         }

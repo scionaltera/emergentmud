@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,14 +21,17 @@
 package com.emergentmud.core.logging;
 
 import ch.qos.logback.core.AppenderBase;
+import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
+import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.util.EntityUtil;
 import com.emergentmud.core.util.SpringContextSingleton;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InWorldAppender<T> extends AppenderBase<T> {
     @Override
@@ -41,6 +44,7 @@ public class InWorldAppender<T> extends AppenderBase<T> {
 
         EntityUtil entityUtil = (EntityUtil)applicationContext.getBean("entityUtil");
         EntityRepository entityRepository = (EntityRepository)applicationContext.getBean("entityRepository");
+        CapabilityRepository capabilityRepository = (CapabilityRepository)applicationContext.getBean("capabilityRepository");
 
         if (entityUtil == null || entityRepository == null) {
             return;
@@ -48,7 +52,10 @@ public class InWorldAppender<T> extends AppenderBase<T> {
 
         GameOutput logMessage = new GameOutput(String.format("[dmagenta]%s[dmagenta]", eventObject));
 
-        List<Entity> contents = entityRepository.findByAdminAndRoomIsNotNull(true);
+        List<Entity> contents = entityRepository.findByRoomIsNotNull()
+                .stream()
+                .filter(e -> e.isCapable(capabilityRepository.findByName(CommandRole.LOG.name())))
+                .collect(Collectors.toList());
 
         if (!contents.isEmpty()) {
             entityUtil.sendMessageToListeners(contents, logMessage);

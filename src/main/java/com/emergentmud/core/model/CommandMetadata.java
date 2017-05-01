@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -36,8 +36,6 @@ public class CommandMetadata {
     @Indexed
     private Integer priority;
 
-    private boolean admin;
-
     @DBRef
     private Capability capability;
     private String beanName;
@@ -46,11 +44,10 @@ public class CommandMetadata {
         // this method intentionally left blank
     }
 
-    public CommandMetadata(String name, String beanName, Integer priority, boolean admin, Capability capability) {
+    public CommandMetadata(String name, String beanName, Integer priority, Capability capability) {
         setName(name);
         setBeanName(beanName);
         setPriority(priority);
-        setAdmin(admin);
         setCapability(capability);
     }
 
@@ -76,14 +73,6 @@ public class CommandMetadata {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
     }
 
     public Capability getCapability() {
