@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,7 +24,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -39,15 +39,15 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
 
     private EntityRepository entityRepository;
     private WorldManager worldManager;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
     public StompDisconnectListener(EntityRepository entityRepository,
                                    WorldManager worldManager,
-                                   EntityUtil entityUtil) {
+                                   EntityService entityService) {
         this.entityRepository = entityRepository;
         this.worldManager = worldManager;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
             if (entity.getRoom() != null) {
                 GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
-                entityUtil.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
+                entityService.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
 
                 LOGGER.info("{} has disconnected from the game", entity.getName());
             }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.util;
+package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Room;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RoomUtil {
+public class RoomService {
     public boolean isWithinDistance(Room origin, Room query, double distance) {
         return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
                 + Math.pow(origin.getY() - query.getY(), 2)

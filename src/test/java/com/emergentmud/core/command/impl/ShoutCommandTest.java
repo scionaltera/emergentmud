@@ -26,8 +26,8 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.util.EntityUtil;
-import com.emergentmud.core.util.RoomUtil;
+import com.emergentmud.core.service.EntityService;
+import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -51,10 +51,10 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Spy
-    private RoomUtil roomUtil;
+    private RoomService roomService;
 
     @Mock
     private GameOutput output;
@@ -86,7 +86,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
 
-        command = new ShoutCommand(roomRepository, entityRepository, roomUtil, entityUtil);
+        command = new ShoutCommand(roomRepository, entityRepository, roomService, entityService);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[dyellow]You shout 'Feed me a stray cat.[dyellow]'"));
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -153,7 +153,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[dyellow]You shout '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[dyellow]'"));
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

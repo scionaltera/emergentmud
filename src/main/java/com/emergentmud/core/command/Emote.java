@@ -24,7 +24,7 @@ import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,13 +39,13 @@ public class Emote {
     private static final Logger LOGGER = LoggerFactory.getLogger(Emote.class);
 
     private EntityRepository entityRepository;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
     public Emote(EntityRepository entityRepository,
-                 EntityUtil entityUtil) {
+                 EntityService entityService) {
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
     }
 
     public void execute(GameOutput output, EmoteMetadata metadata, Entity entity, String[] args) {
@@ -77,7 +77,7 @@ public class Emote {
             }
 
             if (target == null) {
-                entityUtil.sendMessageToRoom(entity.getRoom(), entity, new GameOutput(replaceVariables(metadata.getToRoomUntargeted(), entity, null)));
+                entityService.sendMessageToRoom(entity.getRoom(), entity, new GameOutput(replaceVariables(metadata.getToRoomUntargeted(), entity, null)));
                 output.append(replaceVariables(metadata.getToSelfUntargeted(), entity, null));
             } else if (entity.equals(target)) {
                 if (metadata.getToSelfAsTarget() != null && metadata.getToRoomTargetingSelf() != null) {
@@ -86,7 +86,7 @@ public class Emote {
                     others.remove(entity);
                     others.remove(target);
 
-                    entityUtil.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomTargetingSelf(), entity, target)));
+                    entityService.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomTargetingSelf(), entity, target)));
                     output.append(replaceVariables(metadata.getToSelfAsTarget(), entity, target));
                 } else {
                     output.append("Sorry, this emote doesn't support targeting yourself.");
@@ -97,8 +97,8 @@ public class Emote {
                 others.remove(entity);
                 others.remove(target);
 
-                entityUtil.sendMessageToEntity(target, new GameOutput(replaceVariables(metadata.getToTarget(), entity, target)));
-                entityUtil.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomWithTarget(), entity, target)));
+                entityService.sendMessageToEntity(target, new GameOutput(replaceVariables(metadata.getToTarget(), entity, target)));
+                entityService.sendMessageToListeners(others, new GameOutput(replaceVariables(metadata.getToRoomWithTarget(), entity, target)));
                 output.append(replaceVariables(metadata.getToSelfWithTarget(), entity, target));
             }
         }

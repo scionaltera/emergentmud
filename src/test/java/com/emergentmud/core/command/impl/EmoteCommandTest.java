@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommunicationCommandTest;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +46,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
     protected Entity entity;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
@@ -66,7 +66,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
 
-        command = new EmoteCommand(entityUtil);
+        command = new EmoteCommand(entityService);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
                 "dies a little on the inside.");
 
         verify(response).append(eq("Testy dies a little on the inside."));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -95,7 +95,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("Testy &lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;"));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

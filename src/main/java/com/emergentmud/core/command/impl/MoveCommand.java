@@ -28,7 +28,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -40,20 +40,20 @@ public class MoveCommand extends BaseCommand {
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
     private RoomBuilder roomBuilder;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     public MoveCommand(
             Direction direction,
             ApplicationContext applicationContext,
             WorldManager worldManager,
             RoomBuilder roomBuilder,
-            EntityUtil entityUtil) {
+            EntityService entityService) {
 
         this.direction = direction;
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
         this.roomBuilder = roomBuilder;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Walk to an adjacent room.");
     }
@@ -91,7 +91,7 @@ public class MoveCommand extends BaseCommand {
 
             GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
 
-            entityUtil.sendMessageToRoom(room, entity, exitMessage);
+            entityService.sendMessageToRoom(room, entity, exitMessage);
 
             worldManager.remove(entity);
 
@@ -100,7 +100,7 @@ public class MoveCommand extends BaseCommand {
 
             GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));
 
-            entityUtil.sendMessageToRoom(room, entity, enterMessage);
+            entityService.sendMessageToRoom(room, entity, enterMessage);
 
             Command look = (Command)applicationContext.getBean("lookCommand");
             look.execute(output, entity, "look", new String[0], "");

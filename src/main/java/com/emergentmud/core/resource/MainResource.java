@@ -41,7 +41,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -84,7 +84,7 @@ public class MainResource {
     private CapabilityRepository capabilityRepository;
     private RoomBuilder roomBuilder;
     private WorldManager worldManager;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
     private Emote emote;
 
     @Inject
@@ -98,7 +98,7 @@ public class MainResource {
                         CapabilityRepository capabilityRepository,
                         RoomBuilder roomBuilder,
                         WorldManager worldManager,
-                        EntityUtil entityUtil,
+                        EntityService entityService,
                         Emote emote) {
 
         this.applicationContext = applicationContext;
@@ -111,7 +111,7 @@ public class MainResource {
         this.capabilityRepository = capabilityRepository;
         this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
         this.emote = emote;
     }
 
@@ -136,7 +136,7 @@ public class MainResource {
             if (accountRepository.count() == 0) {
                 LOGGER.info("Making {}:{} into an administrator", account.getSocialNetwork(), account.getSocialNetworkId());
 
-                account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.IMPLEMENTOR));
+                account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.ADMINISTRATOR));
             }
 
             account = accountRepository.save(account);
@@ -228,7 +228,7 @@ public class MainResource {
         if (entityRepository.count() == 0) {
             LOGGER.info("Making {} into an administrator", entity.getName());
 
-            entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
         }
 
         entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.PLAYER));
@@ -299,7 +299,7 @@ public class MainResource {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
             GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
-            entityUtil.sendMessageToEntity(entity, out);
+            entityService.sendMessageToEntity(entity, out);
         }
 
         if (!worldManager.test(0L, 0L, 0L)) {
@@ -309,7 +309,7 @@ public class MainResource {
         Room room = worldManager.put(entity, 0L, 0L, 0L);
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
-        entityUtil.sendMessageToRoom(room, entity, enterMessage);
+        entityService.sendMessageToRoom(room, entity, enterMessage);
 
         LOGGER.info("{} has entered the game from {}", entity.getName(), entity.getRemoteAddr());
 

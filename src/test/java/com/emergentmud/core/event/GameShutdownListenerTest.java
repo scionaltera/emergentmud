@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.event;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,7 +42,7 @@ public class GameShutdownListenerTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private ContextClosedEvent contextClosedEvent;
@@ -69,7 +69,7 @@ public class GameShutdownListenerTest {
 
         when(entityRepository.findByRoomIsNotNull()).thenReturn(everyone);
 
-        gameShutdownListener = new GameShutdownListener(entityRepository, entityUtil);
+        gameShutdownListener = new GameShutdownListener(entityRepository, entityService);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class GameShutdownListenerTest {
         gameShutdownListener.onApplicationEvent(contextClosedEvent);
 
         verify(entityRepository).findByRoomIsNotNull();
-        verify(entityUtil).sendMessageToListeners(eq(everyone), any(GameOutput.class));
+        verify(entityService).sendMessageToListeners(eq(everyone), any(GameOutput.class));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class GameShutdownListenerTest {
         gameShutdownListener.onApplicationEvent(contextStoppedEvent);
 
         verify(entityRepository).findByRoomIsNotNull();
-        verify(entityUtil).sendMessageToListeners(eq(everyone), any(GameOutput.class));
+        verify(entityService).sendMessageToListeners(eq(everyone), any(GameOutput.class));
     }
 
     @Test
@@ -93,6 +93,6 @@ public class GameShutdownListenerTest {
         gameShutdownListener.onApplicationEvent(contextStartedEvent);
 
         verifyZeroInteractions(entityRepository);
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 }

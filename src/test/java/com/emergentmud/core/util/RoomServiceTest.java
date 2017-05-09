@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,6 +21,7 @@
 package com.emergentmud.core.util;
 
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,8 +30,8 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class RoomUtilTest {
-    private RoomUtil roomUtil;
+public class RoomServiceTest {
+    private RoomService roomService;
 
     @Mock
     private Room origin;
@@ -39,7 +40,7 @@ public class RoomUtilTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomUtil = new RoomUtil();
+        roomService = new RoomService();
     }
 
     @Test
@@ -48,9 +49,9 @@ public class RoomUtilTest {
 
         when(near.getX()).thenReturn(2L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 
     @Test
@@ -59,9 +60,9 @@ public class RoomUtilTest {
 
         when(near.getY()).thenReturn(2L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 
     @Test
@@ -70,9 +71,9 @@ public class RoomUtilTest {
 
         when(near.getZ()).thenReturn(2L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 
     @Test
@@ -82,9 +83,9 @@ public class RoomUtilTest {
         when(origin.getX()).thenReturn(10L);
         when(near.getX()).thenReturn(12L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 
     @Test
@@ -94,9 +95,9 @@ public class RoomUtilTest {
         when(origin.getY()).thenReturn(10L);
         when(near.getY()).thenReturn(12L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 
     @Test
@@ -106,8 +107,8 @@ public class RoomUtilTest {
         when(origin.getZ()).thenReturn(10L);
         when(near.getZ()).thenReturn(12L);
 
-        assertTrue(roomUtil.isWithinDistance(origin, near, 3));
-        assertTrue(roomUtil.isWithinDistance(origin, near, 2));
-        assertFalse(roomUtil.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, near, 3));
+        assertTrue(roomService.isWithinDistance(origin, near, 2));
+        assertFalse(roomService.isWithinDistance(origin, near, 1));
     }
 }

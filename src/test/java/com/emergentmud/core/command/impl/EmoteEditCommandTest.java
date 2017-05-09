@@ -24,7 +24,7 @@ import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
-import com.emergentmud.core.util.InputUtil;
+import com.emergentmud.core.service.InputService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -58,7 +58,7 @@ public class EmoteEditCommandTest {
     private EmoteMetadata emote;
 
     @Spy
-    private InputUtil inputUtil;
+    private InputService inputService;
 
     private List<EmoteMetadata> emotes = new ArrayList<>();
     private String cmd = "emoteedit";
@@ -76,7 +76,7 @@ public class EmoteEditCommandTest {
             emotes.add(mock(EmoteMetadata.class));
         }
 
-        command = new EmoteEditCommand(emoteMetadataRepository, inputUtil);
+        command = new EmoteEditCommand(emoteMetadataRepository, inputService);
     }
 
     @Test

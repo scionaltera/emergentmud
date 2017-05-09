@@ -21,9 +21,9 @@
 package com.emergentmud.core.command;
 
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 
 public abstract class BaseCommunicationCommand extends BaseCommand {
-    protected EntityUtil entityUtil;
+    protected EntityService entityService;
     protected EntityRepository entityRepository;
 }

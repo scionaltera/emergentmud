@@ -24,7 +24,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 
 public class QuitCommandTest {
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private WorldManager worldManager;
@@ -60,7 +60,7 @@ public class QuitCommandTest {
 
         when(entity.getRoom()).thenReturn(room);
 
-        command = new QuitCommand(entityUtil, worldManager);
+        command = new QuitCommand(entityService, worldManager);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         result.getOutput().forEach(line -> assertFalse(line.contains("window.location")));
-        verify(entityUtil, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
         verify(worldManager, never()).remove(any(Entity.class));
     }
 
@@ -82,7 +82,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"now"}, "now");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 
@@ -91,7 +91,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"NoW"}, "NoW");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 
@@ -100,7 +100,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"later"}, "later");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityUtil, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
         verify(worldManager, never()).remove(any(Entity.class));
     }
 }
