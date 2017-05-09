@@ -25,7 +25,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,7 +50,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     private Entity entity;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
@@ -74,7 +74,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("testy"))).thenReturn(entity);
 
-        command = new TellCommand(entityRepository, entityUtil);
+        command = new TellCommand(entityRepository, entityService);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 
 
@@ -110,7 +110,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "frodo Feed me a stray cat.");
 
         verify(response).append(eq("You don't know of anyone by that name."));
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "testy Feed me a stray cat.");
 
         verify(response).append(eq("You murmur quietly to yourself."));
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Ahoy!");
 
         verify(response).append(eq("[red]You tell Stu 'Ahoy![red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
+        verify(entityService).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -144,7 +144,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu Feed me a stray cat.");
 
         verify(response).append(eq("[red]You tell Stu 'Feed me a stray cat.[red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
+        verify(entityService).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -158,7 +158,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
                 "stu <script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[red]You tell Stu '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[red]'"));
-        verify(entityUtil).sendMessageToEntity(eq(stu), outputCaptor.capture());
+        verify(entityService).sendMessageToEntity(eq(stu), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

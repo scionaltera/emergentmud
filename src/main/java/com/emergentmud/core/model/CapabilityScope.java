@@ -22,5 +22,5 @@ package com.emergentmud.core.model;
 
 public enum CapabilityScope {
     PLAYER,
-    IMPLEMENTOR
+    ADMINISTRATOR
 }

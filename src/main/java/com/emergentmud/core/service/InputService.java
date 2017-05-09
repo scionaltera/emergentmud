@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.util;
+package com.emergentmud.core.service;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class InputUtil {
+public class InputService {
     public String chopWords(String input) {
         return chopWords(input, 1);
     }

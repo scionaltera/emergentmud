@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommunicationCommandTest;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,7 +49,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     private ArgumentCaptor<GameOutput> outputCaptor;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     private String cmd = "say";
 
@@ -66,7 +66,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
 
-        command = new SayCommand(entityUtil);
+        command = new SayCommand(entityService);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[cyan]You say 'Feed me a stray cat.[cyan]'"));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -95,7 +95,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[cyan]You say '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

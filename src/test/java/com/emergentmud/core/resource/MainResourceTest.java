@@ -42,7 +42,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -103,7 +103,7 @@ public class MainResourceTest {
     private WorldManager worldManager;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private Emote emote;
@@ -189,9 +189,9 @@ public class MainResourceTest {
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(playCapability));
-        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.IMPLEMENTOR))).thenReturn(Collections.singletonList(adminAccountCapability));
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminAccountCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
-        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.IMPLEMENTOR))).thenReturn(Collections.singletonList(adminCapability));
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminCapability));
 
         mainResource = new MainResource(
                 applicationContext,
@@ -204,7 +204,7 @@ public class MainResourceTest {
                 capabilityRepository,
                 roomBuilder,
                 worldManager,
-                entityUtil,
+                entityService,
                 emote
         );
     }
@@ -484,7 +484,7 @@ public class MainResourceTest {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
-        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
@@ -512,7 +512,7 @@ public class MainResourceTest {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(roomBuilder).generateRoom(eq(0L), eq(0L), eq(0L));
-        verify(entityUtil).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
@@ -584,7 +584,7 @@ public class MainResourceTest {
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
-        verify(entityUtil).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());

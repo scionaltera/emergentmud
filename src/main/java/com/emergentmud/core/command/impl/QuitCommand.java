@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,13 +35,13 @@ import javax.inject.Inject;
 public class QuitCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuitCommand.class);
 
-    private EntityUtil entityUtil;
+    private EntityService entityService;
     private WorldManager worldManager;
 
     @Inject
-    public QuitCommand(EntityUtil entityUtil,
+    public QuitCommand(EntityService entityService,
                        WorldManager worldManager) {
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
         this.worldManager = worldManager;
 
         setDescription("Leave the game.");
@@ -59,7 +59,7 @@ public class QuitCommand extends BaseCommand {
 
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
-        entityUtil.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
+        entityService.sendMessageToRoom(entity.getRoom(), entity, enterMessage);
 
         LOGGER.info("{} has left the game", entity.getName());
 

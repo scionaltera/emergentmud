@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.util;
+package com.emergentmud.core.service;
 
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
@@ -34,15 +34,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class EntityUtil {
+public class EntityService {
     private EntityRepository entityRepository;
     private SimpMessagingTemplate simpMessagingTemplate;
     private PromptBuilder promptBuilder;
 
     @Inject
-    public EntityUtil(EntityRepository entityRepository,
-                      SimpMessagingTemplate simpMessagingTemplate,
-                      PromptBuilder promptBuilder) {
+    public EntityService(EntityRepository entityRepository,
+                         SimpMessagingTemplate simpMessagingTemplate,
+                         PromptBuilder promptBuilder) {
         this.entityRepository = entityRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.promptBuilder = promptBuilder;

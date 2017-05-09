@@ -26,7 +26,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import com.emergentmud.core.util.SpringContextSingleton;
 import org.springframework.context.ApplicationContext;
 
@@ -42,11 +42,11 @@ public class InWorldAppender<T> extends AppenderBase<T> {
             return;
         }
 
-        EntityUtil entityUtil = (EntityUtil)applicationContext.getBean("entityUtil");
+        EntityService entityService = (EntityService)applicationContext.getBean("entityService");
         EntityRepository entityRepository = (EntityRepository)applicationContext.getBean("entityRepository");
         CapabilityRepository capabilityRepository = (CapabilityRepository)applicationContext.getBean("capabilityRepository");
 
-        if (entityUtil == null || entityRepository == null) {
+        if (entityService == null || entityRepository == null) {
             return;
         }
 
@@ -58,7 +58,7 @@ public class InWorldAppender<T> extends AppenderBase<T> {
                 .collect(Collectors.toList());
 
         if (!contents.isEmpty()) {
-            entityUtil.sendMessageToListeners(contents, logMessage);
+            entityService.sendMessageToListeners(contents, logMessage);
         }
     }
 }

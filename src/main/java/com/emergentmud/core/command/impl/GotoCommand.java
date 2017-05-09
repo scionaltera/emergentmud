@@ -26,7 +26,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -40,16 +40,16 @@ public class GotoCommand extends BaseCommand {
 
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
     public GotoCommand(ApplicationContext applicationContext,
                        WorldManager worldManager,
-                       EntityUtil entityUtil) {
+                       EntityService entityService) {
 
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Instantly transport to another room.");
         addParameter("x", true);
@@ -81,7 +81,7 @@ public class GotoCommand extends BaseCommand {
 
             GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
 
-            entityUtil.sendMessageToRoom(room, entity, exitMessage);
+            entityService.sendMessageToRoom(room, entity, exitMessage);
         } else {
             LOGGER.warn("GOTO from NULL room!");
         }
@@ -91,7 +91,7 @@ public class GotoCommand extends BaseCommand {
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
 
-        entityUtil.sendMessageToRoom(room, entity, enterMessage);
+        entityService.sendMessageToRoom(room, entity, enterMessage);
 
         Command look = (Command)applicationContext.getBean("lookCommand");
         look.execute(output, entity, "look", new String[0], "");

@@ -26,7 +26,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,7 +49,7 @@ public class MoveCommandTest {
     private RoomBuilder roomBuilder;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private GameOutput output;
@@ -99,7 +99,7 @@ public class MoveCommandTest {
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityUtil);
+        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityService);
     }
 
     @Test
@@ -121,8 +121,8 @@ public class MoveCommandTest {
         verify(worldManager).put(eq(entity), eq(0L), eq(1L), eq(0L));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), eq(new String[0]), eq(""));
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
-        verify(entityUtil).sendMessageToRoom(eq(room2), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(room2), eq(entity), any(GameOutput.class));
     }
 
     @Test

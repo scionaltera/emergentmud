@@ -25,7 +25,7 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
@@ -37,9 +37,9 @@ import java.util.List;
 public class GossipCommand extends BaseCommunicationCommand implements Command {
     @Inject
     public GossipCommand(EntityRepository entityRepository,
-                         EntityUtil entityUtil) {
+                         EntityService entityService) {
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Send a message to all other players.");
         addParameter("message", true);
@@ -59,7 +59,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
 
         List<Entity> contents = entityRepository.findByRoomIsNotNull();
 
-        entityUtil.sendMessageToListeners(contents, entity, toRoom);
+        entityService.sendMessageToListeners(contents, entity, toRoom);
 
         return output;
     }

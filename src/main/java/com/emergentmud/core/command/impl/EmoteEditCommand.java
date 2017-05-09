@@ -26,7 +26,7 @@ import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
-import com.emergentmud.core.util.InputUtil;
+import com.emergentmud.core.service.InputService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +37,12 @@ public class EmoteEditCommand extends BaseCommand {
     static final Sort SORT = new Sort("priority", "name");
 
     private EmoteMetadataRepository emoteMetadataRepository;
-    private InputUtil inputUtil;
+    private InputService inputService;
 
     @Inject
-    public EmoteEditCommand(EmoteMetadataRepository emoteMetadataRepository, InputUtil inputUtil) {
+    public EmoteEditCommand(EmoteMetadataRepository emoteMetadataRepository, InputService inputService) {
         this.emoteMetadataRepository = emoteMetadataRepository;
-        this.inputUtil = inputUtil;
+        this.inputService = inputService;
 
         setDescription("Edit and prioritize emotes.");
         addSubcommand("list", "List all emotes.");
@@ -135,7 +135,7 @@ public class EmoteEditCommand extends BaseCommand {
                     return output;
                 }
 
-                String message = inputUtil.chopWords(raw, 3);
+                String message = inputService.chopWords(raw, 3);
 
                 switch (fieldNumber) {
                     case 1: metadata.setToSelfUntargeted(message); break;

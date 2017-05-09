@@ -24,7 +24,7 @@ import com.emergentmud.core.command.impl.MoveCommand;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,25 +43,25 @@ public class CommandConfiguration {
     private WorldManager worldManager;
 
     @Inject
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Bean(name = "northCommand")
     public MoveCommand northCommand() {
-        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityUtil);
+        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityService);
     }
 
     @Bean(name = "eastCommand")
     public MoveCommand eastCommand() {
-        return new MoveCommand(Direction.EAST, applicationContext, worldManager, roomBuilder, entityUtil);
+        return new MoveCommand(Direction.EAST, applicationContext, worldManager, roomBuilder, entityService);
     }
 
     @Bean(name = "southCommand")
     public MoveCommand southCommand() {
-        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, roomBuilder, entityUtil);
+        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, roomBuilder, entityService);
     }
 
     @Bean(name = "westCommand")
     public MoveCommand westCommand() {
-        return new MoveCommand(Direction.WEST, applicationContext, worldManager, roomBuilder, entityUtil);
+        return new MoveCommand(Direction.WEST, applicationContext, worldManager, roomBuilder, entityService);
     }
 }
