@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -45,6 +46,9 @@ public class InfoCommandTest {
     private Entity target;
 
     @Mock
+    private Account account;
+
+    @Mock
     private Room room;
 
     @Mock
@@ -60,6 +64,7 @@ public class InfoCommandTest {
 
         when(entity.getRoom()).thenReturn(room);
         when(entity.getName()).thenReturn("Scion");
+        when(entity.getAccount()).thenReturn(account);
         when(target.getName()).thenReturn("Bnarg");
         when(entityService.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
         when(entityService.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
@@ -90,10 +95,18 @@ public class InfoCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         assertNotNull(result);
+        verifyZeroInteractions(target);
+        verify(entity, atLeastOnce()).getRoom();
         verify(entity).getId();
         verify(entity).getName();
-        verify(entity).getStompUsername();
+        verify(entity).getCapabilities();
+        verify(entity, atLeastOnce()).getAccount();
+        verify(account).getCapabilities();
+        verify(account).getSocialNetwork();
+        verify(account).getSocialNetworkId();
         verify(entity).getStompSessionId();
+        verify(entity).getRemoteAddr();
+        verify(entity).getUserAgent();
         verify(output, atLeastOnce()).append(anyString());
     }
 
@@ -103,10 +116,13 @@ public class InfoCommandTest {
 
         assertNotNull(result);
         verify(entityService).entitySearchGlobal(eq(entity), eq("bnarg"));
+        verifyNoMoreInteractions(entity);
+        verifyZeroInteractions(account);
+        verify(target, atLeastOnce()).getRoom();
         verify(target).getId();
         verify(target).getName();
-        verify(target).getStompUsername();
-        verify(target).getStompSessionId();
+        verify(target).getCapabilities();
+        verify(target).getAccount();
         verify(output, atLeastOnce()).append(anyString());
     }
 

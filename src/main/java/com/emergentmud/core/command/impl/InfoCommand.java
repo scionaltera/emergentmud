@@ -75,16 +75,16 @@ public class InfoCommand extends BaseCommand {
         output.append("[cyan][ [dcyan]Entity ([cyan]" + target.getId() + "[dcyan]) [cyan]]");
         output.append("[dcyan]Name: [cyan]" + target.getName());
         output.append("[dcyan]Location: " + location);
-
-        if (entity.getAccount() != null) {
-            output.append("[dcyan]Account Capabilities: [cyan]" + target.getAccount().getCapabilities());
-        }
-
         output.append("[dcyan]Entity Capabilities: [cyan]" + target.getCapabilities());
-        output.append("[dcyan]Social Username: [cyan]" + target.getStompUsername());
-        output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
-        output.append("[dcyan]Remote Address: [cyan]" + target.getRemoteAddr());
-        output.append("[dcyan]User Agent: [cyan]" + target.getUserAgent());
+
+        if (target.getAccount() != null) {
+            output.append("[dcyan]Account Capabilities: [cyan]" + target.getAccount().getCapabilities());
+            output.append("[dcyan]Social Network: [cyan]" + target.getAccount().getSocialNetwork());
+            output.append("[dcyan]Social Username: [cyan]" + target.getAccount().getSocialNetworkId());
+            output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
+            output.append("[dcyan]Remote Address: [cyan]" + target.getRemoteAddr());
+            output.append("[dcyan]User Agent: [cyan]" + target.getUserAgent());
+        }
 
         return output;
     }
