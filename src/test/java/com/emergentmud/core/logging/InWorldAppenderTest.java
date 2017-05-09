@@ -27,7 +27,7 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import com.emergentmud.core.util.SpringContextSingleton;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class InWorldAppenderTest {
     private ApplicationContext applicationContext;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private EntityRepository entityRepository;
@@ -95,7 +95,7 @@ public class InWorldAppenderTest {
     public void testEarlyStartup() throws Exception {
         inWorldAppender.append(eventObject);
 
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
         verifyZeroInteractions(entityRepository);
         verifyZeroInteractions(admin);
         verifyZeroInteractions(adminOffline);
@@ -110,7 +110,7 @@ public class InWorldAppenderTest {
 
         inWorldAppender.append(eventObject);
 
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
         verifyZeroInteractions(entityRepository);
         verifyZeroInteractions(admin);
         verifyZeroInteractions(adminOffline);
@@ -123,14 +123,14 @@ public class InWorldAppenderTest {
     public void testBeansInitialized() throws Exception {
         singleton.setApplicationContext(applicationContext);
 
-        when(applicationContext.getBean("entityUtil")).thenReturn(entityUtil);
+        when(applicationContext.getBean("entityService")).thenReturn(entityService);
         when(applicationContext.getBean("entityRepository")).thenReturn(entityRepository);
         when(applicationContext.getBean("capabilityRepository")).thenReturn(capabilityRepository);
 
         inWorldAppender.append(eventObject);
 
         verify(entityRepository).findByRoomIsNotNull();
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
         verify(admin).isCapable(eq(capability));
         verify(player).isCapable(eq(capability));
         verifyZeroInteractions(adminOffline);

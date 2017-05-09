@@ -25,7 +25,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -44,7 +44,7 @@ public class EmoteTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Mock
     private GameOutput output;
@@ -98,7 +98,7 @@ public class EmoteTest {
 
         when(entityRepository.findByRoom(eq(room))).thenReturn(entities);
 
-        emote = new Emote(entityRepository, entityUtil);
+        emote = new Emote(entityRepository, entityService);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class EmoteTest {
 
         verify(output).append(eq("Huh?"));
         verifyZeroInteractions(entityRepository);
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[0]);
 
         verify(output).append("You grin.");
-        verify(entityUtil).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
 
         GameOutput observerOutput = outputCaptor.getValue();
 
@@ -139,8 +139,8 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[]{"Bnarg"});
 
         verify(output).append("You grin at Bnarg.");
-        verify(entityUtil).sendMessageToEntity(eq(target), outputCaptor.capture());
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToEntity(eq(target), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
 
         List<GameOutput> outputs = outputCaptor.getAllValues();
         GameOutput targetOutput = outputs.get(0);
@@ -155,7 +155,7 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[] {"me"});
 
         verify(output).append("You grin to yourself.");
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
 
         GameOutput observerOutput = outputCaptor.getValue();
 
@@ -167,7 +167,7 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[] {"self"});
 
         verify(output).append("You grin to yourself.");
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), outputCaptor.capture());
 
         GameOutput observerOutput = outputCaptor.getValue();
 
@@ -182,6 +182,6 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[] {"self"});
 
         verify(output).append("Sorry, this emote doesn't support targeting yourself.");
-        verifyZeroInteractions(entityUtil);
+        verifyZeroInteractions(entityService);
     }
 }

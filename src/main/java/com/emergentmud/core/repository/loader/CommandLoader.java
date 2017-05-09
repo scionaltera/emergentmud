@@ -57,13 +57,13 @@ public class CommandLoader {
 
             List<Capability> capabilityList = new ArrayList<>();
 
-            capabilityList.add(new Capability(CommandRole.SUPER.name(), "use every command", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.TELEPORT.name(), "use teleport commands", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.CAPEDIT.name(), "use capability editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
-            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.SUPER.name(), "use every command", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.TELEPORT.name(), "use teleport commands", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.CAPEDIT.name(), "use capability editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
+            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
 
             capabilityList.add(new Capability(CommandRole.CHAR_NEW.name(), "create characters", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
             capabilityList.add(new Capability(CommandRole.CHAR_PLAY.name(), "play the game", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));

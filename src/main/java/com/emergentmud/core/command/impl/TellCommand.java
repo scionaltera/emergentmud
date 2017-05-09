@@ -25,7 +25,7 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
@@ -36,9 +36,9 @@ import javax.inject.Inject;
 public class TellCommand extends BaseCommunicationCommand implements Command {
     @Inject
     public TellCommand(EntityRepository entityRepository,
-                       EntityUtil entityUtil) {
+                       EntityService entityService) {
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Send a private message to another player.");
         addParameter("target", true);
@@ -73,7 +73,7 @@ public class TellCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toTarget = new GameOutput(String.format("[red]%s tells you '%s[red]'", entity.getName(), HtmlUtils.htmlEscape(message)));
 
-        entityUtil.sendMessageToEntity(target, toTarget);
+        entityService.sendMessageToEntity(target, toTarget);
 
         return output;
     }

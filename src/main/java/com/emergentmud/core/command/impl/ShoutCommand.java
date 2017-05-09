@@ -27,8 +27,8 @@ import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.util.EntityUtil;
-import com.emergentmud.core.util.RoomUtil;
+import com.emergentmud.core.service.EntityService;
+import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
@@ -42,17 +42,17 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
     static final long SHOUT_DISTANCE = 7;
 
     private RoomRepository roomRepository;
-    private RoomUtil roomUtil;
+    private RoomService roomService;
 
     @Inject
     public ShoutCommand(RoomRepository roomRepository,
                         EntityRepository entityRepository,
-                        RoomUtil roomUtil,
-                        EntityUtil entityUtil) {
+                        RoomService roomService,
+                        EntityService entityService) {
         this.roomRepository = roomRepository;
-        this.roomUtil = roomUtil;
+        this.roomService = roomService;
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Send a message to those within a few rooms of you.");
         addParameter("message", true);
@@ -80,12 +80,12 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
                 entityRoom.getZ() + SHOUT_DISTANCE);
 
         rooms = rooms.stream()
-                .filter(r -> roomUtil.isWithinDistance(entityRoom, r, SHOUT_DISTANCE))
+                .filter(r -> roomService.isWithinDistance(entityRoom, r, SHOUT_DISTANCE))
                 .collect(Collectors.toList());
 
         List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
-        entityUtil.sendMessageToListeners(contents, entity, toZone);
+        entityService.sendMessageToListeners(contents, entity, toZone);
 
         return output;
     }

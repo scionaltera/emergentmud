@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.event;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextClosedEvent;
@@ -36,12 +36,12 @@ import java.util.List;
 @Component
 public class GameShutdownListener implements ApplicationListener<ApplicationContextEvent> {
     private EntityRepository entityRepository;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
-    public GameShutdownListener(EntityRepository entityRepository, EntityUtil entityUtil) {
+    public GameShutdownListener(EntityRepository entityRepository, EntityService entityService) {
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class GameShutdownListener implements ApplicationListener<ApplicationCont
             List<Entity> everyone = entityRepository.findByRoomIsNotNull();
             GameOutput output = new GameOutput("[red]EmergentMUD is shutting down. Please check back later!");
 
-            entityUtil.sendMessageToListeners(everyone, output);
+            entityService.sendMessageToListeners(everyone, output);
         }
     }
 }

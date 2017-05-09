@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommunicationCommandTest;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,7 +48,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
     private Entity entity;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
@@ -67,7 +67,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
         when(entity.getName()).thenReturn("Testy");
         when(entityRepository.findByRoomIsNotNull()).thenReturn(worldContents);
 
-        command = new GossipCommand(entityRepository, entityUtil);
+        command = new GossipCommand(entityRepository, entityService);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[green]You gossip 'Feed me a stray cat.[green]'"));
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -96,7 +96,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[green]You gossip '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[green]'"));
-        verify(entityUtil).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToListeners(anyListOf(Entity.class), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,23 +20,24 @@
 
 package com.emergentmud.core.util;
 
+import com.emergentmud.core.service.InputService;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class InputUtilTest {
-    private InputUtil inputUtil;
+public class InputServiceTest {
+    private InputService inputService;
 
     @Before
     public void setUp() throws Exception {
-        inputUtil = new InputUtil();
+        inputService = new InputService();
     }
 
     @Test
     public void testChopSingleWord() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = inputUtil.chopWords(in);
+        String out = inputService.chopWords(in);
 
         assertEquals("baker charlie dog easy fox", out);
     }
@@ -44,7 +45,7 @@ public class InputUtilTest {
     @Test
     public void testChopTwoWords() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = inputUtil.chopWords(in, 2);
+        String out = inputService.chopWords(in, 2);
 
         assertEquals("charlie dog easy fox", out);
     }
@@ -52,7 +53,7 @@ public class InputUtilTest {
     @Test
     public void testChopThreeWords() throws Exception {
         String in = "able baker charlie dog easy fox";
-        String out = inputUtil.chopWords(in, 3);
+        String out = inputService.chopWords(in, 3);
 
         assertEquals("dog easy fox", out);
     }
@@ -60,7 +61,7 @@ public class InputUtilTest {
     @Test
     public void testWithTabs() throws Exception {
         String in = "able\tbaker\tcharlie\tdog\teasy\tfox";
-        String out = inputUtil.chopWords(in);
+        String out = inputService.chopWords(in);
 
         assertEquals("baker\tcharlie\tdog\teasy\tfox", out);
     }
@@ -68,7 +69,7 @@ public class InputUtilTest {
     @Test
     public void testWithMultipleSpaces() throws Exception {
         String in = "able   baker   charlie   dog   easy  fox";
-        String out = inputUtil.chopWords(in);
+        String out = inputService.chopWords(in);
 
         assertEquals("baker   charlie   dog   easy  fox", out);
     }

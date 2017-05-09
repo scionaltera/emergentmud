@@ -29,7 +29,7 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -43,17 +43,17 @@ public class CapabilityEditCommand extends BaseCommand {
     private CapabilityRepository capabilityRepository;
     private AccountRepository accountRepository;
     private EntityRepository entityRepository;
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
     public CapabilityEditCommand(CapabilityRepository capabilityRepository,
                                  AccountRepository accountRepository,
                                  EntityRepository entityRepository,
-                                 EntityUtil entityUtil) {
+                                 EntityService entityService) {
         this.capabilityRepository = capabilityRepository;
         this.accountRepository = accountRepository;
         this.entityRepository = entityRepository;
-        this.entityUtil = entityUtil;
+        this.entityService = entityService;
 
         setDescription("Alter capabilities on entities and accounts.");
         addSubcommand("list", "List all capabilities.");
@@ -83,7 +83,7 @@ public class CapabilityEditCommand extends BaseCommand {
             }
 
             Entity target;
-            Optional<Entity> entityOptional = entityUtil.entitySearchGlobal(entity, tokens[1]);
+            Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, tokens[1]);
 
             if (!entityOptional.isPresent()) {
                 output.append("[yellow]There is nothing by that name here.");

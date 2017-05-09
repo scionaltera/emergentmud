@@ -24,7 +24,7 @@ import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -52,7 +52,7 @@ public class InfoCommandTest {
     private Room room;
 
     @Mock
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     private String cmd = "info";
 
@@ -66,10 +66,10 @@ public class InfoCommandTest {
         when(entity.getName()).thenReturn("Scion");
         when(entity.getAccount()).thenReturn(account);
         when(target.getName()).thenReturn("Bnarg");
-        when(entityUtil.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
-        when(entityUtil.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
+        when(entityService.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
+        when(entityService.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
 
-        command = new InfoCommand(entityUtil);
+        command = new InfoCommand(entityService);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class InfoCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] { "bnarg" }, "bnarg");
 
         assertNotNull(result);
-        verify(entityUtil).entitySearchGlobal(eq(entity), eq("bnarg"));
+        verify(entityService).entitySearchGlobal(eq(entity), eq("bnarg"));
         verifyNoMoreInteractions(entity);
         verifyZeroInteractions(account);
         verify(target, atLeastOnce()).getRoom();
@@ -131,7 +131,7 @@ public class InfoCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
         assertNotNull(result);
-        verify(entityUtil).entitySearchGlobal(eq(entity), eq("morgan"));
+        verify(entityService).entitySearchGlobal(eq(entity), eq("morgan"));
         verifyNoMoreInteractions(target, entity);
         verify(output, atLeastOnce()).append(anyString());
     }

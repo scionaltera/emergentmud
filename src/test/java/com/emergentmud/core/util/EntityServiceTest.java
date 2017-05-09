@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,6 +25,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +42,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class EntityUtilTest {
+public class EntityServiceTest {
     @Mock
     private EntityRepository entityRepository;
 
@@ -65,7 +66,7 @@ public class EntityUtilTest {
 
     private List<Entity> contents;
 
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Before
     public void setUp() throws Exception {
@@ -78,12 +79,12 @@ public class EntityUtilTest {
         when(entity.getStompSessionId()).thenReturn("stompSessionId");
         when(entity.getStompUsername()).thenReturn("stompUsername");
 
-        entityUtil = new EntityUtil(entityRepository, simpMessagingTemplate, promptBuilder);
+        entityService = new EntityService(entityRepository, simpMessagingTemplate, promptBuilder);
     }
 
     @Test
     public void testSendMessageToEntity() throws Exception {
-        entityUtil.sendMessageToEntity(entity, output);
+        entityService.sendMessageToEntity(entity, output);
 
         verify(simpMessagingTemplate).convertAndSendToUser(
                 eq("stompUsername"),
@@ -100,21 +101,21 @@ public class EntityUtilTest {
 
     @Test
     public void testSendMessageToRoom() throws Exception {
-        entityUtil.sendMessageToRoom(room, entity, output);
+        entityService.sendMessageToRoom(room, entity, output);
 
         verifyContents();
     }
 
     @Test
     public void testSendMessageToListeners() throws Exception {
-        entityUtil.sendMessageToListeners(contents, entity, output);
+        entityService.sendMessageToListeners(contents, entity, output);
 
         verifyContents();
     }
 
     @Test
     public void testSendMessageToListenersNoSender() throws Exception {
-        entityUtil.sendMessageToListeners(contents, output);
+        entityService.sendMessageToListeners(contents, output);
 
         verifyContents();
     }

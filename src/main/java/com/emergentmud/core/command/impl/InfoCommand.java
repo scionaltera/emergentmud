@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -31,11 +31,11 @@ import java.util.Optional;
 
 @Component
 public class InfoCommand extends BaseCommand {
-    private EntityUtil entityUtil;
+    private EntityService entityService;
 
     @Inject
-    public InfoCommand(EntityUtil entityUtil) {
-        this.entityUtil = entityUtil;
+    public InfoCommand(EntityService entityService) {
+        this.entityService = entityService;
 
         setDescription("Display information about a thing in the game.");
         addParameter("target", false);
@@ -48,7 +48,7 @@ public class InfoCommand extends BaseCommand {
         if (tokens.length == 0) {
             target = entity;
         } else if (tokens.length == 1) {
-            Optional<Entity> entityOptional = entityUtil.entitySearchGlobal(entity, tokens[0]);
+            Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, tokens[0]);
 
             if (!entityOptional.isPresent()) {
                 output.append("[yellow]There is nothing by that name here.");

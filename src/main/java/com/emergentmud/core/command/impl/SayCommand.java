@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommunicationCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.util.EntityUtil;
+import com.emergentmud.core.service.EntityService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
@@ -34,8 +34,8 @@ import javax.inject.Inject;
 @Component
 public class SayCommand extends BaseCommunicationCommand implements Command {
     @Inject
-    public SayCommand(EntityUtil entityUtil) {
-        this.entityUtil = entityUtil;
+    public SayCommand(EntityService entityService) {
+        this.entityService = entityService;
 
         setDescription("Send a message to others in the same room.");
         addParameter("message", true);
@@ -53,7 +53,7 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
-        entityUtil.sendMessageToRoom(entity.getRoom(), entity, toRoom);
+        entityService.sendMessageToRoom(entity.getRoom(), entity, toRoom);
 
         return output;
     }
