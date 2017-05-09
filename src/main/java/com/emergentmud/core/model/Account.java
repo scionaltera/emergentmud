@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -106,11 +106,15 @@ public class Account implements Capable {
         Account account = (Account) o;
 
         return getId().equals(account.getId());
-
     }
 
     @Override
     public int hashCode() {
         return getId().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return getSocialNetwork() + ":" + getSocialNetworkId();
     }
 }

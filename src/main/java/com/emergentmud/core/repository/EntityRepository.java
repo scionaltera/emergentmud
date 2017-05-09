@@ -32,6 +32,7 @@ import java.util.List;
 public interface EntityRepository extends MongoRepository<Entity, String> {
     Entity findByAccountAndId(Account account, String id);
     Entity findByNameStartingWithIgnoreCase(String name);
+    Entity findByNameStartingWithIgnoreCaseAndRoomIsNotNull(String name);
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
     List<Entity> findByRoom(Room room);
     List<Entity> findByRoomIn(List<Room> rooms);

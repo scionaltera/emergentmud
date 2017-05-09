@@ -23,13 +23,13 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.util.EntityUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -48,7 +48,7 @@ public class InfoCommandTest {
     private Room room;
 
     @Mock
-    private EntityRepository entityRepository;
+    private EntityUtil entityUtil;
 
     private String cmd = "info";
 
@@ -61,8 +61,10 @@ public class InfoCommandTest {
         when(entity.getRoom()).thenReturn(room);
         when(entity.getName()).thenReturn("Scion");
         when(target.getName()).thenReturn("Bnarg");
+        when(entityUtil.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
+        when(entityUtil.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
 
-        command = new InfoCommand(entityRepository);
+        command = new InfoCommand(entityUtil);
     }
 
     @Test
@@ -85,8 +87,6 @@ public class InfoCommandTest {
 
     @Test
     public void testExecute() throws Exception {
-        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
-
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         assertNotNull(result);
@@ -99,13 +99,12 @@ public class InfoCommandTest {
 
     @Test
     public void testExecuteTarget() throws Exception {
-        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
-
         GameOutput result = command.execute(output, entity, cmd, new String[] { "bnarg" }, "bnarg");
 
         assertNotNull(result);
+        verify(entityUtil).entitySearchGlobal(eq(entity), eq("bnarg"));
         verify(target).getId();
-        verify(target, times(2)).getName();
+        verify(target).getName();
         verify(target).getStompUsername();
         verify(target).getStompSessionId();
         verify(output, atLeastOnce()).append(anyString());
@@ -113,14 +112,10 @@ public class InfoCommandTest {
 
     @Test
     public void testExecuteInvalidTarget() throws Exception {
-        when(entityRepository.findByRoom(room)).thenReturn(Arrays.asList(entity, target));
-
         GameOutput result = command.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
         assertNotNull(result);
-        verify(target).getName();
-        verify(entity).getName();
-        verify(entity).getRoom();
+        verify(entityUtil).entitySearchGlobal(eq(entity), eq("morgan"));
         verifyNoMoreInteractions(target, entity);
         verify(output, atLeastOnce()).append(anyString());
     }

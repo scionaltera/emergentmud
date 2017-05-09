@@ -24,6 +24,8 @@ import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
+import com.emergentmud.core.model.CapabilityObject;
+import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
@@ -129,9 +131,13 @@ public class MainResource {
             account = new Account();
             account.setSocialNetwork(network);
             account.setSocialNetworkId(networkId);
+            account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
 
-            account.addCapabilities(capabilityRepository.findByName(CommandRole.CHAR_NEW.name()));
-            account.addCapabilities(capabilityRepository.findByName(CommandRole.CHAR_PLAY.name()));
+            if (accountRepository.count() == 0) {
+                LOGGER.info("Making {}:{} into an administrator", account.getSocialNetwork(), account.getSocialNetworkId());
+
+                account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.IMPLEMENTOR));
+            }
 
             account = accountRepository.save(account);
 
@@ -222,20 +228,10 @@ public class MainResource {
         if (entityRepository.count() == 0) {
             LOGGER.info("Making {} into an administrator", entity.getName());
 
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.SUPER.name()));
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.TELEPORT.name()));
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.CMDEDIT.name()));
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTEEDIT.name()));
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.DATA.name()));
-            entity.addCapabilities(capabilityRepository.findByName(CommandRole.LOG.name()));
+            entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
         }
 
-        entity.addCapabilities(capabilityRepository.findByName(CommandRole.EMOTE.name()));
-        entity.addCapabilities(capabilityRepository.findByName(CommandRole.BASIC.name()));
-        entity.addCapabilities(capabilityRepository.findByName(CommandRole.MOVE.name()));
-        entity.addCapabilities(capabilityRepository.findByName(CommandRole.SEE.name()));
-        entity.addCapabilities(capabilityRepository.findByName(CommandRole.TALK.name()));
-
+        entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.PLAYER));
         entity.setCreationDate(System.currentTimeMillis());
         entity.setAccount(account);
         entity = entityRepository.save(entity);

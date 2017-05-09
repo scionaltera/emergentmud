@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.util.EntityUtil;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -31,11 +31,11 @@ import java.util.Optional;
 
 @Component
 public class InfoCommand extends BaseCommand {
-    private EntityRepository entityRepository;
+    private EntityUtil entityUtil;
 
     @Inject
-    public InfoCommand(EntityRepository entityRepository) {
-        this.entityRepository = entityRepository;
+    public InfoCommand(EntityUtil entityUtil) {
+        this.entityUtil = entityUtil;
 
         setDescription("Display information about a thing in the game.");
         addParameter("target", false);
@@ -48,22 +48,15 @@ public class InfoCommand extends BaseCommand {
         if (tokens.length == 0) {
             target = entity;
         } else if (tokens.length == 1) {
-            Optional<Entity> optional = entityRepository.findByRoom(entity.getRoom())
-                    .stream()
-                    .filter(t -> t.getName().toLowerCase().startsWith(tokens[0]))
-                    .findFirst();
+            Optional<Entity> entityOptional = entityUtil.entitySearchGlobal(entity, tokens[0]);
 
-            if (optional.isPresent()) {
-                target = optional.get();
-            } else {
-                target = entityRepository.findByNameStartingWithIgnoreCase(tokens[0]);
+            if (!entityOptional.isPresent()) {
+                output.append("[yellow]There is nothing by that name here.");
 
-                if (target == null) {
-                    output.append("[yellow]There is nothing by that name here.");
-
-                    return output;
-                }
+                return output;
             }
+
+            target = entityOptional.get();
         } else {
             usage(output, command);
 

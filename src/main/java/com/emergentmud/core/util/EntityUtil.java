@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class EntityUtil {
@@ -97,5 +98,32 @@ public class EntityUtil {
 
                     simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
                 });
+    }
+
+    public Optional<Entity> entitySearchRoom(Entity entity, String name) {
+        return entityRepository.findByRoom(entity.getRoom())
+                .stream()
+                .filter(t -> t.getName().toLowerCase().startsWith(name))
+                .findFirst();
+    }
+
+    public Optional<Entity> entitySearchInWorld(Entity entity, String name) {
+        Optional<Entity> entityOptional = entitySearchRoom(entity, name);
+
+        if (entityOptional.isPresent()) {
+            return entityOptional;
+        }
+
+        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCaseAndRoomIsNotNull(name));
+    }
+
+    public Optional<Entity> entitySearchGlobal(Entity entity, String name) {
+        Optional<Entity> entityOptional = entitySearchInWorld(entity, name);
+
+        if (entityOptional.isPresent()) {
+            return entityOptional;
+        }
+
+        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCase(name));
     }
 }

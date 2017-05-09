@@ -21,10 +21,16 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Capability;
+import com.emergentmud.core.model.CapabilityObject;
+import com.emergentmud.core.model.CapabilityScope;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface CapabilityRepository extends MongoRepository<Capability, String> {
     Capability findByName(String name);
+    Capability findByNameIgnoreCase(String name);
+    List<Capability> findByObjectAndScope(CapabilityObject object, CapabilityScope scope);
 }
