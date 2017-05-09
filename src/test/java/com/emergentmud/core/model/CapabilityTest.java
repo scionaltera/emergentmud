@@ -34,7 +34,7 @@ public class CapabilityTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        capability = new Capability("CAP", "capable");
+        capability = new Capability("CAP", "capable", CapabilityObject.ENTITY, CapabilityScope.PLAYER);
     }
 
     @Test
@@ -66,8 +66,22 @@ public class CapabilityTest {
     }
 
     @Test
+    public void testObject() throws Exception {
+        capability.setObject(CapabilityObject.ENTITY);
+
+        assertEquals(CapabilityObject.ENTITY, capability.getObject());
+    }
+
+    @Test
+    public void testScope() throws Exception {
+        capability.setScope(CapabilityScope.PLAYER);
+
+        assertEquals(CapabilityScope.PLAYER, capability.getScope());
+    }
+
+    @Test
     public void testEquals() throws Exception {
-        Capability capabilityB = new Capability("B", "alternate");
+        Capability capabilityB = new Capability("B", "alternate", CapabilityObject.ENTITY, CapabilityScope.PLAYER);
 
         capability.setId("capA");
         capabilityB.setId("capB");

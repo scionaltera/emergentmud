@@ -21,6 +21,8 @@
 package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.Capability;
+import com.emergentmud.core.model.CapabilityObject;
+import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.repository.CapabilityRepository;
@@ -55,21 +57,22 @@ public class CommandLoader {
 
             List<Capability> capabilityList = new ArrayList<>();
 
-            capabilityList.add(new Capability(CommandRole.SUPER.name(), "use every command"));
-            capabilityList.add(new Capability(CommandRole.TELEPORT.name(), "use teleport commands"));
-            capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor"));
-            capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor"));
-            capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands"));
-            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages"));
+            capabilityList.add(new Capability(CommandRole.SUPER.name(), "use every command", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.TELEPORT.name(), "use teleport commands", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.CAPEDIT.name(), "use capability editor", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
+            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages", CapabilityObject.ENTITY, CapabilityScope.IMPLEMENTOR));
 
-            capabilityList.add(new Capability(CommandRole.CHAR_NEW.name(), "create characters"));
-            capabilityList.add(new Capability(CommandRole.CHAR_PLAY.name(), "play the game"));
-            capabilityList.add(new Capability(CommandRole.EMOTE.name(), "use emotes"));
+            capabilityList.add(new Capability(CommandRole.CHAR_NEW.name(), "create characters", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
+            capabilityList.add(new Capability(CommandRole.CHAR_PLAY.name(), "play the game", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
 
-            capabilityList.add(new Capability(CommandRole.BASIC.name(), "use basic commands"));
-            capabilityList.add(new Capability(CommandRole.MOVE.name(), "use movement commands"));
-            capabilityList.add(new Capability(CommandRole.SEE.name(), "use sight commands"));
-            capabilityList.add(new Capability(CommandRole.TALK.name(), "use talk commands"));
+            capabilityList.add(new Capability(CommandRole.BASIC.name(), "use basic commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
+            capabilityList.add(new Capability(CommandRole.MOVE.name(), "use movement commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
+            capabilityList.add(new Capability(CommandRole.SEE.name(), "use sight commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
+            capabilityList.add(new Capability(CommandRole.EMOTE.name(), "use emotes", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
+            capabilityList.add(new Capability(CommandRole.TALK.name(), "use speech commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
 
             capabilityRepository.save(capabilityList);
         }
@@ -96,6 +99,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("help", "helpCommand", 500, capabilityRepository.findByName(CommandRole.BASIC.name())));
             metadataList.add(new CommandMetadata("cmdedit", "commandEditCommand", 1000, capabilityRepository.findByName(CommandRole.CMDEDIT.name())));
             metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, capabilityRepository.findByName(CommandRole.EMOTEEDIT.name())));
+            metadataList.add(new CommandMetadata("capedit", "capabilityEditCommand", 1000, capabilityRepository.findByName(CommandRole.CAPEDIT.name())));
             metadataList.add(new CommandMetadata("data", "dataCommand", 1000, capabilityRepository.findByName(CommandRole.DATA.name())));
             metadataList.add(new CommandMetadata("quit", "quitCommand", 2000, capabilityRepository.findByName(CommandRole.BASIC.name())));
 

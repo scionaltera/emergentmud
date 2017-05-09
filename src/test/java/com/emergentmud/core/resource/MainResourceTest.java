@@ -25,6 +25,8 @@ import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
+import com.emergentmud.core.model.CapabilityObject;
+import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
@@ -119,6 +121,9 @@ public class MainResourceTest {
     private Capability adminCapability;
 
     @Mock
+    private Capability adminAccountCapability;
+
+    @Mock
     private HttpSession httpSession;
 
     @Mock
@@ -174,6 +179,7 @@ public class MainResourceTest {
             return entity;
         });
         when(account.isCapable(eq(playCapability))).thenReturn(true);
+        when(accountRepository.count()).thenReturn(100L);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(account);
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
         when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
@@ -182,6 +188,10 @@ public class MainResourceTest {
         when(capabilityRepository.findByName(eq(CommandRole.BASIC.name()))).thenReturn(normalCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(playCapability));
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.IMPLEMENTOR))).thenReturn(Collections.singletonList(adminAccountCapability));
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
+        when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.IMPLEMENTOR))).thenReturn(Collections.singletonList(adminCapability));
 
         mainResource = new MainResource(
                 applicationContext,
@@ -226,6 +236,31 @@ public class MainResourceTest {
 
         assertEquals(NETWORK_ID, generated.getSocialNetwork());
         assertEquals(NETWORK_USER, generated.getSocialNetworkId());
+        assertTrue(generated.getCapabilities().contains(playCapability));
+        assertFalse(generated.getCapabilities().contains(adminAccountCapability));
+    }
+
+    @Test
+    public void testIndexNewAccountAdmin() throws Exception {
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+
+        when(accountRepository.count()).thenReturn(0L);
+        when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
+
+        String view = mainResource.index(httpSession, principal, model);
+
+        verify(model).addAttribute(eq("networks"), eq(socialNetworks));
+        verify(accountRepository).save(accountCaptor.capture());
+        verify(model, never()).addAttribute(eq("account"), any(Account.class));
+        verify(model, never()).addAttribute(eq("entities"), eq(entities));
+        assertEquals("new-entity", view);
+
+        Account generated = accountCaptor.getValue();
+
+        assertEquals(NETWORK_ID, generated.getSocialNetwork());
+        assertEquals(NETWORK_USER, generated.getSocialNetworkId());
+        assertTrue(generated.getCapabilities().contains(playCapability));
+        assertTrue(generated.getCapabilities().contains(adminAccountCapability));
     }
 
     @Test
@@ -264,7 +299,7 @@ public class MainResourceTest {
 
         verify(entity).setAccount(eq(account));
         verify(entity).setCreationDate(anyLong());
-        verify(entity, times(11)).addCapabilities(any(Capability.class));
+        verify(entity, times(2)).addCapabilities(anyListOf(Capability.class));
 
         assertEquals("redirect:/", view);
     }
@@ -277,7 +312,7 @@ public class MainResourceTest {
 
         verify(entity).setAccount(eq(account));
         verify(entity).setCreationDate(anyLong());
-        verify(entity, times(5)).addCapabilities(any(Capability.class));
+        verify(entity).addCapabilities(anyListOf(Capability.class));
 
         assertEquals("redirect:/", view);
     }

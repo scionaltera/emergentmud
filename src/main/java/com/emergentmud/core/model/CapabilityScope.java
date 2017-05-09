@@ -20,21 +20,7 @@
 
 package com.emergentmud.core.model;
 
-public enum CommandRole {
-    SUPER,
-
-    TELEPORT,
-    CMDEDIT,
-    EMOTEEDIT,
-    CAPEDIT,
-    DATA,
-    LOG,
-
-    EMOTE,
-    CHAR_NEW,
-    CHAR_PLAY,
-    BASIC,
-    MOVE,
-    SEE,
-    TALK
+public enum CapabilityScope {
+    PLAYER,
+    IMPLEMENTOR
 }

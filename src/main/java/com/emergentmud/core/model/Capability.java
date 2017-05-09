@@ -33,10 +33,14 @@ public class Capability {
     private String name;
 
     private String description;
+    private CapabilityObject object;
+    private CapabilityScope scope;
 
-    public Capability(String name, String description) {
+    public Capability(String name, String description, CapabilityObject object, CapabilityScope scope) {
         setName(name);
         setDescription(description);
+        setObject(object);
+        setScope(scope);
     }
 
     public String getId() {
@@ -61,6 +65,22 @@ public class Capability {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public CapabilityObject getObject() {
+        return object;
+    }
+
+    public void setObject(CapabilityObject object) {
+        this.object = object;
+    }
+
+    public CapabilityScope getScope() {
+        return scope;
+    }
+
+    public void setScope(CapabilityScope scope) {
+        this.scope = scope;
     }
 
     @Override
