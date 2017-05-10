@@ -93,7 +93,7 @@ public class GotoCommandTest {
 
     @Test
     public void testSyntax() throws Exception {
-        assertFalse(command.getParameters().isEmpty());
+        assertTrue(command.getParameters().size() == 3);
         assertTrue(command.getSubCommands().isEmpty());
     }
 
