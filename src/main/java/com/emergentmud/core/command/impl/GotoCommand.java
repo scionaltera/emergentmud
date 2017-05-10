@@ -33,6 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 @Component
 public class GotoCommand extends BaseCommand {
@@ -51,9 +52,9 @@ public class GotoCommand extends BaseCommand {
         this.worldManager = worldManager;
         this.entityService = entityService;
 
-        setDescription("Instantly transport to another room.");
-        addParameter("x", true);
-        addParameter("y", true);
+        setDescription("Instantly transport to another person, or a room by its coordinate.");
+        addParameter("x|person", true);
+        addParameter("y", false);
         addParameter("z", false);
     }
 
@@ -62,39 +63,69 @@ public class GotoCommand extends BaseCommand {
         Room room = entity.getRoom();
         long[] location = new long[3];
 
-        try {
-            location[0] = Long.parseLong(tokens[0]);
-            location[1] = Long.parseLong(tokens[1]);
-
-            if (tokens.length == 3) {
-                location[2] = Long.parseLong(tokens[2]);
-            }
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException nfe) {
+        if (tokens.length == 0) {
             usage(output, command);
+            return output;
+        } else if (tokens.length == 1) {
+            Optional<Entity> targetOptional = entityService.entitySearchInWorld(entity, tokens[0]);
 
+            if (targetOptional.isPresent()) {
+                Entity target = targetOptional.get();
+
+                location[0] = target.getRoom().getX();
+                location[1] = target.getRoom().getY();
+                location[2] = target.getRoom().getZ();
+            } else {
+                output.append("[yellow]There is no one by that name to go to.");
+                return output;
+            }
+        } else if (tokens.length == 2 || tokens.length == 3) {
+            try {
+                location[0] = Long.parseLong(tokens[0]);
+                location[1] = Long.parseLong(tokens[1]);
+
+                if (tokens.length == 3) {
+                    location[2] = Long.parseLong(tokens[2]);
+                }
+            } catch (ArrayIndexOutOfBoundsException | NumberFormatException nfe) {
+                usage(output, command);
+
+                return output;
+            }
+        }
+
+        if (room != null
+                && room.getX() == location[0]
+                && room.getY() == location[1]
+                && room.getZ() == location[2]) {
+
+            output.append("[yellow]You're already there.");
             return output;
         }
 
+        if (worldManager.test(location[0], location[1], location[2])) {
+            if (room != null) {
+                LOGGER.trace("Location before: ({}, {}, {})", room.getX(), room.getY(), room.getZ());
 
-        if (room != null) {
-            LOGGER.trace("Location before: ({}, {}, {})", room.getX(), room.getY(), room.getZ());
+                GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
 
-            GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
+                entityService.sendMessageToRoom(room, entity, exitMessage);
+            } else {
+                LOGGER.warn("GOTO from NULL room!");
+            }
 
-            entityService.sendMessageToRoom(room, entity, exitMessage);
+            room = worldManager.put(entity, location[0], location[1], location[2]);
+            LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+
+            GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
+
+            entityService.sendMessageToRoom(room, entity, enterMessage);
+
+            Command look = (Command) applicationContext.getBean("lookCommand");
+            look.execute(output, entity, "look", new String[0], "");
         } else {
-            LOGGER.warn("GOTO from NULL room!");
+            output.append("[yellow]No such room exists.");
         }
-
-        room = worldManager.put(entity, location[0], location[1], location[2]);
-        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
-
-        GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
-
-        entityService.sendMessageToRoom(room, entity, enterMessage);
-
-        Command look = (Command)applicationContext.getBean("lookCommand");
-        look.execute(output, entity, "look", new String[0], "");
 
         return output;
     }
