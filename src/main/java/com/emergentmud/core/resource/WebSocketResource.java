@@ -118,7 +118,7 @@ public class WebSocketResource {
         output.append("[dwhite]EmergentMUD offers no warranties or guarantees. Play at your own risk.");
         output.append("[red]EmergentMUD is in early stages of development. Reboots and database wipes may occur without warning!");
         output.append("[dwhite]EmergentMUD is <a class=\"green\" target=\"_blank\" " +
-                "href=\"https://bitbucket.org/scionaltera/emergentmud/overview\">free, open source software</a> that " +
+                "href=\"https://github.com/scionaltera/emergentmud\">free, open source software</a> that " +
                 "[white]you [dwhite]can contribute to, modify and distribute as you wish.");
         output.append("[dwhite]EmergentMUD server status:");
         output.append("[dwhite]&nbsp;&nbsp;Version: [white]v" + applicationVersion);
