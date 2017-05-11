@@ -1,12 +1,12 @@
-[![AGPL License](https://img.shields.io/github/license/scionaltera/emergentmud.svg?maxAge=2592000 "AGPL License")](http://www.gnu.org/licenses/agpl.txt)  
+[![AGPL License](https://img.shields.io/github/license/scionaltera/emergentmud.svg "AGPL License")](http://www.gnu.org/licenses/agpl.txt)  
 [![Website](https://img.shields.io/website/https/emergentmud.com.svg?label=game "Game Website")](https://emergentmud.com)
-[![Dev Blog](https://img.shields.io/website/https/emergentmud.blogspot.com.svg?label=blog&maxAge=2592000 "Development Blog")](https://emergentmud.blogspot.com)
-[![Tracker](https://img.shields.io/website/https/tree.taiga.io.svg?label=tracker&maxAge=2592000 "Project Tracker")](https://tree.taiga.io/project/scionaltera-emergentmud)  
-[![Codeship Status for scionaltera/emergentmud](https://img.shields.io/codeship/2e55adc0-182e-0135-2909-5a38df18d274/master.svg?maxAge=2592000)](https://codeship.com/projects/218829)
-[![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/scionaltera/emergentmud.svg?maxAge=2592000)](https://github.com/scionaltera/emergentmud)  
-[![Docker Automated build](https://img.shields.io/docker/automated/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
-[![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
+[![Dev Blog](https://img.shields.io/website/https/emergentmud.blogspot.com.svg?label=blog "Development Blog")](https://emergentmud.blogspot.com)
+[![Tracker](https://img.shields.io/website/https/tree.taiga.io.svg?label=tracker "Project Tracker")](https://tree.taiga.io/project/scionaltera-emergentmud)  
+[![Codeship Status for scionaltera/emergentmud](https://img.shields.io/codeship/2e55adc0-182e-0135-2909-5a38df18d274/master.svg)](https://codeship.com/projects/218829)
+[![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/scionaltera/emergentmud.svg)](https://github.com/scionaltera/emergentmud)  
+[![Docker Automated build](https://img.shields.io/docker/automated/scionaltera/emergentmud.svg)](https://hub.docker.com/r/scionaltera/emergentmud/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/scionaltera/emergentmud.svg)](https://hub.docker.com/r/scionaltera/emergentmud/)
+[![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg)](https://hub.docker.com/r/scionaltera/emergentmud/)
 
 # Vision
 EmergentMUD is a free, text based "Multi-User Domain" that you play in your browser. It's a modern MUD with an old school retro feel. Just like most other MUDs back in the 90s you play a character in a medieval fantasy setting. The modern aspect is that the entire game world is procedurally generated on the fly and is fully interactive. All parts of the world from the species of plants and animals, societies of sentient creatures, geography, weather, and even quests are created on demand as players explore. All the different game systems interact with one another to create fun and unexpected *emergent behavior*. This world is alive.
