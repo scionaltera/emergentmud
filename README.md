@@ -16,7 +16,7 @@ Help an NPC gather resources to build his house and he'll build his house - not 
 # Current State
 The code has been in active development for about a year now, and still going strong although there is still a very long way to go. Please [drop in](https://emergentmud.com) and take a look around, and pardon the dust. Let me know what you think. New things are being added on a regular basis.
 
-If you're a programmer, check out the MUD's source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [Bitbucket](https://bitbucket.org/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
+If you're a programmer, check out the MUD's source code and see what you think. If you're a gamer, I'd love to hear your feedback. I talk a lot about the development process on the [blog](http://emergentmud.blogspot.com) and you can track my work on [GitHub](https://github.com/scionaltera/emergentmud) and [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see what features are currently being worked on. **Thanks for visiting!**
 
 Our current release is called `Playable World`. It is focused on all the most basic necessities of a MUD.
 
@@ -45,7 +45,7 @@ These instructions assume that you are somewhat familiar with using the command 
 ## Required Configuration
 Make an empty directory somewhere on your computer, where you want the MUD's files to live. You'll need to create two new text files in that directory: `secrets.env` and `docker-compose.yaml`.
 
-The first file is called `secrets.env`. The file should look like [secrets.env.sample](https://bitbucket.org/scionaltera/emergentmud/src) in the git repository except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such. Don't share them with other people and don't check them into your version control.
+The first file is called `secrets.env`. The file should look like [secrets.env.sample](https://github.com/scionaltera/emergentmud/blob/master/secrets.env.sample) in the git repository except that you need to fill in all the missing values. To do that, you'll need to go to [Facebook](https://developers.facebook.com) and [Google](https://console.developers.google.com) to register your application and get their IDs and secrets for OAuth. The details of how to do this are out of scope for this document, but both sites have pretty good help for how to get started. Please remember that the OAuth secrets are *secret*, and should be treated as such. Don't share them with other people and don't check them into your version control.
 
 The second file is called `docker-compose.yaml`. The file should look something like this:
 
@@ -93,7 +93,7 @@ To start up the site after you set up the env file, you just need to run `./grad
 The first time you run `docker-compose up` will take some time because it needs to download the Redis and MongoDB containers. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at `http://localhost:8080` (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
 
 ## Developing New Code
-If you want to run your own copy of EmergentMUD there are probably a thousand things you want to customize. Your best bet is going to be to fork the project on Bitbucket, write your new code and build your own Docker containers from your fork.
+If you want to run your own copy of EmergentMUD there are probably a thousand things you want to customize. Your best bet is going to be to fork the project on GitHub, write your new code and build your own Docker containers from your fork.
 
 ## Debugging
 The Docker image produced by the Gradle build is already set up to enable the remote debugging port on port 5005. I use IDEA for development, which makes it very easy to [set up a remote debug profile](http://stackoverflow.com/questions/21114066/attach-intellij-idea-debugger-to-a-running-java-process). Once you're attached, you can set breakpoints and inspect variables to your heart's content.
@@ -116,14 +116,14 @@ My plan for a production deployment of EmergentMUD is to build customized Docker
 ### Reverse Proxy
 It is important to understand that OAuth2 is **not secure without HTTPS**. That means that for any production deployment to be secure you *must* purchase an **SSL certificate** and configure a SSL enabled reverse proxy in front of your copy of EmergentMUD. If you do not do this you **will** leak peoples' authentication secrets for their Google and Facebook accounts, and that is **really bad**.
 
-![Service Architecture](https://bitbucket.org/repo/LBXMzk/images/96926331-em-docker-compose.png)
+![Service Architecture](https://emergentmud.com/img/em-docker-compose.png)
 
-What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe. The data stores aren't accessible from the internet, which is great for their security. There is a version of my [production docker-compose.yaml](https://bitbucket.org/scionaltera/emergentmud/wiki/Production%20Docker%20Compose%20Configuration) on the wiki which should help most people get started. It uses *free* SSL certificates from [letsencrypt](https://letsencrypt.org) to provide the encryption necessary for secure OAuth2.
+What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe. The data stores aren't accessible from the internet, which is great for their security. There is a version of my [production docker-compose.yaml](https://github.com/scionaltera/emergentmud/wiki/Production-Docker-Compose-Configuration) on the wiki which should help most people get started. It uses *free* SSL certificates from [letsencrypt](https://letsencrypt.org) to provide the encryption necessary for secure OAuth2.
 
 # Contributing
 If you would like to contribute to the project, please feel free to submit a pull request. For the best chance of success getting your pull request merged, please do the following few things:
 
-1. Check the tickets on [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see if what you want to do is there already. If it isn't, check the [Roadmap](https://bitbucket.org/scionaltera/emergentmud/wiki/Product%20Roadmap) to see if it's something I'm planning to work on later. Discuss your proposed change with the dev team before doing the work. I can either assign the ticket to you or create a new ticket as necessary. If what you want to do isn't in line with the vision for EmergentMUD, you are still more than welcome to fork it and develop the code on your own.
+1. Check the tickets on [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see if what you want to do is there already. If it isn't, check the [Roadmap](https://github.com/scionaltera/emergentmud/wiki/Product-Roadmap) to see if it's something I'm planning to work on later. Discuss your proposed change with the dev team before doing the work. I can either assign the ticket to you or create a new ticket as necessary. If what you want to do isn't in line with the vision for EmergentMUD, you are still more than welcome to fork it and develop the code on your own.
 1. Fork a copy of the project.
 1. Match the coding style of existing code as best as possible.
 1. Make sure the code you are contributing is covered by unit tests.
@@ -134,7 +134,7 @@ If you would like to contribute to the project, please feel free to submit a pul
 # Contact
 So far the dev team consists of just me, Scion. I am not looking for partners or MUD staff at this time but I welcome discussion about the future direction of EmergentMUD and I welcome pull requests and forks. I'd love to know if you have used any of my code for your own project. The best motivation for me to continue work on the project is to know that other people are interested and making use of it.
 
-The best ways to contact me about this project are to message me on [Telegram](http://telegram.me/scionaltera) or comments on the [blog](https://emergentmud.blogspot.com). You could also just hop onto the [MUD](https://www.emergentmud.com) and see if I'm hanging around there. If you'd prefer to email you can make an educated guess (it's something pretty obvious at emergentmud dot com) or send me a message through Bitbucket and we can go from there.
+The best ways to contact me about this project are to message me on [Telegram](http://telegram.me/scionaltera) or comments on the [blog](https://emergentmud.blogspot.com). You could also just hop onto the [MUD](https://emergentmud.com) and see if I'm hanging around there. If you'd prefer, send me a message through GitHub and we can go from there.
 
 # License
 EmergentMUD is licensed under the [GNU AFFERO GENERAL PUBLIC LICENSE](http://www.gnu.org/licenses/agpl.txt). This license ensures that EmergentMUD and all derivative works will always be free open source for everyone to enjoy, distribute and modify. Most importantly, the Affero license stipulates that you must be able to provide a copy of your source code to **anyone who plays your game**.
