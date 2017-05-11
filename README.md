@@ -1,9 +1,10 @@
-[![AGPL License](https://img.shields.io/badge/license-AGPL-green.svg?maxAge=2592000 "AGPL License")](http://www.gnu.org/licenses/agpl.txt)
+[![AGPL License](https://img.shields.io/github/license/scionaltera/emergentmud.svg?maxAge=2592000 "AGPL License")](http://www.gnu.org/licenses/agpl.txt)  
 [![Website](https://img.shields.io/website/https/emergentmud.com.svg?label=game "Game Website")](https://emergentmud.com)
 [![Dev Blog](https://img.shields.io/website/https/emergentmud.blogspot.com.svg?label=blog&maxAge=2592000 "Development Blog")](https://emergentmud.blogspot.com)
 [![Tracker](https://img.shields.io/website/https/tree.taiga.io.svg?label=tracker&maxAge=2592000 "Project Tracker")](https://tree.taiga.io/project/scionaltera-emergentmud)  
-[![Codeship Status for scionaltera/emergentmud](https://img.shields.io/codeship/14384cd0-e8c6-0133-1109-0a601490f276/master.svg?maxAge=2592000)](https://codeship.com/projects/147332)
-[![Docker Automated buil](https://img.shields.io/docker/automated/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
+[![Codeship Status for scionaltera/emergentmud](https://img.shields.io/codeship/2e55adc0-182e-0135-2909-5a38df18d274/master.svg?maxAge=2592000)](https://codeship.com/projects/218829)
+[![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/scionaltera/emergentmud.svg?maxAge=2592000)](https://github.com/scionaltera/emergentmud)  
+[![Docker Automated build](https://img.shields.io/docker/automated/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 [![Docker Stars](https://img.shields.io/docker/stars/scionaltera/emergentmud.svg?maxAge=2592000)](https://hub.docker.com/r/scionaltera/emergentmud/)
 
