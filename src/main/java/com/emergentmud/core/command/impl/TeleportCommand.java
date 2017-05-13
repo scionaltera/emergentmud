@@ -147,8 +147,7 @@ public class TeleportCommand extends BaseCommand {
             Command look = (Command) applicationContext.getBean("lookCommand");
             GameOutput lookOutput = new GameOutput();
 
-            lookOutput.append(String.format("[yellow]%s has TELEPORTED you!", entity.getName()))
-                .append("");
+            lookOutput.append(String.format("[yellow]%s TELEPORTS you!", entity.getName()));
 
             look.execute(lookOutput, target, "look", new String[0], "");
             entityService.sendMessageToEntity(target, lookOutput);
