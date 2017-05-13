@@ -60,12 +60,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </ul>
             <p>The next release is called <em>People</em>. It will focus on developing some of the first gameplay features of the MUD.</p>
             <ul>
-                <li>Character attributes (gender, strength, etc.)</li>
-                <li>Animals and NPCs</li>
+                <li>Bodies of Water</li>
                 <li>Plants and Trees</li>
                 <li>Minerals, Metals and Other Natural Resources</li>
+                <li>Character attributes (gender, strength, etc.)</li>
+                <li>Animals and NPCs</li>
                 <li>Items and Equipment</li>
-                <li>Bodies of Water</li>
             </ul>
         </div>
     </div>
