@@ -29,12 +29,12 @@ Our current release is called `Playable World`. It is focused on all the most ba
 
 Our next release is called `People`. It will focus on developing the natural world inside the MUD.
 
-* Character attributes (gender, strength, etc.)
-* Animals and NPCs
+* Bodies of Water
 * Plants and Trees
 * Minerals, Metals and Other Natural Resources
+* Character attributes (gender, strength, etc.)
+* Animals and NPCs
 * Items and Equipment
-* Bodies of Water
 
 # Running Locally
 ## Required Tools
