@@ -30,6 +30,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,21 @@ public class EntityService {
         entityRepository.findByRoom(room)
                 .stream()
                 .filter(e -> !e.equals(entity))
+                .forEach(e -> {
+                    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
+                    headerAccessor.setSessionId(e.getStompSessionId());
+                    headerAccessor.setLeaveMutable(true);
+
+                    simpMessagingTemplate.convertAndSendToUser(e.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
+                });
+    }
+
+    public void sendMessageToRoom(Room room, Collection<Entity> exclude, GameOutput message) {
+        promptBuilder.appendPrompt(message);
+
+        entityRepository.findByRoom(room)
+                .stream()
+                .filter(e -> !exclude.contains(e))
                 .forEach(e -> {
                     SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create();
                     headerAccessor.setSessionId(e.getStompSessionId());

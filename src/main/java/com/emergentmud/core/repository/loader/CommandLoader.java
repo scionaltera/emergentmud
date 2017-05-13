@@ -87,6 +87,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("south", "southCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
             metadataList.add(new CommandMetadata("west", "westCommand", 10, capabilityRepository.findByName(CommandRole.MOVE.name())));
             metadataList.add(new CommandMetadata("goto", "gotoCommand", 15, capabilityRepository.findByName(CommandRole.TELEPORT.name())));
+            metadataList.add(new CommandMetadata("teleport", "teleportCommand", 15, capabilityRepository.findByName(CommandRole.TELEPORT.name())));
             metadataList.add(new CommandMetadata("look", "lookCommand", 100, capabilityRepository.findByName(CommandRole.SEE.name())));
             metadataList.add(new CommandMetadata("say", "sayCommand", 200, capabilityRepository.findByName(CommandRole.TALK.name())));
             metadataList.add(new CommandMetadata("shout", "shoutCommand", 205, capabilityRepository.findByName(CommandRole.TALK.name())));
