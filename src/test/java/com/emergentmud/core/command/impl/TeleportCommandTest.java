@@ -35,6 +35,8 @@ import org.springframework.context.ApplicationContext;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -59,10 +61,13 @@ public class TeleportCommandTest {
     private Room destination;
 
     @Mock
-    private Entity entity;
+    private Entity scion;
 
     @Mock
     private Entity bnarg;
+
+    @Mock
+    private Entity spook;
 
     @Mock
     private LookCommand lookCommand;
@@ -78,14 +83,26 @@ public class TeleportCommandTest {
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
         when(worldManager.test(eq(1L), eq(1L), eq(0L))).thenReturn(true);
         when(worldManager.put(any(Entity.class), eq(1L), eq(1L), eq(0L))).thenReturn(destination);
-        when(entityService.entitySearchRoom(eq(entity), eq("bnarg"))).thenReturn(Optional.of(bnarg));
-        when(entity.getName()).thenReturn("Scion");
-        when(entity.getRoom()).thenReturn(room);
+        when(entityService.entitySearchRoom(eq(scion), eq("scion"))).thenReturn(Optional.of(scion));
+        when(entityService.entitySearchRoom(eq(scion), eq("bnarg"))).thenReturn(Optional.of(bnarg));
+        when(entityService.entitySearchInWorld(eq(scion), eq("spook"))).thenReturn(Optional.of(spook));
+        when(entityService.entitySearchInWorld(eq(scion), eq("1"))).thenReturn(Optional.empty());
+        when(scion.getName()).thenReturn("Scion");
+        when(scion.getRoom()).thenReturn(room);
         when(bnarg.getName()).thenReturn("Bnarg");
         when(bnarg.getRoom()).thenReturn(room);
+        when(spook.getName()).thenReturn("Spook");
+        when(spook.getRoom()).thenReturn(destination);
+        when(destination.getX()).thenReturn(1L);
+        when(destination.getY()).thenReturn(1L);
         when(gameOutput.append(anyString())).thenReturn(gameOutput);
 
         teleportCommand = new TeleportCommand(applicationContext, worldManager, entityService);
+    }
+
+    @Test
+    public void testDescription() throws Exception {
+        assertNotEquals("No description.", teleportCommand.getDescription());
     }
 
     @Test
@@ -96,9 +113,11 @@ public class TeleportCommandTest {
 
     @Test
     public void testSuccessful() throws Exception {
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("bnarg"));
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(worldManager).test(eq(1L), eq(1L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
@@ -109,34 +128,99 @@ public class TeleportCommandTest {
     }
 
     @Test
+    public void testTeleportSelf() throws Exception {
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "scion", "1", "1" }, "scion 1 1");
+
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("scion"));
+        verify(worldManager, never()).test(eq(1L), eq(1L), eq(0L));
+        verify(entityService, never()).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(entityService, never()).sendMessageToRoom(eq(destination), eq(bnarg), any(GameOutput.class));
+        verify(applicationContext, never()).getBean(eq("lookCommand"));
+        verify(lookCommand, never()).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
+        verify(entityService, never()).sendMessageToEntity(eq(bnarg), any(GameOutput.class));
+    }
+
+    @Test
     public void testTooFewArgs() throws Exception {
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "1", "1" }, "1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "1" }, "1");
+
+        assertNotNull(output);
 
         verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
     }
 
     @Test
     public void testTooManyArgs() throws Exception {
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "1", "1", "1", "1" }, "bnarg 1 1 1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "", "1", "1", "1" }, "bnarg 1 1 1 1");
+
+        assertNotNull(output);
 
         verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
     }
 
     @Test
-    public void testNonNumericArgs() throws Exception {
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "a", "1", "1" }, "bnarg a 1 1");
+    public void testTeleportToPerson() throws Exception {
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "spook" }, "bnarg spook");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("bnarg"));
-        verifyZeroInteractions(worldManager, applicationContext, lookCommand);
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
+        verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
+        verify(worldManager).test(eq(1L), eq(1L), eq(0L));
+        verify(entityService).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(entityService).sendMessageToRoom(eq(destination), eq(bnarg), any(GameOutput.class));
+        verify(applicationContext).getBean(eq("lookCommand"));
+        verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
+        verify(entityService).sendMessageToEntity(eq(bnarg), any(GameOutput.class));
+    }
+
+    @Test
+    public void testMismatchedArgs1() throws Exception {
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "spook", "1" }, "bnarg spook 1");
+
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
+        verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
+        verify(worldManager).test(eq(1L), eq(1L), eq(0L));
+        verify(entityService).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(entityService).sendMessageToRoom(eq(destination), eq(bnarg), any(GameOutput.class));
+        verify(applicationContext).getBean(eq("lookCommand"));
+        verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
+        verify(entityService).sendMessageToEntity(eq(bnarg), any(GameOutput.class));
+    }
+
+    @Test
+    public void testMismatchedArgs2() throws Exception {
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "1", "spook" }, "bnarg 1 spook");
+
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
+        verify(entityService).entitySearchInWorld(eq(scion), eq("1"));
+        verify(worldManager, never()).test(eq(1L), eq(1L), eq(0L));
+        verify(entityService, never()).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(entityService, never()).sendMessageToRoom(eq(destination), eq(bnarg), any(GameOutput.class));
+        verify(applicationContext, never()).getBean(eq("lookCommand"));
+        verify(lookCommand, never()).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
+        verify(entityService, never()).sendMessageToEntity(eq(bnarg), any(GameOutput.class));
     }
 
     @Test
     public void testMissingTarget() throws Exception {
-        when(entityService.entitySearchRoom(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
+        when(entityService.entitySearchRoom(eq(scion), eq("morgan"))).thenReturn(Optional.empty());
 
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "morgan", "a", "1", "1" }, "morgan a 1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "morgan", "a", "1", "1" }, "morgan a 1 1");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("morgan"));
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("morgan"));
         verifyZeroInteractions(worldManager, applicationContext, lookCommand);
     }
 
@@ -144,9 +228,11 @@ public class TeleportCommandTest {
     public void teleportOutOfVoid() throws Exception {
         when(bnarg.getRoom()).thenReturn(null);
 
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("bnarg"));
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(worldManager).test(eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(room), eq(bnarg), any(GameOutput.class));
         verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
@@ -158,9 +244,11 @@ public class TeleportCommandTest {
 
     @Test
     public void teleportToCurrentRoom() throws Exception {
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "0", "0" }, "bnarg 0 0");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "0", "0" }, "bnarg 0 0");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("bnarg"));
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(worldManager, never()).test(eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(room), eq(bnarg), any(GameOutput.class));
         verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
@@ -173,9 +261,11 @@ public class TeleportCommandTest {
     public void teleportToNonexistentRoom() throws Exception {
         when(worldManager.test(eq(1L), eq(1L), eq(0L))).thenReturn(false);
 
-        teleportCommand.execute(gameOutput, entity, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
+        GameOutput output = teleportCommand.execute(gameOutput, scion, command, new String[] { "bnarg", "1", "1" }, "bnarg 1 1");
 
-        verify(entityService).entitySearchRoom(eq(entity), eq("bnarg"));
+        assertNotNull(output);
+
+        verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(worldManager).test(eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(room), eq(bnarg), any(GameOutput.class));
         verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));

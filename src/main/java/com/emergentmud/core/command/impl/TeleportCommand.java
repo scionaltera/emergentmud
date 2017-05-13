@@ -55,8 +55,8 @@ public class TeleportCommand extends BaseCommand {
 
         setDescription("Instantly transport someone from here to a room by its coordinate.");
         addParameter("person", true);
-        addParameter("x", true);
-        addParameter("y", true);
+        addParameter("x|target", true);
+        addParameter("y", false);
         addParameter("z", false);
     }
 
@@ -65,7 +65,7 @@ public class TeleportCommand extends BaseCommand {
         Room room;
         long[] location = new long[3];
 
-        if (tokens.length < 3 || tokens.length > 4) {
+        if (tokens.length < 2 || tokens.length > 4) {
             usage(output, command);
             return output;
         }
@@ -80,6 +80,11 @@ public class TeleportCommand extends BaseCommand {
         Entity target = targetOptional.get();
         room = target.getRoom();
 
+        if (target.equals(entity)) {
+            output.append("[yellow]You can't teleport yourself. Use GOTO instead.");
+            return output;
+        }
+
         try {
             location[0] = Long.parseLong(tokens[1]);
             location[1] = Long.parseLong(tokens[2]);
@@ -89,7 +94,20 @@ public class TeleportCommand extends BaseCommand {
             } else {
                 location[2] = room != null ? room.getZ() : 0L;
             }
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException nfe) {
+        } catch (NumberFormatException e) {
+            Optional<Entity> destOptional = entityService.entitySearchInWorld(entity, tokens[1]);
+
+            if (!destOptional.isPresent()) {
+                output.append("[yellow]Unable to determine destination.");
+                return output;
+            }
+
+            Entity dest = destOptional.get();
+
+            location[0] = dest.getRoom().getX();
+            location[1] = dest.getRoom().getY();
+            location[2] = dest.getRoom().getZ();
+        } catch (ArrayIndexOutOfBoundsException e) {
             usage(output, command);
 
             return output;
