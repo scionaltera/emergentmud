@@ -27,14 +27,12 @@ Our current release is called `Playable World`. It is focused on all the most ba
 * Communication, emotes and movement commands
 * Help files
 
-Our next release is called `People`. It will focus on developing the natural world inside the MUD.
+Our next release is called `The Environment`. It will focus on developing the natural world inside the MUD.
 
 * Bodies of Water
 * Plants and Trees
 * Minerals, Metals and Other Natural Resources
-* Character attributes (gender, strength, etc.)
-* Animals and NPCs
-* Items and Equipment
+* Animals
 
 # Running Locally
 ## Required Tools

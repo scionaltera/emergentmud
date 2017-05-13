@@ -58,14 +58,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <li>Communication, emotes and movement commands</li>
                 <li>Help files</li>
             </ul>
-            <p>The next release is called <em>People</em>. It will focus on developing some of the first gameplay features of the MUD.</p>
+            <p>The next release is called <em>The Environment</em>. It will focus on developing the natural world inside the MUD.</p>
             <ul>
                 <li>Bodies of Water</li>
                 <li>Plants and Trees</li>
                 <li>Minerals, Metals and Other Natural Resources</li>
-                <li>Character attributes (gender, strength, etc.)</li>
-                <li>Animals and NPCs</li>
-                <li>Items and Equipment</li>
+                <li>Animals</li>
             </ul>
         </div>
     </div>
