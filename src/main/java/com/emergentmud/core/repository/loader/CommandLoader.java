@@ -103,6 +103,7 @@ public class CommandLoader {
             metadataList.add(new CommandMetadata("emoteedit", "emoteEditCommand", 1000, capabilityRepository.findByName(CommandRole.EMOTEEDIT.name())));
             metadataList.add(new CommandMetadata("capedit", "capabilityEditCommand", 1000, capabilityRepository.findByName(CommandRole.CAPEDIT.name())));
             metadataList.add(new CommandMetadata("data", "dataCommand", 1000, capabilityRepository.findByName(CommandRole.DATA.name())));
+            metadataList.add(new CommandMetadata("exile", "exileCommand", 1900, capabilityRepository.findByName(CommandRole.CAPEDIT.name())));
             metadataList.add(new CommandMetadata("quit", "quitCommand", 2000, capabilityRepository.findByName(CommandRole.BASIC.name())));
 
             commandMetadataRepository.save(metadataList);
