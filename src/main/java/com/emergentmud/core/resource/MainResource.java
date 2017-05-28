@@ -163,8 +163,6 @@ public class MainResource {
     public String social(@PathVariable String network, HttpSession session) {
         session.setAttribute("social", network);
 
-        LOGGER.info("Logging in via social network: {}", network);
-
         return "redirect:/login/" + network;
     }
 

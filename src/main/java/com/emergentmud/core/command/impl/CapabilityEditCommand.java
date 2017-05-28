@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Parameter;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CapabilityObject;
 import com.emergentmud.core.model.Entity;
@@ -34,6 +35,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Component
@@ -71,13 +73,22 @@ public class CapabilityEditCommand extends BaseCommand {
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
-                output.append("[yellow]All capabilities");
+                TableFormatter tableFormatter = new TableFormatter(
+                        "All Capabilities",
+                        Arrays.asList("Description", "Name", "Object", "Scope"),
+                        "Capability",
+                        "Capabilities"
+                );
+
                 capabilityRepository.findAll(SORT)
-                        .forEach(capability -> output.append(String.format("[yellow]...%s\t(%s)\t(%s %s)",
+                        .forEach(capability -> tableFormatter.addRow(Arrays.asList(
                                 capability.getDescription(),
                                 capability.getName(),
-                                capability.getObject(),
-                                capability.getScope())));
+                                capability.getObject().toString(),
+                                capability.getScope().toString()
+                        )));
+
+                tableFormatter.toTable(output, "yellow");
 
                 return output;
             }
