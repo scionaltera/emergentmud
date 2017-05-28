@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Parameter;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.Entity;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 @Component
 public class CommandEditCommand extends BaseCommand {
@@ -65,14 +67,21 @@ public class CommandEditCommand extends BaseCommand {
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
-                output.append("[yellow]Priority\tName\tCapability");
-                output.append("[yellow]---------------------");
+                TableFormatter tableFormatter = new TableFormatter(
+                        "All Commands",
+                        Arrays.asList("Priority", "Name", "Capability"),
+                        "Command",
+                        "Commands"
+                );
 
                 commandMetadataRepository.findAll(SORT)
-                        .forEach(cm -> output.append(String.format("[yellow]%d\t%s\t%s",
-                                cm.getPriority(),
+                        .forEach(cm -> tableFormatter.addRow(Arrays.asList(
+                                cm.getPriority().toString(),
                                 cm.getName().toUpperCase(),
-                                cm.getCapability().getName())));
+                                cm.getCapability().getName()
+                        )));
+
+                tableFormatter.toTable(output, "yellow");
             } else if ("add".equals(tokens[0])) {
                 if (tokens.length != 5) {
                     usage(output, command);

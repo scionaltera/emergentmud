@@ -24,6 +24,22 @@ body {
     font-weight: 400;
 }
 
+.table {
+    width: unset;
+    max-width: unset;
+    margin-bottom: unset;
+}
+
+.table>tbody>tr>th {
+    padding: 0 8px 0 0;
+    border: none;
+}
+
+.table>tbody>tr>td {
+    padding: 0 8px 0 0;
+    border: none;
+}
+
 #output-box {
     font-family: 'Inconsolata', monospace;
     font-size: small;

@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Parameter;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -31,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 @Component
 public class EmoteEditCommand extends BaseCommand {
@@ -65,13 +67,19 @@ public class EmoteEditCommand extends BaseCommand {
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length > 0) {
             if ("list".equals(tokens[0])) {
-                output.append("[yellow]Priority\tName");
-                output.append("[yellow]--------------");
+                TableFormatter tableFormatter = new TableFormatter(
+                        "All Emotes",
+                        Arrays.asList("Priority", "Name"),
+                        "Emote",
+                        "Emotes"
+                );
 
                 emoteMetadataRepository.findAll(SORT)
-                        .forEach(emote -> output.append(String.format("[yellow]%d\t%s",
-                                emote.getPriority(),
+                        .forEach(emote -> tableFormatter.addRow(Arrays.asList(
+                                emote.getPriority().toString(),
                                 emote.getName())));
+
+                tableFormatter.toTable(output, "yellow");
             } else if ("show".equals(tokens[0])) {
                 if (tokens.length != 2) {
                     usage(output, command);

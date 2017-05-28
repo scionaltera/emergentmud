@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 @Component
 public class HelpCommand extends BaseCommand {
@@ -58,9 +60,12 @@ public class HelpCommand extends BaseCommand {
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         if (tokens.length == 0) {
-            output.append("[dwhite]=== [white]Command Listing [dwhite]===");
-            output.append("[white]Type HELP [dwhite]&lt;[white]command[dwhite]&gt; [white]to get more detailed help for any of these commands.");
-            output.append("");
+            TableFormatter tableFormatter = new TableFormatter(
+                    "Command Listing",
+                    Arrays.asList("Name", "Description"),
+                    "Command",
+                    "Commands"
+            );
 
             commandMetadataRepository.findAll(SORT)
                     .stream()
@@ -68,9 +73,14 @@ public class HelpCommand extends BaseCommand {
                     .forEach(cm -> {
                         Command bean = (Command)applicationContext.getBean(cm.getBeanName());
 
-                        output.append(String.format("[white]%s [dwhite]- [white]%s",
-                                cm.getName().toUpperCase(), bean.getDescription()));
+                        tableFormatter.addRow(Arrays.asList(
+                                cm.getName().toUpperCase(),
+                                bean.getDescription()
+                        ));
                     });
+
+            tableFormatter.toTable(output, "white");
+            output.append("[white]Type HELP [dwhite]&lt;[white]command[dwhite]&gt; [white]to get more detailed help for any of these commands.");
         } else {
             CommandMetadata commandMetadata = commandMetadataRepository.findByName(tokens[0]);
 

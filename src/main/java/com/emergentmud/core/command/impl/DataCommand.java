@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -28,6 +29,7 @@ import com.emergentmud.core.repository.EntityRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -52,33 +54,27 @@ public class DataCommand extends BaseCommand {
             return output;
         } else if ("entity".equals(tokens[0])) {
             List<Entity> entities = entityRepository.findByAccountIsNotNull();
-
-            output.append("[dyellow][ [yellow]Player Characters in Database [dyellow]]");
-
-            StringBuilder buf = new StringBuilder();
-
-            buf.append("<table class=\"table\">");
-            buf.append("<tr><th>[dyellow]Name</th><th>[dyellow]Social Network</th><th>[dyellow]Social ID</th>" +
-                    "<th>[dyellow]Created</th><th>[dyellow]Last Login</th></tr>");
+            TableFormatter tableFormatter = new TableFormatter(
+                    "Player Characters in Database",
+                    Arrays.asList("Name", "Social Network", "Social ID", "Created", "Last Login"),
+                    "Entity",
+                    "Entities"
+            );
 
             entities.sort(Comparator.comparing(Entity::getName));
             entities.forEach(e -> {
                 Account account = e.getAccount();
 
-                buf.append(String.format("<tr><td>[yellow]%s</td><td>[yellow]%s</td><td>[yellow]%s</td>" +
-                                "<td>[yellow]%s</td><td>[yellow]%s</td></tr>",
-                    e.getName(),
-                    account.getSocialNetwork(),
-                    account.getSocialNetworkId(),
-                    new Date(e.getCreationDate()),
-                    e.getLastLoginDate() == null ? "Never" : new Date(e.getLastLoginDate())));
+                tableFormatter.addRow(Arrays.asList(
+                        e.getName(),
+                        account.getSocialNetwork(),
+                        account.getSocialNetworkId(),
+                        new Date(e.getCreationDate()).toString(),
+                        e.getLastLoginDate() == null ? "Never" : new Date(e.getLastLoginDate()).toString()
+                ));
             });
 
-            buf.append("</table>");
-            output.append(buf.toString());
-            output.append(String.format("[dyellow]%d %s listed.",
-                    entities.size(),
-                    entities.size() == 1 ? "Entity" : "Entities"));
+            tableFormatter.toTable(output, "yellow");
         } else {
             usage(output, command);
         }

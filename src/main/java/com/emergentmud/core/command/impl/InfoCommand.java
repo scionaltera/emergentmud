@@ -21,12 +21,14 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
+import com.emergentmud.core.command.TableFormatter;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.EntityService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Component
@@ -63,28 +65,41 @@ public class InfoCommand extends BaseCommand {
             return output;
         }
 
-        String location = "[black]Void";
+        final String COLOR = "yellow";
+        TableFormatter tableFormatter = new TableFormatter(
+                String.format("Entity [d%s]([%s]%s[d%s])[%s]", COLOR, COLOR, target.getId(), COLOR, COLOR),
+                Arrays.asList("Attribute", "Value"),
+                "Attribute",
+                "Attributes"
+        );
+
+        String location = String.format("[black]Void[%s]", COLOR);
 
         if (target.getRoom() != null) {
-            location = String.format("[dcyan]([cyan]%d[dcyan], [cyan]%d[dcyan], [cyan]%d[dcyan])",
+            location = String.format("[d%s]([%s]%d[d%s], [%s]%d[d%s], [%s]%d[d%s])",
+                    COLOR, COLOR,
                     target.getRoom().getX(),
+                    COLOR, COLOR,
                     target.getRoom().getY(),
-                    target.getRoom().getZ());
+                    COLOR, COLOR,
+                    target.getRoom().getZ(),
+                    COLOR);
         }
 
-        output.append("[cyan][ [dcyan]Entity ([cyan]" + target.getId() + "[dcyan]) [cyan]]");
-        output.append("[dcyan]Name: [cyan]" + target.getName());
-        output.append("[dcyan]Location: " + location);
-        output.append("[dcyan]Entity Capabilities: [cyan]" + target.getCapabilities());
+        tableFormatter.addRow(Arrays.asList("Name", target.getName()));
+        tableFormatter.addRow(Arrays.asList("Location", location));
+        tableFormatter.addRow(Arrays.asList("Entity Capabilities", target.getCapabilities().toString()));
 
         if (target.getAccount() != null) {
-            output.append("[dcyan]Account Capabilities: [cyan]" + target.getAccount().getCapabilities());
-            output.append("[dcyan]Social Network: [cyan]" + target.getAccount().getSocialNetwork());
-            output.append("[dcyan]Social Username: [cyan]" + target.getAccount().getSocialNetworkId());
-            output.append("[dcyan]STOMP Session ID: [cyan]" + target.getStompSessionId());
-            output.append("[dcyan]Remote Address: [cyan]" + target.getRemoteAddr());
-            output.append("[dcyan]User Agent: [cyan]" + target.getUserAgent());
+            tableFormatter.addRow(Arrays.asList("Account Capabilities", target.getAccount().getCapabilities().toString()));
+            tableFormatter.addRow(Arrays.asList("Social Network", target.getAccount().getSocialNetwork()));
+            tableFormatter.addRow(Arrays.asList("Social Username", target.getAccount().getSocialNetworkId()));
+            tableFormatter.addRow(Arrays.asList("STOMP Session ID", target.getStompSessionId()));
+            tableFormatter.addRow(Arrays.asList("Remote Address", target.getRemoteAddr()));
+            tableFormatter.addRow(Arrays.asList("User Agent String", target.getUserAgent()));
         }
+
+        tableFormatter.toTable(output, COLOR);
 
         return output;
     }
