@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.model.room;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +30,9 @@ import static org.junit.Assert.*;
 public class RoomTest {
     @Mock
     private Biome biome;
+
+    @Mock
+    private Water water;
 
     private Room room = new Room();
 
@@ -50,6 +53,13 @@ public class RoomTest {
         room.setBiome(biome);
 
         assertEquals(biome, room.getBiome());
+    }
+
+    @Test
+    public void testWater() throws Exception {
+        room.setWater(water);
+
+        assertEquals(water, room.getWater());
     }
 
     @Test

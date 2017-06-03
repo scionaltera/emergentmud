@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.model;
 
+import com.emergentmud.core.model.room.Biome;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -31,6 +32,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
         @CompoundIndex(name = "biome_meta_idx", def = "{'elevation': 1, 'moisture': 1}")
 })
 public class WhittakerGridLocation {
+    public static final int MAX_ELEVATION = 4;
+
     @Id
     private String id;
 

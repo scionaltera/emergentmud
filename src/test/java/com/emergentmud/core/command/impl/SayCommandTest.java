@@ -22,7 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;

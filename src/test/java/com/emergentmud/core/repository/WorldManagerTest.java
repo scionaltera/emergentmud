@@ -21,7 +21,7 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Room;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

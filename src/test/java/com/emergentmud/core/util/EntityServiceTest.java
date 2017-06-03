@@ -22,7 +22,7 @@ package com.emergentmud.core.util;
 
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;

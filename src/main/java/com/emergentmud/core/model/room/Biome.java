@@ -18,16 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.service;
+package com.emergentmud.core.model.room;
 
-import com.emergentmud.core.model.room.Room;
-import org.springframework.stereotype.Component;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Component
-public class RoomService {
-    public boolean isWithinDistance(Room origin, Room query, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
-                + Math.pow(origin.getY() - query.getY(), 2)
-                + Math.pow(origin.getZ() - query.getZ(), 2)) <= distance;
+@Document
+public class Biome {
+    @Id
+    private String id;
+
+    @Indexed(unique = true)
+    private String name;
+
+    @Indexed(unique = true)
+    private Integer color;
+
+    public Biome(String name, Integer color) {
+        this.name = name;
+        this.color = color;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getColor() {
+        return color;
     }
 }

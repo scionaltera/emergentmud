@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,40 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.model.room;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockitoAnnotations;
 
-import java.util.UUID;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
-
-public class BiomeTest {
-    private Biome biome;
+public class WaterTest {
+    private Water water;
 
     @Before
     public void setUp() throws Exception {
-        biome = new Biome("Biome", 0x112233);
+        MockitoAnnotations.initMocks(this);
+
+        water = new Water(FlowType.SPRING);
     }
 
     @Test
-    public void testId() throws Exception {
-        String guid = UUID.randomUUID().toString();
-
-        biome.setId("foo");
-        assertEquals("foo", biome.getId());
-        biome.setId(guid);
-        assertEquals(guid, biome.getId());
+    public void testFlowType() throws Exception {
+        assertEquals(FlowType.SPRING, water.getFlowType());
     }
 
     @Test
-    public void testName() throws Exception {
-        assertEquals("Biome", biome.getName());
-    }
+    public void testChangeFlowType() throws Exception {
+        water.setFlowType(FlowType.SINK);
 
-    @Test
-    public void testColor() throws Exception {
-        assertEquals(0x112233, (long)biome.getColor());
+        assertEquals(FlowType.SINK, water.getFlowType());
     }
 }

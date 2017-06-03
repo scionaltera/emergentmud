@@ -20,7 +20,7 @@
 
 package com.emergentmud.core.util;
 
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;

@@ -20,8 +20,10 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.FlowType;
+import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.WhittakerGridLocation;
+import com.emergentmud.core.model.room.Water;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class RoomBuilder {
@@ -37,11 +40,15 @@ public class RoomBuilder {
 
     private RoomRepository roomRepository;
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
+    private Random random;
 
     @Inject
-    public RoomBuilder(RoomRepository roomRepository, WhittakerGridLocationRepository whittakerGridLocationRepository) {
+    public RoomBuilder(RoomRepository roomRepository,
+                       WhittakerGridLocationRepository whittakerGridLocationRepository,
+                       Random random) {
         this.roomRepository = roomRepository;
         this.whittakerGridLocationRepository = whittakerGridLocationRepository;
+        this.random = random;
     }
 
     public Room generateRoom(long x, long y, long z) {
@@ -90,6 +97,12 @@ public class RoomBuilder {
         room.setBiome(whittaker.getBiome());
         room.setElevation(whittaker.getElevation());
         room.setMoisture(whittaker.getMoisture());
+
+        if (WhittakerGridLocation.MAX_ELEVATION == room.getElevation()) {
+            if (random.nextDouble() < 0.01) {
+                room.setWater(new Water(FlowType.SPRING));
+            }
+        }
 
         return room;
     }
