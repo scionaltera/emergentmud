@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.model.room;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -38,6 +38,7 @@ public class Room {
     private Biome biome;
     private Integer elevation;
     private Integer moisture;
+    private Water water;
     private Long x;
     private Long y;
     private Long z;
@@ -78,6 +79,14 @@ public class Room {
         setX(x);
         setY(y);
         setZ(z);
+    }
+
+    public Water getWater() {
+        return water;
+    }
+
+    public void setWater(Water water) {
+        this.water = water;
     }
 
     public Long getX() {

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,41 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model;
+package com.emergentmud.core.model.room;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-@Document
-public class Biome {
-    @Id
-    private String id;
-
-    @Indexed(unique = true)
-    private String name;
-
-    @Indexed(unique = true)
-    private Integer color;
-
-    public Biome(String name, Integer color) {
-        this.name = name;
-        this.color = color;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getColor() {
-        return color;
-    }
+public enum FlowType {
+    SPRING,
+    SINK,
+    STRAIGHT,
+    LEFT,
+    RIGHT,
+    STRAIGHT_LEFT,
+    STRAIGHT_RIGHT,
+    LEFT_RIGHT,
+    STRAIGHT_LEFT_RIGHT
 }

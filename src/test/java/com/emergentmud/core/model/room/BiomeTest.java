@@ -18,16 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.service;
+package com.emergentmud.core.model.room;
 
-import com.emergentmud.core.model.room.Room;
-import org.springframework.stereotype.Component;
+import org.junit.Before;
+import org.junit.Test;
 
-@Component
-public class RoomService {
-    public boolean isWithinDistance(Room origin, Room query, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
-                + Math.pow(origin.getY() - query.getY(), 2)
-                + Math.pow(origin.getZ() - query.getZ(), 2)) <= distance;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
+
+public class BiomeTest {
+    private Biome biome;
+
+    @Before
+    public void setUp() throws Exception {
+        biome = new Biome("Biome", 0x112233);
+    }
+
+    @Test
+    public void testId() throws Exception {
+        String guid = UUID.randomUUID().toString();
+
+        biome.setId("foo");
+        assertEquals("foo", biome.getId());
+        biome.setId(guid);
+        assertEquals(guid, biome.getId());
+    }
+
+    @Test
+    public void testName() throws Exception {
+        assertEquals("Biome", biome.getName());
+    }
+
+    @Test
+    public void testColor() throws Exception {
+        assertEquals(0x112233, (long)biome.getColor());
     }
 }

@@ -18,16 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.service;
+package com.emergentmud.core.model.room;
 
-import com.emergentmud.core.model.room.Room;
-import org.springframework.stereotype.Component;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Component
-public class RoomService {
-    public boolean isWithinDistance(Room origin, Room query, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
-                + Math.pow(origin.getY() - query.getY(), 2)
-                + Math.pow(origin.getZ() - query.getZ(), 2)) <= distance;
+@Document
+public class Water {
+    private FlowType flowType;
+
+    public Water(FlowType flowType) {
+        this.flowType = flowType;
+    }
+
+    public FlowType getFlowType() {
+        return flowType;
+    }
+
+    public void setFlowType(FlowType flowType) {
+        this.flowType = flowType;
     }
 }

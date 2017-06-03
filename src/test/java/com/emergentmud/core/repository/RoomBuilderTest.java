@@ -20,16 +20,19 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.Biome;
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Biome;
+import com.emergentmud.core.model.room.FlowType;
+import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.WhittakerGridLocation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -41,6 +44,9 @@ public class RoomBuilderTest {
     @Mock
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
 
+    @Spy
+    private Random random;
+
     private List<WhittakerGridLocation> whittakerGridLocations = new ArrayList<>();
     private List<Room> neighbors = new ArrayList<>();
 
@@ -50,7 +56,7 @@ public class RoomBuilderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomBuilder = new RoomBuilder(roomRepository, whittakerGridLocationRepository);
+        roomBuilder = new RoomBuilder(roomRepository, whittakerGridLocationRepository, random);
 
         doReturn(whittakerGridLocations).when(whittakerGridLocationRepository).findAll();
         doReturn(neighbors).when(roomRepository).findByXBetweenAndYBetweenAndZ(anyLong(), anyLong(), anyLong(), anyLong(), anyLong());
@@ -115,7 +121,7 @@ public class RoomBuilderTest {
     }
 
     @Test
-    public void testGenerateWithIlegalNeighbor() throws Exception {
+    public void testGenerateWithIllegalNeighbor() throws Exception {
         generateGridLocations(2);
         generateNeighbors(1);
 
@@ -131,10 +137,131 @@ public class RoomBuilderTest {
         assertNull(room);
     }
 
+    @Test
+    public void testNeighborHigher() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(2);
+        when(neighbor.getMoisture()).thenReturn(1);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNotNull(room);
+    }
+
+    @Test
+    public void testNeighborWetter() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(1);
+        when(neighbor.getMoisture()).thenReturn(2);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNotNull(room);
+    }
+
+    @Test
+    public void testNeighborSame() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(1);
+        when(neighbor.getMoisture()).thenReturn(1);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNotNull(room);
+    }
+
+    @Test
+    public void testNeighborTooWet() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(1);
+        when(neighbor.getMoisture()).thenReturn(3);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNull(room);
+    }
+
+    @Test
+    public void testNeighborTooHigh() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(3);
+        when(neighbor.getMoisture()).thenReturn(1);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNull(room);
+    }
+
+    @Test
+    public void testNeighborTooWetAndHigh() throws Exception {
+        generateGridLocations(1);
+
+        Room neighbor = mock(Room.class);
+
+        when(neighbor.getElevation()).thenReturn(2);
+        when(neighbor.getMoisture()).thenReturn(2);
+
+        neighbors.add(neighbor);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNull(room);
+    }
+
+    @Test
+    public void testSpringGeneration() throws Exception {
+        Biome biome = mock(Biome.class);
+        WhittakerGridLocation whittakerGridLocation = mock(WhittakerGridLocation.class);
+
+        when(biome.getName()).thenReturn("Snow");
+        when(whittakerGridLocation.getBiome()).thenReturn(biome);
+        when(whittakerGridLocation.getElevation()).thenReturn(WhittakerGridLocation.MAX_ELEVATION);
+        when(whittakerGridLocation.getMoisture()).thenReturn(3);
+
+        whittakerGridLocations.clear();
+        whittakerGridLocations.add(whittakerGridLocation);
+
+        when(random.nextDouble()).thenReturn(0.0, 0.01);
+
+        Room room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertEquals(FlowType.SPRING, room.getWater().getFlowType());
+
+        room = roomBuilder.generateRoom(0L, 0L, 0L);
+
+        assertNotNull(room);
+        assertNull(room.getWater());
+    }
+
     private void generateGridLocations(int count) {
         whittakerGridLocations.clear();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 1; i <= count; i++) {
             Biome biome = mock(Biome.class);
 
             when(biome.getName()).thenReturn("Biome " + i);
@@ -152,7 +279,7 @@ public class RoomBuilderTest {
     private void generateNeighbors(int count) {
         neighbors.clear();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 1; i <= count; i++) {
             Room room = mock(Room.class);
 
             when(room.getElevation()).thenReturn(i);

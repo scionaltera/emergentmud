@@ -21,7 +21,7 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.room.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
