@@ -56,7 +56,9 @@ public class RoomBuilderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomBuilder = new RoomBuilder(roomRepository, whittakerGridLocationRepository, random);
+        Double springFrequency = 0.01;
+
+        roomBuilder = new RoomBuilder(roomRepository, whittakerGridLocationRepository, random, springFrequency);
 
         doReturn(whittakerGridLocations).when(whittakerGridLocationRepository).findAll();
         doReturn(neighbors).when(roomRepository).findByXBetweenAndYBetweenAndZ(anyLong(), anyLong(), anyLong(), anyLong(), anyLong());
