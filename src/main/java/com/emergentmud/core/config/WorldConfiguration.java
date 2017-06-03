@@ -28,7 +28,11 @@ import java.util.Random;
 
 @Configuration
 public class WorldConfiguration {
-    private @Value("${world.seed}") int seed;
+    @Value("${world.seed}")
+    private int seed;
+
+    @Value("${world.springFrequency}")
+    private double springFrequency;
 
     @Bean(name = "worldSeed")
     public int getSeed() {
@@ -42,5 +46,10 @@ public class WorldConfiguration {
         random.setSeed(getSeed());
 
         return random;
+    }
+
+    @Bean(name = "springFrequency")
+    public Double springFrequency() {
+        return springFrequency;
     }
 }

@@ -37,18 +37,23 @@ import java.util.Random;
 @Component
 public class RoomBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomBuilder.class);
+    private static final int NEIGHBOR_DISTANCE = 2;
+    private static final int CHANGE_TOLERANCE = 1;
 
     private RoomRepository roomRepository;
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
-    private Random random;
+    private final Random RANDOM;
+    private final Double SPRING_FREQUENCY;
 
     @Inject
     public RoomBuilder(RoomRepository roomRepository,
                        WhittakerGridLocationRepository whittakerGridLocationRepository,
-                       Random random) {
+                       Random random,
+                       Double springFrequency) {
         this.roomRepository = roomRepository;
         this.whittakerGridLocationRepository = whittakerGridLocationRepository;
-        this.random = random;
+        this.RANDOM = random;
+        this.SPRING_FREQUENCY = springFrequency;
     }
 
     public Room generateRoom(long x, long y, long z) {
@@ -70,7 +75,12 @@ public class RoomBuilder {
 
     private Room generateRandomRoom(long x, long y, long z) {
         List<WhittakerGridLocation> gridLocations = whittakerGridLocationRepository.findAll();
-        List<Room> neighbors = roomRepository.findByXBetweenAndYBetweenAndZ(x - 2, x + 2, y - 2, y + 2, z);
+        List<Room> neighbors = roomRepository.findByXBetweenAndYBetweenAndZ(
+                x - NEIGHBOR_DISTANCE,
+                x + NEIGHBOR_DISTANCE,
+                y - NEIGHBOR_DISTANCE,
+                y + NEIGHBOR_DISTANCE,
+                z);
 
         neighbors.forEach(neighbor -> {
             for (Iterator<WhittakerGridLocation> iterator = gridLocations.iterator(); iterator.hasNext();) {
@@ -78,7 +88,9 @@ public class RoomBuilder {
                 double elevationDiff = Math.abs(neighbor.getElevation() - gridLocation.getElevation());
                 double moistureDiff = Math.abs(neighbor.getMoisture() - gridLocation.getMoisture());
 
-                if (elevationDiff > 1 || moistureDiff > 1 || (elevationDiff == 1 && moistureDiff == 1)) {
+                if (elevationDiff > CHANGE_TOLERANCE
+                        || moistureDiff > CHANGE_TOLERANCE
+                        || (elevationDiff == CHANGE_TOLERANCE && moistureDiff == CHANGE_TOLERANCE)) {
                     iterator.remove();
                 }
             }
@@ -99,7 +111,7 @@ public class RoomBuilder {
         room.setMoisture(whittaker.getMoisture());
 
         if (WhittakerGridLocation.MAX_ELEVATION == room.getElevation()) {
-            if (random.nextDouble() < 0.01) {
+            if (RANDOM.nextDouble() < SPRING_FREQUENCY) {
                 room.setWater(new Water(FlowType.SPRING));
             }
         }
