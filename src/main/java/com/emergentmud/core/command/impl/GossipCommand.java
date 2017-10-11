@@ -57,7 +57,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
-        List<Entity> contents = entityRepository.findByRoomIsNotNull();
+        List<Entity> contents = entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull();
 
         entityService.sendMessageToListeners(contents, entity, toRoom);
 

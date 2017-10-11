@@ -23,7 +23,6 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
@@ -78,32 +77,25 @@ public class TransferCommand extends BaseCommand {
             return output;
         }
 
-        if (target.getRoom().equals(entity.getRoom())) {
-            output.append("[yellow]You're already there.");
+        if (target.getX().equals(entity.getX()) && target.getY().equals(entity.getY()) && target.getZ().equals(entity.getZ())) {
+            output.append("[yellow]They're already here.");
             return output;
         }
 
-        Room room = entity.getRoom();
-        long[] location = new long[] {
-                room.getX(),
-                room.getY(),
-                room.getZ()
-        };
-
         LOGGER.trace("Location before: ({}, {}, {})",
-                target.getRoom().getX(),
-                target.getRoom().getY(),
-                target.getRoom().getZ());
+                target.getX(),
+                target.getY(),
+                target.getZ());
 
         String exitMessage = String.format("%s disappears in a puff of smoke!", target.getName());
-        entityService.sendMessageToRoom(target.getRoom(), target, new GameOutput(exitMessage));
+        entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), target, new GameOutput(exitMessage));
 
-        room = worldManager.put(target, location[0], location[1], location[2]);
-        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+        target = worldManager.put(target, entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
         String enterMessage = String.format("%s appears in a puff of smoke!", target.getName());
 
-        entityService.sendMessageToRoom(room, Arrays.asList(entity, target), new GameOutput(enterMessage));
+        entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), Arrays.asList(entity, target), new GameOutput(enterMessage));
         output
                 .append(String.format("[yellow]You transfer %s.", target.getName()))
                 .append(enterMessage);

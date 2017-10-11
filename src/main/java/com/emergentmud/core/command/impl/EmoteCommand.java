@@ -55,7 +55,7 @@ public class EmoteCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toRoom = new GameOutput(message);
 
-        entityService.sendMessageToRoom(entity.getRoom(), entity, toRoom);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, toRoom);
 
         return output;
     }

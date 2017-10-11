@@ -22,7 +22,6 @@ package com.emergentmud.core.service;
 
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -59,10 +58,10 @@ public class EntityService {
         simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
     }
 
-    public void sendMessageToRoom(Room room, Entity entity, GameOutput message) {
+    public void sendMessageToRoom(Long x, Long y, Long z, Entity entity, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByRoom(room)
+        entityRepository.findByXAndYAndZ(x, y, z)
                 .stream()
                 .filter(e -> !e.equals(entity))
                 .forEach(e -> {
@@ -74,10 +73,10 @@ public class EntityService {
                 });
     }
 
-    public void sendMessageToRoom(Room room, Collection<Entity> exclude, GameOutput message) {
+    public void sendMessageToRoom(Long x, Long y, Long z, Collection<Entity> exclude, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByRoom(room)
+        entityRepository.findByXAndYAndZ(x, y, z)
                 .stream()
                 .filter(e -> !exclude.contains(e))
                 .forEach(e -> {
@@ -117,7 +116,7 @@ public class EntityService {
     }
 
     public Optional<Entity> entitySearchRoom(Entity entity, String name) {
-        return entityRepository.findByRoom(entity.getRoom())
+        return entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ())
                 .stream()
                 .filter(t -> t.getName().toLowerCase().startsWith(name))
                 .findFirst();
@@ -130,7 +129,7 @@ public class EntityService {
             return entityOptional;
         }
 
-        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCaseAndRoomIsNotNull(name));
+        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(name));
     }
 
     public Optional<Entity> entitySearchGlobal(Entity entity, String name) {

@@ -23,7 +23,6 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
@@ -60,7 +59,6 @@ public class GotoCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        Room room = entity.getRoom();
         long[] location = new long[3];
 
         if (tokens.length == 0) {
@@ -72,9 +70,9 @@ public class GotoCommand extends BaseCommand {
             if (targetOptional.isPresent()) {
                 Entity target = targetOptional.get();
 
-                location[0] = target.getRoom().getX();
-                location[1] = target.getRoom().getY();
-                location[2] = target.getRoom().getZ();
+                location[0] = target.getX();
+                location[1] = target.getY();
+                location[2] = target.getZ();
             } else {
                 output.append("[yellow]There is no one by that name to go to.");
                 return output;
@@ -94,38 +92,29 @@ public class GotoCommand extends BaseCommand {
             }
         }
 
-        if (room != null
-                && room.getX() == location[0]
-                && room.getY() == location[1]
-                && room.getZ() == location[2]) {
+        if (entity.getX() == location[0]
+            && entity.getY() == location[1]
+            && entity.getZ() == location[2]) {
 
             output.append("[yellow]You're already there.");
             return output;
         }
 
-        if (worldManager.test(location[0], location[1], location[2])) {
-            if (room != null) {
-                LOGGER.trace("Location before: ({}, {}, {})", room.getX(), room.getY(), room.getZ());
+        LOGGER.trace("Location before: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
-                GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
+        GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
 
-                entityService.sendMessageToRoom(room, entity, exitMessage);
-            } else {
-                LOGGER.warn("GOTO from NULL room!");
-            }
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
 
-            room = worldManager.put(entity, location[0], location[1], location[2]);
-            LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+        entity = worldManager.put(entity, location[0], location[1], location[2]);
+        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
-            GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
+        GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
 
-            entityService.sendMessageToRoom(room, entity, enterMessage);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
 
-            Command look = (Command) applicationContext.getBean("lookCommand");
-            look.execute(output, entity, "look", new String[0], "");
-        } else {
-            output.append("[yellow]No such room exists.");
-        }
+        Command look = (Command) applicationContext.getBean("lookCommand");
+        look.execute(output, entity, "look", new String[0], "");
 
         return output;
     }

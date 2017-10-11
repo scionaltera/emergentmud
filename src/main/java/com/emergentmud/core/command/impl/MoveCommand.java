@@ -24,9 +24,7 @@ import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
@@ -39,20 +37,17 @@ public class MoveCommand extends BaseCommand {
     private Direction direction;
     private ApplicationContext applicationContext;
     private WorldManager worldManager;
-    private RoomBuilder roomBuilder;
     private EntityService entityService;
 
     public MoveCommand(
             Direction direction,
             ApplicationContext applicationContext,
             WorldManager worldManager,
-            RoomBuilder roomBuilder,
             EntityService entityService) {
 
         this.direction = direction;
         this.applicationContext = applicationContext;
         this.worldManager = worldManager;
-        this.roomBuilder = roomBuilder;
         this.entityService = entityService;
 
         setDescription("Walk to an adjacent room.");
@@ -60,51 +55,33 @@ public class MoveCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        Room room = entity.getRoom();
+        long[] location = new long[] {
+                entity.getX(),
+                entity.getY(),
+                entity.getZ()
+        };
 
-        if (room == null) {
-            output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
-        } else {
-            long[] location = new long[] {
-                    room.getX(),
-                    room.getY(),
-                    room.getZ()
-            };
+        LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
 
-            LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
+        location[0] += direction.getX();
+        location[1] += direction.getY();
+        location[2] += direction.getZ();
 
-            location[0] += direction.getX();
-            location[1] += direction.getY();
-            location[2] += direction.getZ();
+        GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
 
-            if (!worldManager.test(location[0], location[1], location[2])) {
-                Room destination = roomBuilder.generateRoom(
-                        location[0],
-                        location[1],
-                        location[2]);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
 
-                if (destination == null) {
-                    output.append("Alas, you cannot go that way.");
-                    return output;
-                }
-            }
+        worldManager.remove(entity);
 
-            GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
+        entity = worldManager.put(entity, location[0], location[1], location[2]);
+        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
-            entityService.sendMessageToRoom(room, entity, exitMessage);
+        GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));
 
-            worldManager.remove(entity);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
 
-            room = worldManager.put(entity, location[0], location[1], location[2]);
-            LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
-
-            GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));
-
-            entityService.sendMessageToRoom(room, entity, enterMessage);
-
-            Command look = (Command)applicationContext.getBean("lookCommand");
-            look.execute(output, entity, "look", new String[0], "");
-        }
+        Command look = (Command)applicationContext.getBean("lookCommand");
+        look.execute(output, entity, "look", new String[0], "");
 
         return output;
     }

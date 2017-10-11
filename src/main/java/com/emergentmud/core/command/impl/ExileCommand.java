@@ -110,7 +110,7 @@ public class ExileCommand extends BaseCommand {
                     .append(String.format("[yellow]%s EXILES %s!", entity.getName(), target.getName()))
                     .append(String.format("%s disappears in a puff of smoke.", target.getName()));
 
-            entityService.sendMessageToRoom(target.getRoom(), Arrays.asList(entity, target), roomOutput);
+            entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), Arrays.asList(entity, target), roomOutput);
 
             worldManager.remove(target);
 

@@ -53,7 +53,7 @@ public class SayCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toRoom = new GameOutput(String.format("[cyan]%s says '%s[cyan]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
-        entityService.sendMessageToRoom(entity.getRoom(), entity, toRoom);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, toRoom);
 
         return output;
     }

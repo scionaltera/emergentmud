@@ -30,7 +30,6 @@ import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -38,7 +37,6 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
@@ -82,7 +80,6 @@ public class MainResource {
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
     private CapabilityRepository capabilityRepository;
-    private RoomBuilder roomBuilder;
     private WorldManager worldManager;
     private EntityService entityService;
     private Emote emote;
@@ -96,7 +93,6 @@ public class MainResource {
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
                         CapabilityRepository capabilityRepository,
-                        RoomBuilder roomBuilder,
                         WorldManager worldManager,
                         EntityService entityService,
                         Emote emote) {
@@ -109,7 +105,6 @@ public class MainResource {
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.capabilityRepository = capabilityRepository;
-        this.roomBuilder = roomBuilder;
         this.worldManager = worldManager;
         this.entityService = entityService;
         this.emote = emote;
@@ -293,21 +288,17 @@ public class MainResource {
 
         entity = entityRepository.save(entity);
 
-        if (entity.getRoom() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+        if (entity.getX() != null && entity.getY() != null && entity.getZ() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
             GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
             entityService.sendMessageToEntity(entity, out);
         }
 
-        if (!worldManager.test(0L, 0L, 0L)) {
-            roomBuilder.generateRoom(0L, 0L, 0L);
-        }
-
-        Room room = worldManager.put(entity, 0L, 0L, 0L);
+        entity = worldManager.put(entity, 0L, 0L, 0L);
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
-        entityService.sendMessageToRoom(room, entity, enterMessage);
+        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
 
         LOGGER.info("{} has entered the game from {}", entity.getName(), entity.getRemoteAddr());
 

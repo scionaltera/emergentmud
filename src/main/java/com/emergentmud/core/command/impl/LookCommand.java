@@ -26,7 +26,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.RoomBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -35,12 +35,12 @@ import java.util.List;
 @Component
 public class LookCommand extends BaseCommand {
     private EntityRepository entityRepository;
-    private RoomRepository roomRepository;
+    private RoomBuilder roomBuilder;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
+    public LookCommand(EntityRepository entityRepository, RoomBuilder roomBuilder) {
         this.entityRepository = entityRepository;
-        this.roomRepository = roomRepository;
+        this.roomBuilder = roomBuilder;
 
         setDescription("Describes the things in the world around you.");
         addParameter("target", false);
@@ -48,55 +48,44 @@ public class LookCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        if (entity.getRoom() == null) {
-            output.append("[black]You are floating in a formless void.");
+        String roomName;
+        String roomDescription;
+        Room room = roomBuilder.generateRoom(entity.getX(), entity.getY(), entity.getZ());
+
+        if (room.getBiome() == null) {
+            roomName = "No Biome";
         } else {
-            String roomName;
-            String roomDescription;
-            Room room = entity.getRoom();
-
-            if (room.getBiome() == null) {
-                roomName = "No Biome";
-            } else {
-                roomName = room.getBiome().getName();
-            }
-
-            roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-            roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
-
-            if (room.getWater() != null) {
-                roomDescription += String.format("<br/>[cyan]The water here is: %s", room.getWater().getFlowType());
-            }
-
-            output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
-                    roomName,
-                    room.getX(),
-                    room.getY(),
-                    room.getZ()));
-            output.append(String.format("[default]%s", roomDescription));
-
-            StringBuilder exits = new StringBuilder("[dcyan]Exits:");
-
-            Direction.DIRECTIONS.forEach(d -> {
-                exits.append(" ");
-
-                Room neighbor = roomRepository.findByXAndYAndZ(
-                        room.getX() + d.getX(),
-                        room.getY() + d.getY(),
-                        room.getZ() + d.getZ());
-
-                exits.append(neighbor == null ? "[red]" : "[cyan]");
-                exits.append(d.getName());
-            });
-
-            output.append(exits.toString());
-
-            List<Entity> contents = entityRepository.findByRoom(room);
-
-            contents.stream()
-                    .filter(content -> !content.getId().equals(entity.getId()))
-                    .forEach(content -> output.append("[green]" + content.getName() + " is here."));
+            roomName = room.getBiome().getName();
         }
+
+        roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
+        roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
+
+        if (room.getWater() != null) {
+            roomDescription += String.format("<br/>[cyan]The water here is: %s", room.getWater().getFlowType());
+        }
+
+        output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
+                roomName,
+                room.getX(),
+                room.getY(),
+                room.getZ()));
+        output.append(String.format("[default]%s", roomDescription));
+
+        StringBuilder exits = new StringBuilder("[dcyan]Exits:");
+
+        Direction.DIRECTIONS.forEach(d -> {
+            exits.append(" [cyan]");
+            exits.append(d.getName());
+        });
+
+        output.append(exits.toString());
+
+        List<Entity> contents = entityRepository.findByXAndYAndZ(room.getX(), room.getY(), room.getZ());
+
+        contents.stream()
+                .filter(content -> !content.getId().equals(entity.getId()))
+                .forEach(content -> output.append("[green]" + content.getName() + " is here."));
 
         return output;
     }
