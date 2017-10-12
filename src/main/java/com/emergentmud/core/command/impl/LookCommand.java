@@ -48,6 +48,12 @@ public class LookCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
+        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+            output.append("[black]You are floating in a formless void.");
+
+            return output;
+        }
+
         String roomName;
         String roomDescription;
         Room room = roomBuilder.generateRoom(entity.getX(), entity.getY(), entity.getZ());

@@ -55,6 +55,12 @@ public class MoveCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
+        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+            output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
+
+            return output;
+        }
+
         long[] location = new long[] {
                 entity.getX(),
                 entity.getY(),
