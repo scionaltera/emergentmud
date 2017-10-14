@@ -61,7 +61,9 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
@@ -81,7 +83,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
                 "dies a little on the inside.");
 
         verify(response).append(eq("Testy dies a little on the inside."));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(0L),eq(0L),eq(0L), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -95,7 +97,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("Testy &lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;"));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

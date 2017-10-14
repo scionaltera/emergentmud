@@ -39,7 +39,13 @@ import static org.junit.Assert.*;
 
 public class RoomBuilderTest {
     @Mock
+    private NoiseMaps noiseMaps;
+
+    @Mock
     private RoomRepository roomRepository;
+
+    @Mock
+    private BiomeRepository biomeRepository;
 
     @Mock
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
@@ -56,9 +62,7 @@ public class RoomBuilderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        Double springFrequency = 0.01;
-
-        roomBuilder = new RoomBuilder(roomRepository, whittakerGridLocationRepository, random, springFrequency);
+        roomBuilder = new RoomBuilder(noiseMaps, whittakerGridLocationRepository, biomeRepository);
 
         doReturn(whittakerGridLocations).when(whittakerGridLocationRepository).findAll();
         doReturn(neighbors).when(roomRepository).findByXBetweenAndYBetweenAndZ(anyLong(), anyLong(), anyLong(), anyLong(), anyLong());

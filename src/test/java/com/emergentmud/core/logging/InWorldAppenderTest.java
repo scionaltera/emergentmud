@@ -84,9 +84,13 @@ public class InWorldAppenderTest {
         when(capabilityRepository.findByName(eq(CommandRole.LOG.name()))).thenReturn(capability);
         when(admin.isCapable(eq(capability))).thenReturn(true);
         when(adminOffline.isCapable(eq(capability))).thenReturn(true);
-        when(admin.getRoom()).thenReturn(room);
-        when(player.getRoom()).thenReturn(room);
-        when(entityRepository.findByRoomIsNotNull()).thenReturn(Arrays.asList(admin, player));
+        when(admin.getX()).thenReturn(0L);
+        when(admin.getY()).thenReturn(0L);
+        when(admin.getZ()).thenReturn(0L);
+        when(player.getX()).thenReturn(0L);
+        when(player.getY()).thenReturn(0L);
+        when(player.getZ()).thenReturn(0L);
+        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(Arrays.asList(admin, player));
 
         inWorldAppender = new InWorldAppender<>();
     }
@@ -129,7 +133,7 @@ public class InWorldAppenderTest {
 
         inWorldAppender.append(eventObject);
 
-        verify(entityRepository).findByRoomIsNotNull();
+        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
         verify(entityService).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
         verify(admin).isCapable(eq(capability));
         verify(player).isCapable(eq(capability));

@@ -24,7 +24,6 @@ import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
@@ -44,9 +43,6 @@ public class MoveCommandTest {
 
     @Mock
     private WorldManager worldManager;
-
-    @Mock
-    private RoomBuilder roomBuilder;
 
     @Mock
     private EntityService entityService;
@@ -80,9 +76,13 @@ public class MoveCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(entity.getName()).thenReturn("Stu");
-        when(entity.getRoom()).thenCallRealMethod();
+        when(entity.getX()).thenCallRealMethod();
+        when(entity.getY()).thenCallRealMethod();
+        when(entity.getZ()).thenCallRealMethod();
         when(observer.getStompSessionId()).thenReturn("observerId");
-        doCallRealMethod().when(entity).setRoom(any(Room.class));
+        doCallRealMethod().when(entity).setX(anyLong());
+        doCallRealMethod().when(entity).setY(anyLong());
+        doCallRealMethod().when(entity).setZ(anyLong());
 
         Stream.of(room, room2)
                 .forEach(r -> {
@@ -94,12 +94,12 @@ public class MoveCommandTest {
                     doCallRealMethod().when(r).setZ(anyLong());
                 });
 
-        when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(true);
-        when(worldManager.put(any(Entity.class), eq(0L), eq(1L), eq(0L))).thenReturn(room2);
+        when(worldManager.put(eq(entity), eq(0L), eq(1L), eq(0L))).thenReturn(entity);
+        when(worldManager.put(eq(observer), eq(0L), eq(1L), eq(0L))).thenReturn(observer);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
 
-        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityService);
+        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, entityService);
     }
 
     @Test
@@ -112,7 +112,9 @@ public class MoveCommandTest {
         room.setX(0L);
         room.setY(0L);
         room.setZ(0L);
-        entity.setRoom(room);
+        entity.setX(0L);
+        entity.setY(0L);
+        entity.setZ(0L);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
@@ -121,8 +123,8 @@ public class MoveCommandTest {
         verify(worldManager).put(eq(entity), eq(0L), eq(1L), eq(0L));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), eq(new String[0]), eq(""));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
-        verify(entityService).sendMessageToRoom(eq(room2), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(1L), eq(0L), eq(entity), any(GameOutput.class));
     }
 
     @Test
@@ -130,9 +132,9 @@ public class MoveCommandTest {
         room.setX(0L);
         room.setY(0L);
         room.setZ(0L);
-        entity.setRoom(room);
-
-        when(worldManager.test(eq(0L), eq(1L), eq(0L))).thenReturn(false);
+        entity.setX(0L);
+        entity.setY(0L);
+        entity.setZ(0L);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 

@@ -20,7 +20,7 @@
 
 package com.emergentmud.core.util;
 
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,81 +34,64 @@ public class RoomServiceTest {
     private RoomService roomService;
 
     @Mock
-    private Room origin;
+    private Entity origin;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(origin.getX()).thenReturn(0L);
+        when(origin.getY()).thenReturn(0L);
+        when(origin.getZ()).thenReturn(0L);
 
         roomService = new RoomService();
     }
 
     @Test
     public void testXSimpleDistance() throws Exception {
-        Room near = mock(Room.class);
-
-        when(near.getX()).thenReturn(2L);
-
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 2L, 0L, 0L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 2L, 0L, 0L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 2L, 0L, 0L, 1));
     }
 
     @Test
     public void testYSimpleDistance() throws Exception {
-        Room near = mock(Room.class);
-
-        when(near.getY()).thenReturn(2L);
-
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 2L, 0L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 2L, 0L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 0L, 2L, 0L, 1));
     }
 
     @Test
     public void testZSimpleDistance() throws Exception {
-        Room near = mock(Room.class);
-
-        when(near.getZ()).thenReturn(2L);
-
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 0L, 2L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 0L, 2L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 0L, 0L, 2L, 1));
     }
 
     @Test
     public void testXShiftedDistance() throws Exception {
-        Room near = mock(Room.class);
-
         when(origin.getX()).thenReturn(10L);
-        when(near.getX()).thenReturn(12L);
 
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 12L, 0L, 0L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 12L, 0L, 0L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 12L, 0L, 0L, 1));
     }
 
     @Test
     public void testYShiftedDistance() throws Exception {
-        Room near = mock(Room.class);
-
         when(origin.getY()).thenReturn(10L);
-        when(near.getY()).thenReturn(12L);
 
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 12L, 0L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 12L, 0L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 0L, 12L, 0L, 1));
     }
 
     @Test
     public void testZShiftedDistance() throws Exception {
-        Room near = mock(Room.class);
-
         when(origin.getZ()).thenReturn(10L);
-        when(near.getZ()).thenReturn(12L);
 
-        assertTrue(roomService.isWithinDistance(origin, near, 3));
-        assertTrue(roomService.isWithinDistance(origin, near, 2));
-        assertFalse(roomService.isWithinDistance(origin, near, 1));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 0L, 12L, 3));
+        assertTrue(roomService.isWithinDistance(origin, 0L, 0L, 12L, 2));
+        assertFalse(roomService.isWithinDistance(origin, 0L, 0L, 12L, 1));
     }
 }

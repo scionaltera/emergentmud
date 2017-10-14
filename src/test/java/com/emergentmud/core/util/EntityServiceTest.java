@@ -74,7 +74,7 @@ public class EntityServiceTest {
 
         contents = generateContents();
 
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
+        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
         when(entity.getId()).thenReturn("entityId");
         when(entity.getStompSessionId()).thenReturn("stompSessionId");
         when(entity.getStompUsername()).thenReturn("stompUsername");
@@ -101,7 +101,7 @@ public class EntityServiceTest {
 
     @Test
     public void testSendMessageToRoom() throws Exception {
-        entityService.sendMessageToRoom(room, entity, output);
+        entityService.sendMessageToRoom(eq(0L), eq(0L), eq(0L), entity, output);
 
         verifyContents();
     }

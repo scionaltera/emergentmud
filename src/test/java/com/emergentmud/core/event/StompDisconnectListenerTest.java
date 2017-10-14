@@ -64,10 +64,9 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         )).thenReturn(entity);
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
 
         stompDisconnectListener = new StompDisconnectListener(
                 entityRepository,
@@ -84,13 +83,15 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         );
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 
     @Test
     public void applicationEventNoRoom() throws Exception {
-        when(entity.getRoom()).thenReturn(null);
+        when(entity.getX()).thenReturn(null);
+        when(entity.getY()).thenReturn(null);
+        when(entity.getZ()).thenReturn(null);
 
         stompDisconnectListener.onApplicationEvent(event);
 
@@ -98,7 +99,7 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         );
-        verify(entityService, never()).sendMessageToRoom(any(Room.class), any(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 

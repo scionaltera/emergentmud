@@ -58,8 +58,6 @@ public class QuitCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(entity.getRoom()).thenReturn(room);
-
         command = new QuitCommand(entityService, worldManager);
     }
 
@@ -73,7 +71,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         result.getOutput().forEach(line -> assertFalse(line.contains("window.location")));
-        verify(entityService, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
         verify(worldManager, never()).remove(any(Entity.class));
     }
 
@@ -82,7 +80,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"now"}, "now");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 
@@ -91,7 +89,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"NoW"}, "NoW");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
         verify(worldManager).remove(eq(entity));
     }
 
@@ -100,7 +98,7 @@ public class QuitCommandTest {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"later"}, "later");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService, never()).sendMessageToRoom(eq(room), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
         verify(worldManager, never()).remove(any(Entity.class));
     }
 }

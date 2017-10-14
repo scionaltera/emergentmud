@@ -60,9 +60,6 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     private GameOutput output;
 
     @Mock
-    private Room room;
-
-    @Mock
     private Entity entity;
 
     @Captor
@@ -81,12 +78,11 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
 
-        command = new ShoutCommand(roomRepository, entityRepository, roomService, entityService);
+        command = new ShoutCommand(entityRepository, roomService, entityService);
     }
 
     @Test
@@ -136,8 +132,6 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
-
-        verify(entityRepository).findByRoomIn(roomListCaptor.capture());
 
         List<Room> filteredRooms = roomListCaptor.getValue();
 

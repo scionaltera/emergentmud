@@ -24,6 +24,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,9 @@ public class LookCommandTest {
 
     @Mock
     private RoomRepository roomRepository;
+
+    @Mock
+    private RoomBuilder roomBuilder;
 
     @Mock
     private GameOutput output;
@@ -64,15 +68,19 @@ public class LookCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(entity.getId()).thenReturn("Tester1");
-        when(entity.getRoom()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setRoom(any(Room.class));
+        when(entity.getX()).thenCallRealMethod();
+        when(entity.getY()).thenCallRealMethod();
+        when(entity.getZ()).thenCallRealMethod();
+        doCallRealMethod().when(entity).setX(anyLong());
+        doCallRealMethod().when(entity).setY(anyLong());
+        doCallRealMethod().when(entity).setZ(anyLong());
         when(room.getX()).thenCallRealMethod();
         when(room.getY()).thenCallRealMethod();
         when(room.getZ()).thenCallRealMethod();
         doCallRealMethod().when(room).setX(anyLong());
         doCallRealMethod().when(room).setY(anyLong());
         doCallRealMethod().when(room).setZ(anyLong());
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
+        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
 
         for (int i = 0; i < 3; i++) {
             Entity entity = mock(Entity.class);
@@ -83,7 +91,7 @@ public class LookCommandTest {
             contents.add(entity);
         }
 
-        command = new LookCommand(entityRepository, roomRepository);
+        command = new LookCommand(entityRepository, roomBuilder);
     }
 
     @Test
@@ -110,14 +118,16 @@ public class LookCommandTest {
         room.setX(0L);
         room.setY(0L);
         room.setZ(0L);
-        entity.setRoom(room);
+        entity.setX(0L);
+        entity.setY(0L);
+        entity.setZ(0L);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
         verify(output, atLeast(3)).append(anyString());
         verify(output).append(startsWith("[dcyan]Exits:"));
-        verify(entityRepository).findByRoom(eq(room));
+        verify(entityRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
 
         contents.forEach(e -> {
                     if (!"Tester1".equals(e.getId())) {

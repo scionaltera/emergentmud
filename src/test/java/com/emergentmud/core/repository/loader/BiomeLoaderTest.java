@@ -23,6 +23,7 @@ package com.emergentmud.core.repository.loader;
 import com.emergentmud.core.model.room.Biome;
 import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,6 +43,9 @@ public class BiomeLoaderTest {
     @Mock
     private RoomRepository roomRepository;
 
+    @Mock
+    private WhittakerGridLocationRepository whittakerGridLocationRepository;
+
     @Captor
     private ArgumentCaptor<List<Biome>> biomeCaptor;
 
@@ -51,7 +55,7 @@ public class BiomeLoaderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        biomeLoader = new BiomeLoader(biomeRepository);
+        biomeLoader = new BiomeLoader(whittakerGridLocationRepository, biomeRepository);
     }
 
     @Test
@@ -59,7 +63,7 @@ public class BiomeLoaderTest {
         when(biomeRepository.count()).thenReturn(0L);
         when(roomRepository.count()).thenReturn(0L);
 
-        biomeLoader.loadWorld();
+        biomeLoader.onConstruct();
 
         verify(biomeRepository).count();
         verify(biomeRepository).save(biomeCaptor.capture());
@@ -77,7 +81,7 @@ public class BiomeLoaderTest {
         when(biomeRepository.count()).thenReturn(1000L);
         when(roomRepository.count()).thenReturn(1000L);
 
-        biomeLoader.loadWorld();
+        biomeLoader.onConstruct();
 
         verify(biomeRepository).count();
         verifyNoMoreInteractions(biomeRepository);
