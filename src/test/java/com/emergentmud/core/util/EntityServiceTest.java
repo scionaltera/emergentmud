@@ -101,7 +101,7 @@ public class EntityServiceTest {
 
     @Test
     public void testSendMessageToRoom() throws Exception {
-        entityService.sendMessageToRoom(eq(0L), eq(0L), eq(0L), entity, output);
+        entityService.sendMessageToRoom(0L, 0L, 0L, entity, output);
 
         verifyContents();
     }

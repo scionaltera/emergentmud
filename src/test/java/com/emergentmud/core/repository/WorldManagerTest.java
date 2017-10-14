@@ -83,22 +83,6 @@ public class WorldManagerTest {
     @Test
     public void testPutExistingEntity() throws Exception {
         Entity entity = mock(Entity.class);
-        List<Entity> contents = new ArrayList<>();
-
-        contents.add(entity);
-
-        when(entity.getX()).thenCallRealMethod();
-        when(entity.getY()).thenCallRealMethod();
-        when(entity.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setX(anyLong());
-        doCallRealMethod().when(entity).setY(anyLong());
-        doCallRealMethod().when(entity).setZ(anyLong());
-        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
-        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
-
-        entity.setX(2L);
-        entity.setY(1L);
-        entity.setZ(3L);
 
         worldManager.put(entity, 2L, 1L, 3L);
 
@@ -111,16 +95,6 @@ public class WorldManagerTest {
     @Test
     public void testRemove() throws Exception {
         Entity entity = mock(Entity.class);
-        List<Entity> contents = new ArrayList<>();
-
-        contents.add(entity);
-
-        when(entity.getX()).thenReturn(2L);
-        when(entity.getY()).thenReturn(1L);
-        when(entity.getZ()).thenReturn(3L);
-        when(entityRepository.findByXAndYAndZ(2L, 1L, 3L)).thenReturn(contents);
-
-        assertTrue(contents.contains(entity));
 
         worldManager.remove(entity);
 
@@ -128,7 +102,6 @@ public class WorldManagerTest {
         verify(entity).setX(null);
         verify(entity).setY(null);
         verify(entity).setZ(null);
-        assertFalse(contents.contains(entity));
     }
 
     @Test

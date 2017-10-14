@@ -57,9 +57,6 @@ public class GotoCommandTest {
     private Entity morgan;
 
     @Mock
-    private Room room;
-
-    @Mock
     private Room destination;
 
     @Mock
@@ -83,8 +80,13 @@ public class GotoCommandTest {
         when(destination.getY()).thenReturn(1000L);
         when(destination.getZ()).thenReturn(0L);
         when(entityService.entitySearchInWorld(eq(entity), eq("morgan"))).thenReturn(Optional.of(morgan));
-        when(worldManager.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenReturn(entity);
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
+        when(worldManager.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenAnswer(invocation -> {
+            when(entity.getX()).thenReturn(1000L);
+            when(entity.getY()).thenReturn(1000L);
+            when(entity.getZ()).thenReturn(0L);
+            return entity;
+        });
 
         command = new GotoCommand(applicationContext, worldManager, entityService);
     }
@@ -141,9 +143,9 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoSameRoom() throws Exception {
-        when(destination.getX()).thenReturn(0L);
-        when(destination.getY()).thenReturn(0L);
-        when(destination.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(1000L);
+        when(entity.getY()).thenReturn(1000L);
+        when(entity.getZ()).thenReturn(0L);
 
         GameOutput result = command.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
@@ -167,19 +169,6 @@ public class GotoCommandTest {
         verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
-    }
-
-    @Test
-    public void testGotoNonexistentRoom() throws Exception {
-        GameOutput result = command.execute(output, entity, cmd, new String[] {"100", "100"}, "100 100");
-
-        assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("No such room")));
-
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService, never()).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(applicationContext, never()).getBean(eq("lookCommand"));
-        verify(lookCommand, never()).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
 
     @Test

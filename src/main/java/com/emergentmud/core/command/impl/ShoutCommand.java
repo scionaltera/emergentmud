@@ -32,8 +32,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ShoutCommand extends BaseCommunicationCommand implements Command {
@@ -64,17 +64,15 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         output.append(String.format("[dyellow]You shout '%s[dyellow]'", HtmlUtils.htmlEscape(raw)));
 
         GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
-        List<Entity> contents = new ArrayList<>();
+        List<Entity> contents = entityRepository.findByXBetweenAndYBetweenAndZBetween(
+                entity.getX() - SHOUT_DISTANCE, entity.getX() + SHOUT_DISTANCE,
+                entity.getY() - SHOUT_DISTANCE, entity.getY() + SHOUT_DISTANCE,
+                entity.getZ() - SHOUT_DISTANCE, entity.getZ() + SHOUT_DISTANCE
+        );
 
-        for (long z = entity.getZ() - SHOUT_DISTANCE; z <= entity.getZ() + SHOUT_DISTANCE; z++) {
-            for (long y = entity.getZ() - SHOUT_DISTANCE; y <= entity.getZ() + SHOUT_DISTANCE; y++) {
-                for (long x = entity.getZ() - SHOUT_DISTANCE; x <= entity.getZ() + SHOUT_DISTANCE; x++) {
-                    if (roomService.isWithinDistance(entity, x, y, z, SHOUT_DISTANCE)) {
-                        contents.addAll(entityRepository.findByXAndYAndZ(x, y, z));
-                    }
-                }
-            }
-        }
+        contents = contents.stream()
+                .filter(r -> roomService.isWithinDistance(entity, r.getX(), r.getY(), r.getZ(), SHOUT_DISTANCE))
+                .collect(Collectors.toList());
 
         entityService.sendMessageToListeners(contents, entity, toZone);
 

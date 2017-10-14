@@ -92,9 +92,9 @@ public class GotoCommand extends BaseCommand {
             }
         }
 
-        if (entity.getX() == location[0]
-            && entity.getY() == location[1]
-            && entity.getZ() == location[2]) {
+        if (((Long)location[0]).equals(entity.getX())
+                && ((Long)location[1]).equals(entity.getY())
+                && ((Long)location[2]).equals(entity.getZ())) {
 
             output.append("[yellow]You're already there.");
             return output;
@@ -107,7 +107,7 @@ public class GotoCommand extends BaseCommand {
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
 
         entity = worldManager.put(entity, location[0], location[1], location[2]);
-        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
 

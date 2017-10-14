@@ -35,6 +35,7 @@ public interface EntityRepository extends MongoRepository<Entity, String> {
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
     List<Entity> findByXAndYAndZ(Long x, Long y, Long z);
     List<Entity> findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+    List<Entity> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
     List<Entity> findByAccount(Account account);
     List<Entity> findByAccountIsNotNull();
 }

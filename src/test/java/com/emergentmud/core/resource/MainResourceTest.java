@@ -190,6 +190,7 @@ public class MainResourceTest {
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminAccountCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminCapability));
+        when(worldManager.put(eq(entity), anyLong(), anyLong(), anyLong())).thenReturn(entity);
 
         mainResource = new MainResource(
                 applicationContext,

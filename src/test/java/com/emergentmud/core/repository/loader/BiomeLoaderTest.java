@@ -79,12 +79,14 @@ public class BiomeLoaderTest {
     @Test
     public void testPopulatedWorld() throws Exception {
         when(biomeRepository.count()).thenReturn(1000L);
-        when(roomRepository.count()).thenReturn(1000L);
+        when(whittakerGridLocationRepository.count()).thenReturn(1000L);
 
         biomeLoader.onConstruct();
 
         verify(biomeRepository).count();
         verifyNoMoreInteractions(biomeRepository);
-        verifyNoMoreInteractions(roomRepository);
+
+        verify(whittakerGridLocationRepository).count();
+        verifyNoMoreInteractions(whittakerGridLocationRepository);
     }
 }
