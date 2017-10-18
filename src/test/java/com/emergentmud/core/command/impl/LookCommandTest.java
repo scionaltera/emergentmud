@@ -21,18 +21,15 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.room.Biome;
 import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomBuilder;
-import com.emergentmud.core.repository.RoomRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -40,9 +37,6 @@ import static org.mockito.Mockito.*;
 public class LookCommandTest {
     @Mock
     private EntityRepository entityRepository;
-
-    @Mock
-    private RoomRepository roomRepository;
 
     @Mock
     private RoomBuilder roomBuilder;
@@ -56,9 +50,11 @@ public class LookCommandTest {
     @Mock
     private Room room;
 
+    @Mock
+    private Biome biome;
+
     private String[] tokens = new String[0];
     private String raw = "";
-    private List<Entity> contents = new ArrayList<>();
     private String cmd = "look";
 
     private LookCommand command;
@@ -66,30 +62,6 @@ public class LookCommandTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        when(entity.getId()).thenReturn("Tester1");
-        when(entity.getX()).thenCallRealMethod();
-        when(entity.getY()).thenCallRealMethod();
-        when(entity.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setX(anyLong());
-        doCallRealMethod().when(entity).setY(anyLong());
-        doCallRealMethod().when(entity).setZ(anyLong());
-        when(room.getX()).thenCallRealMethod();
-        when(room.getY()).thenCallRealMethod();
-        when(room.getZ()).thenCallRealMethod();
-        doCallRealMethod().when(room).setX(anyLong());
-        doCallRealMethod().when(room).setY(anyLong());
-        doCallRealMethod().when(room).setZ(anyLong());
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
-
-        for (int i = 0; i < 3; i++) {
-            Entity entity = mock(Entity.class);
-
-            when(entity.getId()).thenReturn(Integer.toString(i));
-            when(entity.getName()).thenReturn("Tester" + i);
-
-            contents.add(entity);
-        }
 
         command = new LookCommand(entityRepository, roomBuilder);
     }
@@ -101,6 +73,10 @@ public class LookCommandTest {
 
     @Test
     public void testLookVoid() throws Exception {
+        when(entity.getX()).thenReturn(null);
+        when(entity.getY()).thenReturn(null);
+        when(entity.getZ()).thenReturn(null);
+
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
@@ -110,32 +86,15 @@ public class LookCommandTest {
 
     @Test
     public void testLook() throws Exception {
-        when(roomRepository.findByXAndYAndZ(eq(0L), eq(1L), eq(0L))).thenReturn(mock(Room.class));
-        when(roomRepository.findByXAndYAndZ(eq(1L), eq(0L), eq(0L))).thenReturn(mock(Room.class));
-        when(roomRepository.findByXAndYAndZ(eq(0L), eq(-1L), eq(0L))).thenReturn(mock(Room.class));
-        when(roomRepository.findByXAndYAndZ(eq(-1L), eq(0L), eq(0L))).thenReturn(mock(Room.class));
+        when(roomBuilder.generateRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
+        when(room.getBiome()).thenReturn(biome);
+        when(room.getElevation()).thenReturn(1);
+        when(room.getMoisture()).thenReturn(0);
+        when(biome.getName()).thenReturn("Blasted Hellscape");
 
-        room.setX(0L);
-        room.setY(0L);
-        room.setZ(0L);
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
         assertNotNull(result);
-        verify(output, atLeast(3)).append(anyString());
-        verify(output).append(startsWith("[dcyan]Exits:"));
-        verify(entityRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
-
-        contents.forEach(e -> {
-                    if (!"Tester1".equals(e.getId())) {
-                        verify(e, atLeastOnce()).getId();
-                        verify(e).getName();
-                    } else {
-                        verify(e, never()).getName();
-                    }
-                });
     }
 }

@@ -22,7 +22,6 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
@@ -31,8 +30,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
-
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -53,18 +50,6 @@ public class MoveCommandTest {
     @Mock
     private Entity entity;
 
-    @Mock
-    private Entity observer;
-
-    @Mock
-    private Room room;
-
-    @Mock
-    private Room room2;
-
-    @Mock
-    private LookCommand lookCommand;
-
     private String[] tokens = new String[] {};
     private String raw = "";
     private String cmd = "e";
@@ -75,30 +60,6 @@ public class MoveCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(entity.getName()).thenReturn("Stu");
-        when(entity.getX()).thenCallRealMethod();
-        when(entity.getY()).thenCallRealMethod();
-        when(entity.getZ()).thenCallRealMethod();
-        when(observer.getStompSessionId()).thenReturn("observerId");
-        doCallRealMethod().when(entity).setX(anyLong());
-        doCallRealMethod().when(entity).setY(anyLong());
-        doCallRealMethod().when(entity).setZ(anyLong());
-
-        Stream.of(room, room2)
-                .forEach(r -> {
-                    when(r.getX()).thenCallRealMethod();
-                    when(r.getY()).thenCallRealMethod();
-                    when(r.getZ()).thenCallRealMethod();
-                    doCallRealMethod().when(r).setX(anyLong());
-                    doCallRealMethod().when(r).setY(anyLong());
-                    doCallRealMethod().when(r).setZ(anyLong());
-                });
-
-        when(worldManager.put(eq(entity), eq(0L), eq(1L), eq(0L))).thenReturn(entity);
-        when(worldManager.put(eq(observer), eq(0L), eq(1L), eq(0L))).thenReturn(observer);
-
-        when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-
         command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, entityService);
     }
 
@@ -108,43 +69,11 @@ public class MoveCommandTest {
     }
 
     @Test
-    public void testMove() throws Exception {
-        room.setX(0L);
-        room.setY(0L);
-        room.setZ(0L);
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
-
-        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
-
-        assertNotNull(result);
-        verify(worldManager).remove(eq(entity));
-        verify(worldManager).put(eq(entity), eq(0L), eq(1L), eq(0L));
-        verify(applicationContext).getBean(eq("lookCommand"));
-        verify(lookCommand).execute(eq(output), eq(entity), eq("look"), eq(new String[0]), eq(""));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(1L), eq(0L), eq(entity), any(GameOutput.class));
-    }
-
-    @Test
-    public void testMoveNoRoom() throws Exception {
-        room.setX(0L);
-        room.setY(0L);
-        room.setZ(0L);
-        entity.setX(0L);
-        entity.setY(0L);
-        entity.setZ(0L);
-
-        GameOutput result = command.execute(output, entity, cmd, tokens, raw);
-
-        assertNotNull(result);
-        verify(worldManager, never()).remove(eq(entity));
-        verify(worldManager, never()).put(eq(entity), eq(0L), eq(1L), eq(0L));
-    }
-
-    @Test
     public void testMoveInVoid() throws Exception {
+        when(entity.getX()).thenReturn(null);
+        when(entity.getY()).thenReturn(null);
+        when(entity.getZ()).thenReturn(null);
+
         command.execute(output, entity, cmd, tokens, raw);
 
         verifyZeroInteractions(worldManager);

@@ -129,7 +129,7 @@ public class TeleportCommand extends BaseCommand {
                 .append(exitMessage);
 
         entity = worldManager.put(target, location[0], location[1], location[2]);
-        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", target.getName()));
 

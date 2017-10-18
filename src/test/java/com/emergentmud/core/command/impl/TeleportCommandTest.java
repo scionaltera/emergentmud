@@ -78,9 +78,15 @@ public class TeleportCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(worldManager.put(eq(scion), eq(1L), eq(1L), eq(0L))).thenReturn(scion);
-        when(worldManager.put(eq(bnarg), eq(1L), eq(1L), eq(0L))).thenReturn(bnarg);
-        when(worldManager.put(eq(spook), eq(1L), eq(1L), eq(0L))).thenReturn(spook);
+        when(worldManager.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Entity entity = (Entity)invocation.getArguments()[0];
+
+            when(entity.getX()).thenReturn((Long)invocation.getArguments()[1]);
+            when(entity.getY()).thenReturn((Long)invocation.getArguments()[2]);
+            when(entity.getZ()).thenReturn((Long)invocation.getArguments()[3]);
+
+            return entity;
+        });
         when(entityService.entitySearchRoom(eq(scion), eq("scion"))).thenReturn(Optional.of(scion));
         when(entityService.entitySearchRoom(eq(scion), eq("bnarg"))).thenReturn(Optional.of(bnarg));
         when(entityService.entitySearchInWorld(eq(scion), eq("spook"))).thenReturn(Optional.of(spook));

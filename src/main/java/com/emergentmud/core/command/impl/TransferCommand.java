@@ -91,7 +91,7 @@ public class TransferCommand extends BaseCommand {
         entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), target, new GameOutput(exitMessage));
 
         target = worldManager.put(target, entity.getX(), entity.getY(), entity.getZ());
-        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location after: ({}, {}, {})", target.getX(), target.getY(), target.getZ());
 
         String enterMessage = String.format("%s appears in a puff of smoke!", target.getName());
 
