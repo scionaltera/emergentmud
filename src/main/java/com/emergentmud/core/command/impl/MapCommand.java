@@ -54,7 +54,6 @@ public class MapCommand extends BaseCommand {
                 if (x == center.getX() && y == center.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    // TODO do this in a batch for better performance
                     Room room = roomBuilder.generateRoom(x, y, center.getZ());
 
                     if (room != null) {

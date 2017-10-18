@@ -47,13 +47,6 @@ public class RoomBuilder {
     }
 
     public Room generateRoom(long x, long y, long z) {
-        // TODO store rooms with altered biomes in the database, check that first
-//        Room room = roomRepository.findByXAndYAndZ(x, y, z);
-//
-//        if (room != null) {
-//            return room;
-//        }
-
         return assembleRoom(x, y, z);
     }
 
