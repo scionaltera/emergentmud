@@ -29,7 +29,7 @@ import ru.olamedia.noise.SimplexNoise;
 import javax.inject.Inject;
 
 @Component
-public class NoiseMaps {
+public class NoiseMap {
     public static final int MIN_ELEVATION = 0;
     public static final int MAX_ELEVATION = 4;
     public static final int MIN_MOISTURE = 1;
@@ -42,11 +42,11 @@ public class NoiseMaps {
     private Fbm2D moisture;
 
     @Inject
-    public NoiseMaps(@Qualifier("worldSeedElevation") long seedElevation,
-                     @Qualifier("worldSeedMoisture") long seedMoisture,
-                     @Qualifier("worldExtent") int worldExtent,
-                     @Qualifier("worldScale") double worldScale,
-                     @Qualifier("worldOctaves") int worldOctaves) {
+    public NoiseMap(@Qualifier("worldSeedElevation") long seedElevation,
+                    @Qualifier("worldSeedMoisture") long seedMoisture,
+                    @Qualifier("worldExtent") int worldExtent,
+                    @Qualifier("worldScale") double worldScale,
+                    @Qualifier("worldOctaves") int worldOctaves) {
 
         WORLD_EXTENT = worldExtent;
         HYPOTENUSE = Math.sqrt(Math.pow(WORLD_EXTENT / 2, 2) + Math.pow(WORLD_EXTENT / 2, 2));

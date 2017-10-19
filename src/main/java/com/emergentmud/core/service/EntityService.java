@@ -118,7 +118,7 @@ public class EntityService {
     public Optional<Entity> entitySearchRoom(Entity entity, String name) {
         return entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ())
                 .stream()
-                .filter(t -> t.getName().toLowerCase().startsWith(name))
+                .filter(t -> t.getName().toLowerCase().startsWith(name.toLowerCase()))
                 .findFirst();
     }
 

@@ -20,17 +20,26 @@
 
 package com.emergentmud.core.repository;
 
+import com.emergentmud.core.model.WhittakerGridLocation;
+import com.emergentmud.core.model.room.Biome;
+import com.emergentmud.core.model.room.Room;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class RoomBuilderTest {
     @Mock
-    private NoiseMaps noiseMaps;
+    private NoiseMap noiseMap;
+
+    @Mock
+    private Biome biome;
+
+    @Mock
+    private Biome oceanBiome;
 
     @Mock
     private BiomeRepository biomeRepository;
@@ -38,12 +47,49 @@ public class RoomBuilderTest {
     @Mock
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
 
+    @Mock
+    private WhittakerGridLocation whittakerGridLocation;
+
     private RoomBuilder roomBuilder;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        roomBuilder = new RoomBuilder(noiseMaps, whittakerGridLocationRepository, biomeRepository);
+        when(noiseMap.getElevation(eq(128L), eq(128L))).thenReturn(3);
+        when(noiseMap.getMoisture(eq(128L), eq(128L))).thenReturn(2);
+        when(noiseMap.getElevation(eq(1024L), eq(1024L))).thenReturn(0);
+        when(noiseMap.getMoisture(eq(1024L), eq(1024L))).thenReturn(1);
+        when(whittakerGridLocationRepository.findByElevationAndMoisture(anyInt(), anyInt())).thenReturn(whittakerGridLocation);
+        when(biomeRepository.findByName(eq("Ocean"))).thenReturn(oceanBiome);
+        when(whittakerGridLocation.getBiome()).thenReturn(biome);
+        when(whittakerGridLocation.getElevation()).thenReturn(3);
+        when(whittakerGridLocation.getMoisture()).thenReturn(2);
+
+        roomBuilder = new RoomBuilder(noiseMap, whittakerGridLocationRepository, biomeRepository);
+    }
+
+    @Test
+    public void testGenerateRoom() throws Exception {
+        Room room = roomBuilder.generateRoom(128L, 128L, 0L);
+
+        assertEquals(128L, (long)room.getX());
+        assertEquals(128L, (long)room.getY());
+        assertEquals(0L, (long)room.getZ());
+        assertEquals(3, (int)room.getElevation());
+        assertEquals(2, (int)room.getMoisture());
+        assertEquals(biome, room.getBiome());
+    }
+
+    @Test
+    public void testGenerateRoomOutOfBounds() throws Exception {
+        Room room = roomBuilder.generateRoom(1024L, 1024L, 0L);
+
+        assertEquals(1024L, (long)room.getX());
+        assertEquals(1024L, (long)room.getY());
+        assertEquals(0L, (long)room.getZ());
+        assertEquals(0, (int)room.getElevation());
+        assertEquals(1, (int)room.getMoisture());
+        assertEquals(biome, room.getBiome());
     }
 }

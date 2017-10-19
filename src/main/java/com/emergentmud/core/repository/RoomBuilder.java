@@ -33,15 +33,15 @@ import javax.inject.Inject;
 public class RoomBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomBuilder.class);
 
-    private NoiseMaps noiseMaps;
+    private NoiseMap noiseMap;
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
     private BiomeRepository biomeRepository;
 
     @Inject
-    public RoomBuilder(NoiseMaps noiseMaps,
+    public RoomBuilder(NoiseMap noiseMap,
                        WhittakerGridLocationRepository whittakerGridLocationRepository,
                        BiomeRepository biomeRepository) {
-        this.noiseMaps = noiseMaps;
+        this.noiseMap = noiseMap;
         this.whittakerGridLocationRepository = whittakerGridLocationRepository;
         this.biomeRepository = biomeRepository;
     }
@@ -52,17 +52,12 @@ public class RoomBuilder {
 
     private Room assembleRoom(long x, long y, long z) {
         Room room = new Room();
-
-        room.setX(x);
-        room.setY(y);
-        room.setZ(z);
-        room.setElevation(noiseMaps.getElevation(x, y));
-        room.setMoisture(noiseMaps.getMoisture(x, y));
-
         Biome biome;
+        int elevation = noiseMap.getElevation(x, y);
+        int moisture = noiseMap.getMoisture(x, y);
         WhittakerGridLocation whittaker = whittakerGridLocationRepository.findByElevationAndMoisture(
-                room.getElevation(),
-                room.getMoisture());
+                elevation,
+                moisture);
 
         if (whittaker == null) {
             biome = biomeRepository.findByName("Ocean");
@@ -73,7 +68,12 @@ public class RoomBuilder {
             biome = whittaker.getBiome();
         }
 
+        room.setX(x);
+        room.setY(y);
+        room.setZ(z);
         room.setBiome(biome);
+        room.setElevation(elevation);
+        room.setMoisture(moisture);
 
         return room;
     }

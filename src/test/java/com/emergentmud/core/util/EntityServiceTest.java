@@ -22,7 +22,6 @@ package com.emergentmud.core.util;
 
 import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
@@ -37,7 +36,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -53,10 +54,10 @@ public class EntityServiceTest {
     private PromptBuilder promptBuilder;
 
     @Mock
-    private Room room;
+    private Entity entity;
 
     @Mock
-    private Entity entity;
+    private Entity stu;
 
     @Mock
     private GameOutput output;
@@ -75,7 +76,12 @@ public class EntityServiceTest {
         contents = generateContents();
 
         when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(stu);
+        when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(stu);
         when(entity.getId()).thenReturn("entityId");
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
         when(entity.getStompSessionId()).thenReturn("stompSessionId");
         when(entity.getStompUsername()).thenReturn("stompUsername");
 
@@ -107,6 +113,25 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void testSendMessageToRoomWithExclude() throws Exception {
+        Entity excludeMe = mock(Entity.class);
+        List<Entity> exclude = Collections.singletonList(excludeMe);
+
+        when(excludeMe.getId()).thenReturn("excludeMe");
+        when(excludeMe.getStompSessionId()).thenReturn("excludeMeStompSessionId");
+        when(excludeMe.getStompUsername()).thenReturn("excludeMeStompUsername");
+
+        contents.add(excludeMe);
+
+        entityService.sendMessageToRoom(0L, 0L, 0L, exclude, output);
+
+        contents.remove(excludeMe);
+
+        verifyContents();
+        verifyZeroInteractions(excludeMe);
+    }
+
+    @Test
     public void testSendMessageToListeners() throws Exception {
         entityService.sendMessageToListeners(contents, entity, output);
 
@@ -120,6 +145,83 @@ public class EntityServiceTest {
         verifyContents();
     }
 
+    @Test
+    public void testEntitySearchRoom() throws Exception {
+        Optional<Entity> entityOptional = entityService.entitySearchRoom(entity, "Entity1");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchRoomNotFound() throws Exception {
+        Optional<Entity> entityOptional = entityService.entitySearchRoom(entity, "Stu");
+
+        assertFalse(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchInWorldSameRoom() throws Exception {
+        Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Entity1");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchInWorldDifferentRoom() throws Exception {
+        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+
+        Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Stu");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchInWorldNotInWorld() throws Exception {
+        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Fred"))).thenReturn(null);
+
+        Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Fred");
+
+        assertFalse(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchGlobalInRoom() throws Exception {
+        Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchGlobalDifferentRoom() throws Exception {
+        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+
+        Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchGlobalOffline() throws Exception {
+        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(null);
+
+        Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
+
+        assertTrue(entityOptional.isPresent());
+    }
+
+    @Test
+    public void testEntitySearchGlobalNoSuchEntity() throws Exception {
+        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(null);
+        when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(null);
+
+        Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
+
+        assertFalse(entityOptional.isPresent());
+    }
+
     private List<Entity> generateContents() {
         List<Entity> contents = new ArrayList<>();
 
@@ -129,6 +231,7 @@ public class EntityServiceTest {
             when(e.getStompUsername()).thenReturn("stompUsername" + i);
             when(e.getStompSessionId()).thenReturn("stompSessionId" + i);
             when(e.getId()).thenReturn("entityId" + i);
+            when(e.getName()).thenReturn("Entity" + i);
 
             contents.add(e);
         }
