@@ -20,101 +20,60 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.room.FlowType;
+import com.emergentmud.core.model.room.Biome;
 import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.WhittakerGridLocation;
-import com.emergentmud.core.model.room.Water;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 
 @Component
 public class RoomBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomBuilder.class);
-    private static final int NEIGHBOR_DISTANCE = 2;
-    private static final int CHANGE_TOLERANCE = 1;
 
-    private RoomRepository roomRepository;
+    private NoiseMap noiseMap;
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
-    private final Random RANDOM;
-    private final Double SPRING_FREQUENCY;
+    private BiomeRepository biomeRepository;
 
     @Inject
-    public RoomBuilder(RoomRepository roomRepository,
+    public RoomBuilder(NoiseMap noiseMap,
                        WhittakerGridLocationRepository whittakerGridLocationRepository,
-                       Random random,
-                       Double springFrequency) {
-        this.roomRepository = roomRepository;
+                       BiomeRepository biomeRepository) {
+        this.noiseMap = noiseMap;
         this.whittakerGridLocationRepository = whittakerGridLocationRepository;
-        this.RANDOM = random;
-        this.SPRING_FREQUENCY = springFrequency;
+        this.biomeRepository = biomeRepository;
     }
 
     public Room generateRoom(long x, long y, long z) {
-        Room room = roomRepository.findByXAndYAndZ(x, y, z);
-
-        if (room != null) {
-            return room;
-        }
-
-        room = generateRandomRoom(x, y, z);
-
-        if (room == null) {
-            LOGGER.debug("No valid biomes for room at ({}, {}, {})", x, y, z);
-            return null;
-        }
-
-        return roomRepository.save(room);
+        return assembleRoom(x, y, z);
     }
 
-    private Room generateRandomRoom(long x, long y, long z) {
-        List<WhittakerGridLocation> gridLocations = whittakerGridLocationRepository.findAll();
-        List<Room> neighbors = roomRepository.findByXBetweenAndYBetweenAndZ(
-                x - NEIGHBOR_DISTANCE,
-                x + NEIGHBOR_DISTANCE,
-                y - NEIGHBOR_DISTANCE,
-                y + NEIGHBOR_DISTANCE,
-                z);
-
-        neighbors.forEach(neighbor -> {
-            for (Iterator<WhittakerGridLocation> iterator = gridLocations.iterator(); iterator.hasNext();) {
-                WhittakerGridLocation gridLocation = iterator.next();
-                double elevationDiff = Math.abs(neighbor.getElevation() - gridLocation.getElevation());
-                double moistureDiff = Math.abs(neighbor.getMoisture() - gridLocation.getMoisture());
-
-                if (elevationDiff > CHANGE_TOLERANCE
-                        || moistureDiff > CHANGE_TOLERANCE
-                        || (elevationDiff == CHANGE_TOLERANCE && moistureDiff == CHANGE_TOLERANCE)) {
-                    iterator.remove();
-                }
-            }
-        });
-
-        if (gridLocations.isEmpty()) {
-            return null;
-        }
-
-        Collections.shuffle(gridLocations);
-
-        WhittakerGridLocation whittaker = gridLocations.get(0);
+    private Room assembleRoom(long x, long y, long z) {
         Room room = new Room();
+        Biome biome;
+        int elevation = noiseMap.getElevation(x, y);
+        int moisture = noiseMap.getMoisture(x, y);
+        WhittakerGridLocation whittaker = whittakerGridLocationRepository.findByElevationAndMoisture(
+                elevation,
+                moisture);
 
-        room.setLocation(x, y, z);
-        room.setBiome(whittaker.getBiome());
-        room.setElevation(whittaker.getElevation());
-        room.setMoisture(whittaker.getMoisture());
+        if (whittaker == null) {
+            biome = biomeRepository.findByName("Ocean");
 
-        if (WhittakerGridLocation.MAX_ELEVATION == room.getElevation()) {
-            if (RANDOM.nextDouble() < SPRING_FREQUENCY) {
-                room.setWater(new Water(FlowType.SPRING));
-            }
+            LOGGER.warn("Defaulted to Ocean for ({}, {}, {}) due to out of range elevation={} moisture={}",
+                    x, y, z, room.getElevation(), room.getMoisture());
+        } else {
+            biome = whittaker.getBiome();
         }
+
+        room.setX(x);
+        room.setY(y);
+        room.setZ(z);
+        room.setBiome(biome);
+        room.setElevation(elevation);
+        room.setMoisture(moisture);
 
         return room;
     }

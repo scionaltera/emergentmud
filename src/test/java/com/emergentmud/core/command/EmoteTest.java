@@ -22,7 +22,6 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
@@ -61,9 +60,6 @@ public class EmoteTest {
     @Mock
     private Entity observer;
 
-    @Mock
-    private Room room;
-
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
@@ -82,13 +78,19 @@ public class EmoteTest {
         when(metadata.getToRoomTargetingSelf()).thenReturn("%self% grins to %himself%.");
 
         when(entity.getName()).thenReturn("Scion");
-        when(entity.getRoom()).thenReturn(room);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
 
         when(target.getName()).thenReturn("Bnarg");
-        when(target.getRoom()).thenReturn(room);
+        when(target.getX()).thenReturn(0L);
+        when(target.getY()).thenReturn(0L);
+        when(target.getZ()).thenReturn(0L);
 
         when(observer.getName()).thenReturn("Ghan");
-        when(observer.getRoom()).thenReturn(room);
+        when(observer.getX()).thenReturn(0L);
+        when(observer.getY()).thenReturn(0L);
+        when(observer.getZ()).thenReturn(0L);
 
         List<Entity> entities = new ArrayList<>();
 
@@ -96,7 +98,7 @@ public class EmoteTest {
         entities.add(target);
         entities.add(observer);
 
-        when(entityRepository.findByRoom(eq(room))).thenReturn(entities);
+        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(entities);
 
         emote = new Emote(entityRepository, entityService);
     }
@@ -120,7 +122,7 @@ public class EmoteTest {
         emote.execute(output, metadata, entity, new String[0]);
 
         verify(output).append("You grin.");
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), outputCaptor.capture());
 
         GameOutput observerOutput = outputCaptor.getValue();
 

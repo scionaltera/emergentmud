@@ -23,10 +23,8 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommunicationCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.service.EntityService;
 import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
@@ -41,15 +39,12 @@ import java.util.stream.Collectors;
 public class ShoutCommand extends BaseCommunicationCommand implements Command {
     static final long SHOUT_DISTANCE = 7;
 
-    private RoomRepository roomRepository;
     private RoomService roomService;
 
     @Inject
-    public ShoutCommand(RoomRepository roomRepository,
-                        EntityRepository entityRepository,
+    public ShoutCommand(EntityRepository entityRepository,
                         RoomService roomService,
                         EntityService entityService) {
-        this.roomRepository = roomRepository;
         this.roomService = roomService;
         this.entityRepository = entityRepository;
         this.entityService = entityService;
@@ -69,21 +64,15 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         output.append(String.format("[dyellow]You shout '%s[dyellow]'", HtmlUtils.htmlEscape(raw)));
 
         GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
+        List<Entity> contents = entityRepository.findByXBetweenAndYBetweenAndZBetween(
+                entity.getX() - SHOUT_DISTANCE, entity.getX() + SHOUT_DISTANCE,
+                entity.getY() - SHOUT_DISTANCE, entity.getY() + SHOUT_DISTANCE,
+                entity.getZ() - SHOUT_DISTANCE, entity.getZ() + SHOUT_DISTANCE
+        );
 
-        Room entityRoom = entity.getRoom();
-        List<Room> rooms = roomRepository.findByXBetweenAndYBetweenAndZBetween(
-                entityRoom.getX() - SHOUT_DISTANCE,
-                entityRoom.getX() + SHOUT_DISTANCE,
-                entityRoom.getY() - SHOUT_DISTANCE,
-                entityRoom.getY() + SHOUT_DISTANCE,
-                entityRoom.getZ() - SHOUT_DISTANCE,
-                entityRoom.getZ() + SHOUT_DISTANCE);
-
-        rooms = rooms.stream()
-                .filter(r -> roomService.isWithinDistance(entityRoom, r, SHOUT_DISTANCE))
+        contents = contents.stream()
+                .filter(r -> roomService.isWithinDistance(entity, r.getX(), r.getY(), r.getZ(), SHOUT_DISTANCE))
                 .collect(Collectors.toList());
-
-        List<Entity> contents = entityRepository.findByRoomIn(rooms);
 
         entityService.sendMessageToListeners(contents, entity, toZone);
 

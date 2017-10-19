@@ -129,17 +129,6 @@ public class EntityTest {
     }
 
     @Test
-    public void setRoom() throws Exception {
-        entity.setRoom(room);
-
-        assertEquals(room, entity.getRoom());
-
-        entity.setRoom(null);
-
-        assertNull(entity.getRoom());
-    }
-
-    @Test
     public void testCapabilityVararg() throws Exception {
         entity.addCapabilities(capabilityA, capabilityB);
 

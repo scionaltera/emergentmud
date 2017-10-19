@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.room.Room;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -44,15 +43,16 @@ public class Entity implements Capable {
     @DBRef
     private Set<Capability> capabilities = new HashSet<>();
 
+    private Long x;
+    private Long y;
+    private Long z;
+
     private Long creationDate;
     private Long lastLoginDate;
     private String stompUsername;
     private String stompSessionId;
     private String remoteAddr;
     private String userAgent;
-
-    @DBRef
-    private Room room;
 
     public String getId() {
         return id;
@@ -76,6 +76,30 @@ public class Entity implements Capable {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Long getX() {
+        return x;
+    }
+
+    public void setX(Long x) {
+        this.x = x;
+    }
+
+    public Long getY() {
+        return y;
+    }
+
+    public void setY(Long y) {
+        this.y = y;
+    }
+
+    public Long getZ() {
+        return z;
+    }
+
+    public void setZ(Long z) {
+        this.z = z;
     }
 
     public Long getCreationDate() {
@@ -124,14 +148,6 @@ public class Entity implements Capable {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
-    }
-
-    public Room getRoom() {
-        return room;
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
     }
 
     @Override

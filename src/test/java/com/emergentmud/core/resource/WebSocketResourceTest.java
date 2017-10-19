@@ -28,7 +28,6 @@ import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.model.stomp.UserInput;
 import com.emergentmud.core.repository.CapabilityRepository;
@@ -115,9 +114,6 @@ public class WebSocketResourceTest {
     private Capability cmdEditCapability;
 
     @Mock
-    private Room room;
-
-    @Mock
     private Entity entity;
 
     @Mock
@@ -156,7 +152,6 @@ public class WebSocketResourceTest {
         when(principal.getName()).thenReturn(PRINCIPAL_USER);
         when(entity.getStompUsername()).thenReturn(PRINCIPAL_USER);
         when(entity.getStompSessionId()).thenReturn("simpSessionId");
-        when(entity.getRoom()).thenReturn(room);
         when(entity.getName()).thenReturn("Player");
         when(entity.isCapable(eq(seeCapability))).thenReturn(true);
         when(entity.isCapable(eq(talkCapability))).thenReturn(true);
@@ -167,7 +162,7 @@ public class WebSocketResourceTest {
         when(httpSession.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(sessionRepository.getSession(eq(httpSessionId))).thenReturn(httpSession);
         when(entityRepository.findOne(eq(ENTITY_ID))).thenReturn(entity);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(roomContents);
+        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 

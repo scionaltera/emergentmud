@@ -22,7 +22,6 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
@@ -49,9 +48,6 @@ public class InfoCommandTest {
     private Account account;
 
     @Mock
-    private Room room;
-
-    @Mock
     private EntityService entityService;
 
     private String cmd = "info";
@@ -62,7 +58,9 @@ public class InfoCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(entity.getRoom()).thenReturn(room);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
         when(entity.getName()).thenReturn("Scion");
         when(entity.getAccount()).thenReturn(account);
         when(target.getName()).thenReturn("Bnarg");
@@ -96,7 +94,9 @@ public class InfoCommandTest {
 
         assertNotNull(result);
         verifyZeroInteractions(target);
-        verify(entity, atLeastOnce()).getRoom();
+        verify(entity, atLeastOnce()).getX();
+        verify(entity, atLeastOnce()).getY();
+        verify(entity, atLeastOnce()).getZ();
         verify(entity).getId();
         verify(entity).getName();
         verify(entity).getCapabilities();
@@ -118,7 +118,9 @@ public class InfoCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("bnarg"));
         verifyNoMoreInteractions(entity);
         verifyZeroInteractions(account);
-        verify(target, atLeastOnce()).getRoom();
+        verify(target, atLeastOnce()).getX();
+        verify(target, atLeastOnce()).getY();
+        verify(target, atLeastOnce()).getZ();
         verify(target).getId();
         verify(target).getName();
         verify(target).getCapabilities();

@@ -31,7 +31,6 @@ import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -165,7 +164,6 @@ public class MainResourceTest {
         entity = entities.get(0);
         generateEmoteMetadata();
 
-        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(true);
         when(httpSession.getAttribute(eq("social"))).thenReturn(NETWORK_ID);
         when(principal.getName()).thenReturn(NETWORK_USER);
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> {
@@ -192,6 +190,7 @@ public class MainResourceTest {
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminAccountCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminCapability));
+        when(worldManager.put(eq(entity), anyLong(), anyLong(), anyLong())).thenReturn(entity);
 
         mainResource = new MainResource(
                 applicationContext,
@@ -202,10 +201,10 @@ public class MainResourceTest {
                 commandMetadataRepository,
                 emoteMetadataRepository,
                 capabilityRepository,
-                roomBuilder,
                 worldManager,
                 entityService,
-                emote
+                emote,
+                256
         );
     }
 
@@ -484,8 +483,8 @@ public class MainResourceTest {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
-        verify(entityService).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
+        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
+        verify(worldManager).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -498,27 +497,6 @@ public class MainResourceTest {
         GameOutput output = outputCaptor.getValue();
 
         assertTrue(output.getOutput().get(0).startsWith("[yellow]"));
-
-        Map<String, String> sessionMap = mapCaptor.getValue();
-
-        assertEquals(account.getId(), sessionMap.get("account"));
-        assertEquals(entity.getId(), sessionMap.get("entity"));
-    }
-
-    @Test
-    public void testPlayNoWorld() throws Exception {
-        when(worldManager.test(eq(0L), eq(0L), eq(0L))).thenReturn(false);
-
-        String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
-
-        verify(roomBuilder).generateRoom(eq(0L), eq(0L), eq(0L));
-        verify(entityService).sendMessageToRoom(any(Room.class), any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
-        verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
-        verify(model).addAttribute(eq("breadcrumb"), anyString());
-        verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("entity"), eq(entity));
-        assertEquals("play", view);
 
         Map<String, String> sessionMap = mapCaptor.getValue();
 
@@ -575,17 +553,18 @@ public class MainResourceTest {
 
     @Test
     public void testPlayReconnect() throws Exception {
-        Room room = mock(Room.class);
         Entity entity0 = entity;
 
-        when(entity0.getRoom()).thenReturn(room);
+        when(entity0.getX()).thenReturn(0L);
+        when(entity0.getY()).thenReturn(0L);
+        when(entity0.getZ()).thenReturn(0L);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityService).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
+        verify(worldManager).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));

@@ -21,7 +21,6 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
@@ -53,12 +52,6 @@ public class TransferCommandTest {
     private GameOutput gameOutput;
 
     @Mock
-    private Room room;
-
-    @Mock
-    private Room origin;
-
-    @Mock
     private Entity scion;
 
     @Mock
@@ -76,19 +69,28 @@ public class TransferCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(worldManager.test(eq(1L), eq(1L), eq(0L))).thenReturn(true);
-        when(worldManager.put(any(Entity.class), eq(0L), eq(0L), eq(0L))).thenReturn(room);
+        when(worldManager.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
+            Entity entity = (Entity)invocation.getArguments()[0];
+
+            when(entity.getX()).thenReturn((Long)invocation.getArguments()[1]);
+            when(entity.getY()).thenReturn((Long)invocation.getArguments()[2]);
+            when(entity.getZ()).thenReturn((Long)invocation.getArguments()[3]);
+
+            return entity;
+        });
         when(entityService.entitySearchRoom(eq(scion), eq("scion"))).thenReturn(Optional.of(scion));
         when(entityService.entitySearchInWorld(eq(scion), eq("scion"))).thenReturn(Optional.of(scion));
         when(entityService.entitySearchInWorld(eq(scion), eq("spook"))).thenReturn(Optional.of(spook));
         when(entityService.entitySearchInWorld(eq(scion), eq("morgan"))).thenReturn(Optional.empty());
         when(entityService.entitySearchInWorld(eq(scion), eq("1"))).thenReturn(Optional.empty());
         when(scion.getName()).thenReturn("Scion");
-        when(scion.getRoom()).thenReturn(room);
+        when(scion.getX()).thenReturn(0L);
+        when(scion.getY()).thenReturn(0L);
+        when(scion.getZ()).thenReturn(0L);
         when(spook.getName()).thenReturn("Spook");
-        when(spook.getRoom()).thenReturn(origin);
-        when(origin.getX()).thenReturn(1L);
-        when(origin.getY()).thenReturn(1L);
+        when(spook.getX()).thenReturn(1L);
+        when(spook.getY()).thenReturn(1L);
+        when(spook.getZ()).thenReturn(0L);
         when(gameOutput.append(anyString())).thenReturn(gameOutput);
 
         transferCommand = new TransferCommand(applicationContext, worldManager, entityService);
@@ -147,7 +149,9 @@ public class TransferCommandTest {
 
     @Test
     public void testTransferToSameRoom() throws Exception {
-        when(spook.getRoom()).thenReturn(room);
+        when(spook.getX()).thenReturn(0L);
+        when(spook.getY()).thenReturn(0L);
+        when(spook.getZ()).thenReturn(0L);
 
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] { "spook" }, "spook");
 
@@ -165,9 +169,9 @@ public class TransferCommandTest {
         assertNotNull(output);
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
-        verify(entityService).sendMessageToRoom(eq(origin), eq(spook), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(spook), any(GameOutput.class));
         verify(worldManager).put(eq(spook), eq(0L), eq(0L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(room), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(spook), eq("look"), any(String[].class), eq(""));
         verify(entityService).sendMessageToEntity(eq(spook), any(GameOutput.class));

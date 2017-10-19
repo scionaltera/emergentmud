@@ -42,7 +42,7 @@ public class WhoCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        List<Entity> online = entityRepository.findByRoomIsNotNull();
+        List<Entity> online = entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull();
 
         output.append("[dwhite]Who is online:");
         online.forEach(e -> output.append("[dwhite]" + e.getName()));

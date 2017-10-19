@@ -22,7 +22,6 @@ package com.emergentmud.core.config;
 
 import com.emergentmud.core.command.impl.MoveCommand;
 import com.emergentmud.core.model.Direction;
-import com.emergentmud.core.repository.RoomBuilder;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.service.EntityService;
 import org.springframework.context.ApplicationContext;
@@ -37,9 +36,6 @@ public class CommandConfiguration {
     private ApplicationContext applicationContext;
 
     @Inject
-    private RoomBuilder roomBuilder;
-
-    @Inject
     private WorldManager worldManager;
 
     @Inject
@@ -47,21 +43,21 @@ public class CommandConfiguration {
 
     @Bean(name = "northCommand")
     public MoveCommand northCommand() {
-        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, roomBuilder, entityService);
+        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, entityService);
     }
 
     @Bean(name = "eastCommand")
     public MoveCommand eastCommand() {
-        return new MoveCommand(Direction.EAST, applicationContext, worldManager, roomBuilder, entityService);
+        return new MoveCommand(Direction.EAST, applicationContext, worldManager, entityService);
     }
 
     @Bean(name = "southCommand")
     public MoveCommand southCommand() {
-        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, roomBuilder, entityService);
+        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, entityService);
     }
 
     @Bean(name = "westCommand")
     public MoveCommand westCommand() {
-        return new MoveCommand(Direction.WEST, applicationContext, worldManager, roomBuilder, entityService);
+        return new MoveCommand(Direction.WEST, applicationContext, worldManager, entityService);
     }
 }

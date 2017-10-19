@@ -24,32 +24,45 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Random;
-
 @Configuration
 public class WorldConfiguration {
-    @Value("${world.seed}")
-    private int seed;
+    @Value("${world.seed.elevation}")
+    private long seedElevation;
 
-    @Value("${world.springFrequency}")
-    private double springFrequency;
+    @Value("${world.seed.moisture}")
+    private long seedMoisture;
 
-    @Bean(name = "worldSeed")
-    public int getSeed() {
-        return seed;
+    @Value("${world.extent}")
+    private int worldExtent;
+
+    @Value("${world.scale}")
+    private double worldScale;
+
+    @Value("${world.octaves}")
+    private int worldOctaves;
+
+    @Bean(name = "worldSeedElevation")
+    public long getSeedElevation() {
+        return seedElevation;
     }
 
-    @Bean(name = "worldRandom")
-    public Random random() {
-        Random random = new Random();
-
-        random.setSeed(getSeed());
-
-        return random;
+    @Bean(name = "worldSeedMoisture")
+    public long getSeedMoisture() {
+        return seedMoisture;
     }
 
-    @Bean(name = "springFrequency")
-    public Double springFrequency() {
-        return springFrequency;
+    @Bean(name = "worldExtent")
+    public int getWorldExtent() {
+        return worldExtent;
+    }
+
+    @Bean(name = "worldScale")
+    public double getWorldScale() {
+        return worldScale;
+    }
+
+    @Bean(name = "worldOctaves")
+    public int getWorldOctaves() {
+        return worldOctaves;
     }
 }

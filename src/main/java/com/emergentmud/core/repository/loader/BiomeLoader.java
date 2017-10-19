@@ -20,8 +20,10 @@
 
 package com.emergentmud.core.repository.loader;
 
+import com.emergentmud.core.model.WhittakerGridLocation;
 import com.emergentmud.core.model.room.Biome;
 import com.emergentmud.core.repository.BiomeRepository;
+import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,15 +37,18 @@ import java.util.List;
 public class BiomeLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(BiomeLoader.class);
 
+    private WhittakerGridLocationRepository whittakerGridLocationRepository;
     private BiomeRepository biomeRepository;
 
     @Inject
-    public BiomeLoader(BiomeRepository biomeRepository) {
+    public BiomeLoader(WhittakerGridLocationRepository whittakerGridLocationRepository,
+                       BiomeRepository biomeRepository) {
+        this.whittakerGridLocationRepository = whittakerGridLocationRepository;
         this.biomeRepository = biomeRepository;
     }
 
     @PostConstruct
-    public void loadWorld() {
+    public void onConstruct() {
         if (biomeRepository.count() == 0) {
             LOGGER.warn("No biomes found! Loading default biomes...");
 
@@ -70,6 +75,49 @@ public class BiomeLoader {
             biomes.add(new Biome("River", 0x225588));
 
             biomeRepository.save(biomes);
+        }
+
+        if (whittakerGridLocationRepository.count() == 0) {
+            LOGGER.warn("No Whittaker grid data found! Loading default grid...");
+
+            List<WhittakerGridLocation> gridLocations = new ArrayList<>();
+
+            gridLocations.add(new WhittakerGridLocation(0, 1, biomeRepository.findByName("Ocean")));
+            gridLocations.add(new WhittakerGridLocation(0, 2, biomeRepository.findByName("Ocean")));
+            gridLocations.add(new WhittakerGridLocation(0, 3, biomeRepository.findByName("Ocean")));
+            gridLocations.add(new WhittakerGridLocation(0, 4, biomeRepository.findByName("Ocean")));
+            gridLocations.add(new WhittakerGridLocation(0, 5, biomeRepository.findByName("Ocean")));
+            gridLocations.add(new WhittakerGridLocation(0, 6, biomeRepository.findByName("Ocean")));
+
+            gridLocations.add(new WhittakerGridLocation(1, 1, biomeRepository.findByName("Subtropical Desert")));
+            gridLocations.add(new WhittakerGridLocation(1, 2, biomeRepository.findByName("Grassland")));
+            gridLocations.add(new WhittakerGridLocation(1, 3, biomeRepository.findByName("Tropical Seasonal Forest")));
+            gridLocations.add(new WhittakerGridLocation(1, 4, biomeRepository.findByName("Tropical Seasonal Forest")));
+            gridLocations.add(new WhittakerGridLocation(1, 5, biomeRepository.findByName("Tropical Rain Forest")));
+            gridLocations.add(new WhittakerGridLocation(1, 6, biomeRepository.findByName("Tropical Rain Forest")));
+
+            gridLocations.add(new WhittakerGridLocation(2, 1, biomeRepository.findByName("Temperate Desert")));
+            gridLocations.add(new WhittakerGridLocation(2, 2, biomeRepository.findByName("Grassland")));
+            gridLocations.add(new WhittakerGridLocation(2, 3, biomeRepository.findByName("Grassland")));
+            gridLocations.add(new WhittakerGridLocation(2, 4, biomeRepository.findByName("Temperate Deciduous Forest")));
+            gridLocations.add(new WhittakerGridLocation(2, 5, biomeRepository.findByName("Temperate Deciduous Forest")));
+            gridLocations.add(new WhittakerGridLocation(2, 6, biomeRepository.findByName("Temperate Rain Forest")));
+
+            gridLocations.add(new WhittakerGridLocation(3, 1, biomeRepository.findByName("Temperate Desert")));
+            gridLocations.add(new WhittakerGridLocation(3, 2, biomeRepository.findByName("Temperate Desert")));
+            gridLocations.add(new WhittakerGridLocation(3, 3, biomeRepository.findByName("Shrubland")));
+            gridLocations.add(new WhittakerGridLocation(3, 4, biomeRepository.findByName("Shrubland")));
+            gridLocations.add(new WhittakerGridLocation(3, 5, biomeRepository.findByName("Taiga")));
+            gridLocations.add(new WhittakerGridLocation(3, 6, biomeRepository.findByName("Taiga")));
+
+            gridLocations.add(new WhittakerGridLocation(4, 1, biomeRepository.findByName("Scorched")));
+            gridLocations.add(new WhittakerGridLocation(4, 2, biomeRepository.findByName("Bare")));
+            gridLocations.add(new WhittakerGridLocation(4, 3, biomeRepository.findByName("Tundra")));
+            gridLocations.add(new WhittakerGridLocation(4, 4, biomeRepository.findByName("Snow")));
+            gridLocations.add(new WhittakerGridLocation(4, 5, biomeRepository.findByName("Snow")));
+            gridLocations.add(new WhittakerGridLocation(4, 6, biomeRepository.findByName("Snow")));
+
+            whittakerGridLocationRepository.save(gridLocations);
         }
     }
 }

@@ -22,10 +22,8 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.service.EntityService;
 import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
@@ -48,9 +46,6 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private RoomRepository roomRepository;
-
-    @Mock
     private EntityService entityService;
 
     @Spy
@@ -60,16 +55,13 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     private GameOutput output;
 
     @Mock
-    private Room room;
-
-    @Mock
     private Entity entity;
 
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
     @Captor
-    private ArgumentCaptor<List<Room>> roomListCaptor;
+    private ArgumentCaptor<List<Entity>> entityListCaptor;
 
     private String cmd = "shout";
 
@@ -81,12 +73,11 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
 
-        command = new ShoutCommand(roomRepository, entityRepository, roomService, entityService);
+        command = new ShoutCommand(entityRepository, roomService, entityService);
     }
 
     @Test
@@ -110,40 +101,45 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
     @Test
     public void testShoutRadius() throws Exception {
-        List<Room> rooms = new ArrayList<>();
+        List<Entity> entities = new ArrayList<>();
 
         for (long y = -SHOUT_DISTANCE; y < SHOUT_DISTANCE; y++) {
             for (long x = -SHOUT_DISTANCE; x < SHOUT_DISTANCE; x++) {
-                Room room = mock(Room.class);
+                Entity entity = mock(Entity.class);
 
-                when(room.getX()).thenReturn(x);
-                when(room.getY()).thenReturn(y);
-                when(room.getZ()).thenReturn(0L);
+                when(entity.getX()).thenReturn(x);
+                when(entity.getY()).thenReturn(y);
+                when(entity.getZ()).thenReturn(0L);
 
-                rooms.add(room);
+                entities.add(entity);
             }
         }
 
-        when(roomRepository.findByXBetweenAndYBetweenAndZBetween(
+        when(entityRepository.findByXBetweenAndYBetweenAndZBetween(
                 eq(-7L),
                 eq(7L),
                 eq(-7L),
                 eq(7L),
                 eq(-7L),
                 eq(7L)
-        )).thenReturn(rooms);
+        )).thenReturn(entities);
+
+        doNothing().when(entityService).sendMessageToListeners(
+                entityListCaptor.capture(),
+                any(Entity.class),
+                any(GameOutput.class));
 
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
-        verify(entityRepository).findByRoomIn(roomListCaptor.capture());
-
-        List<Room> filteredRooms = roomListCaptor.getValue();
+        List<Entity> filteredEntities = entityListCaptor.getValue();
 
         assertNotNull(response);
-        assertEquals(147, filteredRooms.size()); // 196 would be the full square
-                                                 // 147 is the circle
+
+        // 196 would be the full square
+        // 147 is the circle
+        assertEquals(147, filteredEntities.size());
     }
 
     @Test

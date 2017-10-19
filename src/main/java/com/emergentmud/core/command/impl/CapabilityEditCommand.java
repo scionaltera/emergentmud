@@ -93,6 +93,12 @@ public class CapabilityEditCommand extends BaseCommand {
                 return output;
             }
 
+            if (tokens.length < 2) {
+                usage(output, command);
+
+                return output;
+            }
+
             Entity target;
             Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, tokens[1]);
 

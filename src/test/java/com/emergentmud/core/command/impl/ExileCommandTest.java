@@ -86,7 +86,9 @@ public class ExileCommandTest {
         when(output.append(anyString())).thenReturn(output);
         when(entity.getName()).thenReturn("Admin");
         when(victim.getAccount()).thenReturn(account);
-        when(victim.getRoom()).thenReturn(room);
+        when(victim.getX()).thenReturn(0L);
+        when(victim.getY()).thenReturn(0L);
+        when(victim.getZ()).thenReturn(0L);
         when(victim.getName()).thenReturn("Victim");
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
@@ -150,7 +152,7 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("victim"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(room), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(worldManager, never()).remove(victim);
     }
 
@@ -167,7 +169,7 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("admin"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(room), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(worldManager, never()).remove(victim);
     }
 
@@ -186,7 +188,7 @@ public class ExileCommandTest {
         verify(account).removeCapabilities(playCapability, newCharCapability);
         verify(accountRepository).save(eq(account));
         verify(entityService).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService).sendMessageToRoom(eq(room), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(worldManager).remove(victim);
     }
 
@@ -204,7 +206,7 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("victim"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(room), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(worldManager, never()).remove(victim);
     }
 

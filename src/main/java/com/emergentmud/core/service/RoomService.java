@@ -20,14 +20,14 @@
 
 package com.emergentmud.core.service;
 
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Entity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RoomService {
-    public boolean isWithinDistance(Room origin, Room query, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - query.getX(), 2)
-                + Math.pow(origin.getY() - query.getY(), 2)
-                + Math.pow(origin.getZ() - query.getZ(), 2)) <= distance;
+    public boolean isWithinDistance(Entity origin, Long x, Long y, Long z, double distance) {
+        return Math.sqrt(Math.pow(origin.getX() - x, 2)
+                + Math.pow(origin.getY() - y, 2)
+                + Math.pow(origin.getZ() - z, 2)) <= distance;
     }
 }

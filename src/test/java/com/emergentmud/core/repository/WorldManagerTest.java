@@ -51,19 +51,7 @@ public class WorldManagerTest {
 
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        worldManager = new WorldManager(entityRepository, roomRepository);
-    }
-
-    @Test
-    public void testTest() throws Exception {
-        when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
-
-        assertTrue(worldManager.test(0L, 0L, 0L));
-    }
-
-    @Test
-    public void testTestMissing() throws Exception {
-        assertFalse(worldManager.test(0L, 0L, 0L));
+        worldManager = new WorldManager(entityRepository);
     }
 
     @Test
@@ -71,86 +59,49 @@ public class WorldManagerTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(entity.getRoom()).thenCallRealMethod();
-        doCallRealMethod().when(entity).setRoom(any(Room.class));
-        when(room.getX()).thenReturn(2L);
-        when(room.getY()).thenReturn(1L);
-        when(room.getZ()).thenReturn(3L);
-        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
+        when(entity.getX()).thenCallRealMethod();
+        when(entity.getY()).thenCallRealMethod();
+        when(entity.getZ()).thenCallRealMethod();
+        doCallRealMethod().when(entity).setX(anyLong());
+        doCallRealMethod().when(entity).setY(anyLong());
+        doCallRealMethod().when(entity).setZ(anyLong());
+        when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
 
-        entity.setRoom(mock(Room.class));
+        entity.setX(0L);
+        entity.setY(0L);
+        entity.setZ(0L);
 
-        Room result = worldManager.put(entity, 2L, 1L, 3L);
+        Entity result = worldManager.put(entity, 2L, 1L, 3L);
 
         assertNotNull(result);
         verify(entityRepository).save(eq(entity));
-        verify(entity).setRoom(eq(room));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutMissingRoom() throws Exception {
-        Entity entity = mock(Entity.class);
-        List<Entity> contents = new ArrayList<>();
-
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(2L);
-        when(room.getY()).thenReturn(1L);
-        when(room.getZ()).thenReturn(3L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
-
-        worldManager.put(entity, 2L, 1L, 3L);
-
-        fail("Required exception was not thrown.");
+        verify(entity).setX(eq(2L));
+        verify(entity).setY(eq(1L));
+        verify(entity).setZ(eq(3L));
     }
 
     @Test
     public void testPutExistingEntity() throws Exception {
         Entity entity = mock(Entity.class);
-        List<Entity> contents = new ArrayList<>();
-
-        contents.add(entity);
-
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(2L);
-        when(room.getY()).thenReturn(1L);
-        when(room.getZ()).thenReturn(3L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
-        when(roomRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(room);
 
         worldManager.put(entity, 2L, 1L, 3L);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setRoom(eq(room));
+        verify(entity).setX(eq(2L));
+        verify(entity).setY(eq(1L));
+        verify(entity).setZ(eq(3L));
     }
 
     @Test
     public void testRemove() throws Exception {
         Entity entity = mock(Entity.class);
-        List<Entity> contents = new ArrayList<>();
-
-        contents.add(entity);
-
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(2L);
-        when(room.getY()).thenReturn(1L);
-        when(room.getZ()).thenReturn(3L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
 
         worldManager.remove(entity);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setRoom(null);
-    }
-
-    @Test
-    public void testRemoveNoRoom() throws Exception {
-        Entity entity = mock(Entity.class);
-
-        worldManager.remove(entity);
-
-        verify(entity).getRoom();
-        verifyZeroInteractions(entityRepository);
+        verify(entity).setX(null);
+        verify(entity).setY(null);
+        verify(entity).setZ(null);
     }
 
     @Test
@@ -158,15 +109,19 @@ public class WorldManagerTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(entity.getRoom()).thenReturn(room);
         when(room.getX()).thenReturn(2L);
         when(room.getY()).thenReturn(1L);
         when(room.getZ()).thenReturn(3L);
-        when(entityRepository.findByRoom(eq(room))).thenReturn(contents);
+        when(entityRepository.findByXAndYAndZ(2L, 1L, 3L)).thenReturn(contents);
+
+        assertFalse(contents.contains(entity));
 
         worldManager.remove(entity);
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setRoom(null);
+        verify(entity).setX(null);
+        verify(entity).setY(null);
+        verify(entity).setZ(null);
+        assertFalse(contents.contains(entity));
     }
 }

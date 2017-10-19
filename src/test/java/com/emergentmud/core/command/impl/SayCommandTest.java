@@ -61,10 +61,9 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
 
         command = new SayCommand(entityService);
     }
@@ -81,7 +80,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[cyan]You say 'Feed me a stray cat.[cyan]'"));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -95,7 +94,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[cyan]You say '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
-        verify(entityService).sendMessageToRoom(eq(room), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 

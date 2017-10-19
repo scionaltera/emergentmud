@@ -24,4 +24,5 @@ import com.emergentmud.core.model.WhittakerGridLocation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface WhittakerGridLocationRepository extends MongoRepository<WhittakerGridLocation, String> {
+    WhittakerGridLocation findByElevationAndMoisture(int elevation, int moisture);
 }

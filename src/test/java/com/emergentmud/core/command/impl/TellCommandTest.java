@@ -67,10 +67,9 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn("id");
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getRoom()).thenReturn(room);
-        when(room.getX()).thenReturn(0L);
-        when(room.getY()).thenReturn(0L);
-        when(room.getZ()).thenReturn(0L);
+        when(entity.getX()).thenReturn(0L);
+        when(entity.getY()).thenReturn(0L);
+        when(entity.getZ()).thenReturn(0L);
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("testy"))).thenReturn(entity);
 

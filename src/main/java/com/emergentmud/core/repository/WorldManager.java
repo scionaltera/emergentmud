@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2017 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,7 +21,6 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -33,46 +32,33 @@ public class WorldManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
 
     private EntityRepository entityRepository;
-    private RoomRepository roomRepository;
 
     @Inject
-    public WorldManager(EntityRepository entityRepository,
-                        RoomRepository roomRepository) {
+    public WorldManager(EntityRepository entityRepository) {
         this.entityRepository = entityRepository;
-        this.roomRepository = roomRepository;
     }
 
-    public boolean test(long x, long y, long z) {
-        return roomRepository.findByXAndYAndZ(x, y, z) != null;
-    }
-
-    public Room put(Entity entity, long x, long y, long z) {
-        Room room = roomRepository.findByXAndYAndZ(x, y, z);
-
-        if (room == null) {
-            throw new IllegalArgumentException("No such room exists.");
-        }
-
+    public Entity put(Entity entity, long x, long y, long z) {
         LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
-        entity.setRoom(room);
+        entity.setX(x);
+        entity.setY(y);
+        entity.setZ(z);
         entityRepository.save(entity);
 
-        return room;
+        return entity;
     }
 
     public void remove(Entity entity) {
-        if (entity.getRoom() == null) {
-            return;
-        }
-
         LOGGER.trace("Remove {} from room ({}, {}, {})",
                 entity.getName(),
-                entity.getRoom().getX(),
-                entity.getRoom().getY(),
-                entity.getRoom().getZ());
+                entity.getX(),
+                entity.getY(),
+                entity.getZ());
 
-        entity.setRoom(null);
+        entity.setX(null);
+        entity.setY(null);
+        entity.setZ(null);
         entityRepository.save(entity);
     }
 }
