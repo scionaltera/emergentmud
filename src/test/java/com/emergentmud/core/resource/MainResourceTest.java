@@ -203,7 +203,8 @@ public class MainResourceTest {
                 capabilityRepository,
                 worldManager,
                 entityService,
-                emote
+                emote,
+                256
         );
     }
 
@@ -483,7 +484,7 @@ public class MainResourceTest {
 
         verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(eq(entity), eq(0L), eq(0L), eq(0L));
+        verify(worldManager).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -563,7 +564,7 @@ public class MainResourceTest {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityService).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(any(Entity.class), eq(0L), eq(0L), eq(0L));
+        verify(worldManager).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
