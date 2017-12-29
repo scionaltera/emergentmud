@@ -26,7 +26,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -35,12 +35,12 @@ import java.util.List;
 @Component
 public class LookCommand extends BaseCommand {
     private EntityRepository entityRepository;
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
+    public LookCommand(EntityRepository entityRepository, RoomService roomService) {
         this.entityRepository = entityRepository;
-        this.roomRepository = roomRepository;
+        this.roomService = roomService;
 
         setDescription("Describes the things in the world around you.");
         addParameter("target", false);
@@ -56,7 +56,7 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
 
         roomName = "No Biome";
         roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";

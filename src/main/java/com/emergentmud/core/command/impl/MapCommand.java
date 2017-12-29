@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -34,18 +34,18 @@ public class MapCommand extends BaseCommand {
     private static final int MAP_EXTENT_X = 40;
     private static final int MAP_EXTENT_Y = 20;
 
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Inject
-    public MapCommand(RoomRepository roomRepository) {
-        this.roomRepository = roomRepository;
+    public MapCommand(RoomService roomService) {
+        this.roomService = roomService;
 
         setDescription("Shows a bird's eye view of the rooms around you.");
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        Room center = roomRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+        Room center = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
 
         for (long y = center.getY() + MAP_EXTENT_Y, i = 0; y >= center.getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
@@ -54,7 +54,7 @@ public class MapCommand extends BaseCommand {
                 if (x == center.getX() && y == center.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomRepository.findByXAndYAndZ(x, y, center.getZ());
+                    Room room = roomService.fetchRoom(x, y, center.getZ());
 
                     if (room != null) {
                         line.append(String.format("<span style='color: #%02x'>[]</span>", 0xFF00FF));

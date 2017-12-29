@@ -21,6 +21,8 @@
 package com.emergentmud.core.util;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +36,12 @@ public class RoomServiceTest {
     private RoomService roomService;
 
     @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private Room room;
+
+    @Mock
     private Entity origin;
 
     @Before
@@ -44,7 +52,17 @@ public class RoomServiceTest {
         when(origin.getY()).thenReturn(0L);
         when(origin.getZ()).thenReturn(0L);
 
-        roomService = new RoomService();
+        roomService = new RoomService(roomRepository);
+    }
+
+    @Test
+    public void testFetchRoom() throws Exception {
+        when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
+
+        Room result = roomService.fetchRoom(0L, 0L, 0L);
+
+        assertEquals(room, result);
+        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
     }
 
     @Test

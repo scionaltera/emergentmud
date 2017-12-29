@@ -21,10 +21,32 @@
 package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 @Component
 public class RoomService {
+    private RoomRepository roomRepository;
+
+    @Inject
+    public RoomService(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
+    }
+
+    public Room fetchRoom(Long x, Long y, Long z) {
+        Room room = roomRepository.findByXAndYAndZ(x, y, z);
+
+        if (room == null) {
+            room = new Room();
+            room.setLocation(x, y, z);
+        }
+
+        return room;
+    }
+
     public boolean isWithinDistance(Entity origin, Long x, Long y, Long z, double distance) {
         return Math.sqrt(Math.pow(origin.getX() - x, 2)
                 + Math.pow(origin.getY() - y, 2)

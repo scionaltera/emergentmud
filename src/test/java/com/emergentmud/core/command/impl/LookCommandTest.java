@@ -25,7 +25,7 @@ import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,7 +39,7 @@ public class LookCommandTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Mock
     private GameOutput output;
@@ -63,7 +63,7 @@ public class LookCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        command = new LookCommand(entityRepository, roomRepository);
+        command = new LookCommand(entityRepository, roomService);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class LookCommandTest {
 
     @Test
     public void testLook() throws Exception {
-        when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
+        when(roomService.fetchRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
         when(biome.getName()).thenReturn("Blasted Hellscape");
 
 
