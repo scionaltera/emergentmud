@@ -51,10 +51,6 @@ The second file is called `docker-compose.yaml`. The file should look something 
 ```yaml
 version: "2"
 services:
-  redis:
-    image: redis
-    ports:
-     - "6379:6379"
   mongo:
     image: mongo
     ports:
@@ -65,12 +61,11 @@ services:
      - "8080:8080"
      - "5005:5005"
     links:
-     - redis
      - mongo
     env_file: secrets.env
 ```
 
-This file tells Docker that you want a [Redis](https://redis.io) instance, a [MongoDB](https://www.mongodb.com) instance, and an EmergentMUD instance. It describes which ports to open on each, and how the networking should link together between them.
+This file tells Docker that you want a [MongoDB](https://www.mongodb.com) instance and an EmergentMUD instance. It describes which ports to open on each, and how the networking should link together between them.
 
 ## Starting the Server
 The command to get everything started is `docker-compose up`. You should see it download and extract all the Docker images, then the logs will scroll by as the services start up. When they're done booting, point your browser at http://localhost:8080 (or the IP for your docker VM if you're using boot2docker) and you should see the front page for EmergentMUD. If you have configured everything correctly for OAuth in Facebook and Google, you should be able to log in and play.
@@ -89,7 +84,7 @@ The configurable settings for integrating with Facebook and Google are stored in
 To start up the site after you set up the env file, you just need to run `./gradlew clean buildDocker` from the command line. That will build the project, run the tests, and finally build the Docker image. To start everything up after it's done building, type `docker-compose up`.
 
 ## Running the Project
-The first time you run `docker-compose up` will take some time because it needs to download the Redis and MongoDB containers. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at `http://localhost:8080` (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
+The first time you run `docker-compose up` will take some time because it needs to download the MongoDB container. After they are downloaded and unpacked, you should see the logs for all of the services starting up. Once everything has started up, point your browser at `http://localhost:8080` (or your docker VM if you're using boot2docker) and you should see the front page. If you have configured everything correctly in Facebook and Google, you should be able to log in and play.
 
 ## Developing New Code
 If you want to run your own copy of EmergentMUD there are probably a thousand things you want to customize. Your best bet is going to be to fork the project on GitHub, write your new code and build your own Docker containers from your fork.
@@ -106,9 +101,9 @@ Facebook has built in functionality for creating a "test" version of your applic
 In Google you can simply create two sets of credentials for the same application.
 
 ### Data Stores
-The Docker containers for the Redis and MongoDB data stores are sufficient for development but are **not configured for security or performance** at all. They are just the default containers off the web. On my machine they both [complain about Transparent Huge Pages being enabled](https://www.digitalocean.com/company/blog/transparent-huge-pages-and-alternative-memory-allocators/) and will most likely gobble up large amounts of memory and eventually crash if you just leave them running long term. So far though, that's exactly what I've been doing and it has worked out well enough. I expect that will change when there is a regular player base.
+The Docker containers for the MongoDB data store is sufficient for development but is **not configured for security or performance** at all. It is just the default containers off the web. On my machine it [complains about Transparent Huge Pages being enabled](https://www.digitalocean.com/company/blog/transparent-huge-pages-and-alternative-memory-allocators/) and will most likely gobble up large amounts of memory and eventually crash if you just leave them running long term. So far though, that's exactly what I've been doing and it has worked out well enough. I expect that will change when there is a regular player base.
 
-If you plan to run EmergentMUD for real, it would be a good idea to carefully configure your Redis and MongoDB instances according to the best practices spelled out in their documentation. You should also consider running them as clusters so they are highly available. How to do all of this is well out of scope for this document, but there are lots of resources on the internet that will tell you how to do it if you are curious.
+If you plan to run EmergentMUD for real, it would be a good idea to carefully configure your MongoDB instance according to the best practices spelled out in its documentation. You should also consider running it as a cluster so it is highly available. How to do all of this is well out of scope for this document, but there are lots of resources on the internet that will tell you how to do it if you are curious.
 
 My plan for a production deployment of EmergentMUD is to build customized Docker containers for the data stores, based on the ones in use today but with an extra layer that applies the configuration changes that I need for deployment. That way I can still run my production cluster of services using `docker-compose`, [Docker Swarm](https://docs.docker.com/engine/swarm/), [Kubernetes](https://kubernetes.io/) or something similar. Today, however, I'm just running the off-the-shelf images until they become a problem.
 

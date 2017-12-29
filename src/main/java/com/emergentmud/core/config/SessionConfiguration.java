@@ -19,22 +19,14 @@
  */
 package com.emergentmud.core.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import redis.clients.jedis.JedisShardInfo;
+import org.springframework.session.data.mongo.JdkMongoSessionConverter;
+import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 43200)
+@EnableMongoHttpSession(maxInactiveIntervalInSeconds = 43200)
 public class SessionConfiguration {
-    @Value("${redis.hostname}")
-    private String redisHost;
-
-    @Value("${redis.port}")
-    private int redisPort;
-
     @Bean
-    public JedisConnectionFactory connectionFactory() {
-        return new JedisConnectionFactory(new JedisShardInfo(redisHost, redisPort));
+    public JdkMongoSessionConverter jdkMongoSessionConverter() {
+        return new JdkMongoSessionConverter();
     }
 }
