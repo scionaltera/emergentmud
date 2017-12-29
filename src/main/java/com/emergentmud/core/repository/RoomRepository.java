@@ -20,7 +20,7 @@
 
 package com.emergentmud.core.repository;
 
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

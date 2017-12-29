@@ -23,10 +23,10 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomBuilder;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -35,12 +35,12 @@ import java.util.List;
 @Component
 public class LookCommand extends BaseCommand {
     private EntityRepository entityRepository;
-    private RoomBuilder roomBuilder;
+    private RoomRepository roomRepository;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, RoomBuilder roomBuilder) {
+    public LookCommand(EntityRepository entityRepository, RoomRepository roomRepository) {
         this.entityRepository = entityRepository;
-        this.roomBuilder = roomBuilder;
+        this.roomRepository = roomRepository;
 
         setDescription("Describes the things in the world around you.");
         addParameter("target", false);
@@ -56,20 +56,10 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomBuilder.generateRoom(entity.getX(), entity.getY(), entity.getZ());
+        Room room = roomRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
 
-        if (room.getBiome() == null) {
-            roomName = "No Biome";
-        } else {
-            roomName = room.getBiome().getName();
-        }
-
+        roomName = "No Biome";
         roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-        roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
-
-        if (room.getWater() != null) {
-            roomDescription += String.format("<br/>[cyan]The water here is: %s", room.getWater().getFlowType());
-        }
 
         output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
                 roomName,

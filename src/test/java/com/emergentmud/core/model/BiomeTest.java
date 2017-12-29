@@ -18,68 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
+import com.emergentmud.core.model.Biome;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class RoomTest {
-    @Mock
+public class BiomeTest {
     private Biome biome;
-
-    @Mock
-    private Water water;
-
-    private Room room = new Room();
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        biome = new Biome("Biome", 0x112233);
     }
 
     @Test
     public void testId() throws Exception {
-        room.setId("roomId");
+        String guid = UUID.randomUUID().toString();
 
-        assertEquals("roomId", room.getId());
+        biome.setId("foo");
+        assertEquals("foo", biome.getId());
+        biome.setId(guid);
+        assertEquals(guid, biome.getId());
     }
 
     @Test
-    public void testBiome() throws Exception {
-        room.setBiome(biome);
-
-        assertEquals(biome, room.getBiome());
+    public void testName() throws Exception {
+        assertEquals("Biome", biome.getName());
     }
 
     @Test
-    public void testWater() throws Exception {
-        room.setWater(water);
-
-        assertEquals(water, room.getWater());
-    }
-
-    @Test
-    public void testX() throws Exception {
-        room.setX(99L);
-
-        assertEquals(99L, (long)room.getX());
-    }
-
-    @Test
-    public void testY() throws Exception {
-        room.setY(98L);
-
-        assertEquals(98L, (long)room.getY());
-    }
-
-    @Test
-    public void testZ() throws Exception {
-        room.setZ(97L);
-
-        assertEquals(97L, (long)room.getZ());
+    public void testColor() throws Exception {
+        assertEquals(0x112233, (long)biome.getColor());
     }
 }

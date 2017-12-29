@@ -18,33 +18,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-public class WaterTest {
-    private Water water;
+public class RoomTest {
+    private Room room = new Room();
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        water = new Water(FlowType.SPRING);
     }
 
     @Test
-    public void testFlowType() throws Exception {
-        assertEquals(FlowType.SPRING, water.getFlowType());
+    public void testId() throws Exception {
+        room.setId("roomId");
+
+        assertEquals("roomId", room.getId());
     }
 
     @Test
-    public void testChangeFlowType() throws Exception {
-        water.setFlowType(FlowType.SINK);
+    public void testX() throws Exception {
+        room.setX(99L);
 
-        assertEquals(FlowType.SINK, water.getFlowType());
+        assertEquals(99L, (long)room.getX());
+    }
+
+    @Test
+    public void testY() throws Exception {
+        room.setY(98L);
+
+        assertEquals(98L, (long)room.getY());
+    }
+
+    @Test
+    public void testZ() throws Exception {
+        room.setZ(97L);
+
+        assertEquals(97L, (long)room.getZ());
     }
 }

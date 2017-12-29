@@ -38,7 +38,7 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomBuilder;
+import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.WorldManager;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
@@ -96,7 +96,7 @@ public class MainResourceTest {
     private CapabilityRepository capabilityRepository;
 
     @Mock
-    private RoomBuilder roomBuilder;
+    private RoomRepository roomRepository;
 
     @Mock
     private WorldManager worldManager;
@@ -203,8 +203,7 @@ public class MainResourceTest {
                 capabilityRepository,
                 worldManager,
                 entityService,
-                emote,
-                256
+                emote
         );
     }
 
@@ -482,7 +481,7 @@ public class MainResourceTest {
     public void testPlay() throws Exception {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
-        verify(roomBuilder, never()).generateRoom(eq(0L), eq(0L), eq(0L));
+        verify(roomRepository, never()).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
         verify(worldManager).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());

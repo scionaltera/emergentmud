@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.room.Biome;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
