@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 
-@EnableMongoHttpSession
+@EnableMongoHttpSession(maxInactiveIntervalInSeconds = 43200)
 public class SessionConfiguration {
     @Bean
     public JdkMongoSessionConverter jdkMongoSessionConverter() {
