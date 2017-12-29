@@ -21,25 +21,22 @@
 package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-@CompoundIndexes({
-        @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
-})
-public class Room {
+public class Zone {
     @Id
     private String id;
 
-    @DBRef
-    private Zone zone;
+    private Long topRightX;
+    private Long topRightY;
 
-    private Long x;
-    private Long y;
-    private Long z;
+    private Long bottomLeftX;
+    private Long bottomLeftY;
+
+    @DBRef
+    private Biome biome;
 
     public String getId() {
         return id;
@@ -49,41 +46,43 @@ public class Room {
         this.id = id;
     }
 
-    public Zone getZone() {
-        return zone;
+    public Long getTopRightX() {
+        return topRightX;
     }
 
-    public void setZone(Zone zone) {
-        this.zone = zone;
+    public void setTopRightX(Long topRightX) {
+        this.topRightX = topRightX;
     }
 
-    public void setLocation(Long x, Long y, Long z) {
-        setX(x);
-        setY(y);
-        setZ(z);
+    public Long getTopRightY() {
+        return topRightY;
     }
 
-    public Long getX() {
-        return x;
+    public void setTopRightY(Long topRightY) {
+        this.topRightY = topRightY;
     }
 
-    public void setX(Long x) {
-        this.x = x;
+    public Long getBottomLeftX() {
+        return bottomLeftX;
     }
 
-    public Long getY() {
-        return y;
+    public void setBottomLeftX(Long bottomLeftX) {
+        this.bottomLeftX = bottomLeftX;
     }
 
-    public void setY(Long y) {
-        this.y = y;
+    public Long getBottomLeftY() {
+        return bottomLeftY;
     }
 
-    public Long getZ() {
-        return z;
+    public void setBottomLeftY(Long bottomLeftY) {
+        this.bottomLeftY = bottomLeftY;
     }
 
-    public void setZ(Long z) {
-        this.z = z;
+    public Biome getBiome() {
+        return biome;
+    }
+
+    public void setBiome(Biome biome) {
+        this.biome = biome;
     }
 }

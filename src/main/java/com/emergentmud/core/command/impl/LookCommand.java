@@ -58,8 +58,23 @@ public class LookCommand extends BaseCommand {
         String roomDescription;
         Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
 
+        if (room == null) {
+            output.append("[black]You are floating in a formless void.");
+
+            return output;
+        }
+
         roomName = "No Biome";
+
+        if (room.getZone() != null && room.getZone().getBiome() != null) {
+            roomName = room.getZone().getBiome().getName();
+        }
+
         roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
+
+        if (room.getZone() != null) {
+            roomDescription += "<br/>The zone ID here is: " + room.getZone().getId();
+        }
 
         output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
                 roomName,

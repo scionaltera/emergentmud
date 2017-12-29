@@ -22,25 +22,64 @@ package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.WhittakerGridLocation;
+import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.repository.WhittakerGridLocationRepository;
+import com.emergentmud.core.repository.ZoneRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class RoomService {
+    private static final Random RANDOM = new Random();
+
+    private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
 
+    private List<WhittakerGridLocation> allWhittakerGridLocations;
+
     @Inject
-    public RoomService(RoomRepository roomRepository) {
+    public RoomService(ZoneRepository zoneRepository,
+                       RoomRepository roomRepository,
+                       WhittakerGridLocationRepository whittakerGridLocationRepository) {
+
+        this.zoneRepository = zoneRepository;
         this.roomRepository = roomRepository;
+
+        allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
     }
 
     public Room fetchRoom(Long x, Long y, Long z) {
+        Zone zone = zoneRepository.findByBottomLeftXLessThanAndTopRightXGreaterThanAndBottomLeftYLessThanAndTopRightYGreaterThan(x, x, y, y);
+
+        if (zone == null) {
+            zone = new Zone();
+
+            Collections.shuffle(allWhittakerGridLocations);
+
+            zone.setBiome(allWhittakerGridLocations.get(0).getBiome());
+
+            // TODO collision detection - never overlap an existing zone
+            zone.setTopRightX(x + RANDOM.nextInt(30));
+            zone.setTopRightY(y + RANDOM.nextInt(30));
+
+            zone.setBottomLeftX(x - RANDOM.nextInt(30));
+            zone.setBottomLeftY(y - RANDOM.nextInt(30));
+
+            zone = zoneRepository.save(zone);
+        }
+
         Room room = roomRepository.findByXAndYAndZ(x, y, z);
 
         if (room == null) {
             room = new Room();
+
+            room.setZone(zone);
             room.setLocation(x, y, z);
         }
 

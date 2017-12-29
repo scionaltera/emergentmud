@@ -57,7 +57,15 @@ public class MapCommand extends BaseCommand {
                     Room room = roomService.fetchRoom(x, y, center.getZ());
 
                     if (room != null) {
-                        line.append(String.format("<span style='color: #%02x'>[]</span>", 0xFF00FF));
+                        if (room.getZone() != null) {
+                            if (room.getZone().getBiome() != null) {
+                                line.append(String.format("<span style='color: #%02x'>[]</span>", room.getZone().getBiome().getColor()));
+                            } else {
+                                line.append(String.format("<span style='color: #%02x'>[]</span>", 0xFF00FF));
+                            }
+                        } else {
+                            line.append(String.format("<span style='color: #%02x'>[]</span>", 0x666666));
+                        }
                     } else {
                         line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }
