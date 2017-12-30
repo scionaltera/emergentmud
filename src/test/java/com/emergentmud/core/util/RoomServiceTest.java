@@ -55,7 +55,7 @@ public class RoomServiceTest {
     @Mock
     private Entity origin;
 
-    List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
+    private List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
 
     private RoomService roomService;
 

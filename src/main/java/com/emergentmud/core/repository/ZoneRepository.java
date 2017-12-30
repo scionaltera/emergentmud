@@ -24,7 +24,10 @@ import com.emergentmud.core.model.Zone;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ZoneRepository extends MongoRepository<Zone, String> {
-    Zone findByBottomLeftXLessThanAndTopRightXGreaterThanAndBottomLeftYLessThanAndTopRightYGreaterThan(Long x1, Long x2, Long y1, Long y2);
+    Zone findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
+    List<Zone> findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
 }
