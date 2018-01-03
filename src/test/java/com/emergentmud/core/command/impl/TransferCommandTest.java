@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,7 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class TransferCommandTest {
     private ApplicationContext applicationContext;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private EntityService entityService;
@@ -69,7 +69,7 @@ public class TransferCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(worldManager.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
+        when(movementService.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 
             when(entity.getX()).thenReturn((Long)invocation.getArguments()[1]);
@@ -93,7 +93,7 @@ public class TransferCommandTest {
         when(spook.getZ()).thenReturn(0L);
         when(gameOutput.append(anyString())).thenReturn(gameOutput);
 
-        transferCommand = new TransferCommand(applicationContext, worldManager, entityService);
+        transferCommand = new TransferCommand(applicationContext, movementService, entityService);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class TransferCommandTest {
 
         assertNotNull(output);
 
-        verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(entityService, movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TransferCommandTest {
 
         assertNotNull(output);
 
-        verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(entityService, movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class TransferCommandTest {
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("morgan"));
         verifyNoMoreInteractions(entityService);
-        verifyZeroInteractions(worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TransferCommandTest {
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("scion"));
         verifyNoMoreInteractions(entityService);
-        verifyZeroInteractions(worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class TransferCommandTest {
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
         verifyNoMoreInteractions(entityService);
-        verifyZeroInteractions(worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class TransferCommandTest {
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
         verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(spook), any(GameOutput.class));
-        verify(worldManager).put(eq(spook), eq(0L), eq(0L), eq(0L));
+        verify(movementService).put(eq(spook), eq(0L), eq(0L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(spook), eq("look"), any(String[].class), eq(""));

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,11 +24,10 @@ import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CapabilityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class ExileCommandTest {
     private CapabilityRepository capabilityRepository;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private GameOutput output;
@@ -67,9 +66,6 @@ public class ExileCommandTest {
 
     @Mock
     private Account account;
-
-    @Mock
-    private Room room;
 
     @Mock
     private Capability playCapability;
@@ -94,7 +90,7 @@ public class ExileCommandTest {
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
         when(entityService.entitySearchGlobal(eq(entity), eq("victim"))).thenReturn(Optional.of(victim));
 
-        command = new ExileCommand(entityService, accountRepository, capabilityRepository, worldManager);
+        command = new ExileCommand(entityService, accountRepository, capabilityRepository, movementService);
     }
 
     @Test
@@ -114,7 +110,7 @@ public class ExileCommandTest {
 
         assertNotNull(result);
 
-        verifyZeroInteractions(capabilityRepository, entityService, accountRepository, worldManager);
+        verifyZeroInteractions(capabilityRepository, entityService, accountRepository, movementService);
     }
 
     @Test
@@ -123,7 +119,7 @@ public class ExileCommandTest {
 
         assertNotNull(result);
 
-        verifyZeroInteractions(capabilityRepository, entityService, accountRepository, worldManager);
+        verifyZeroInteractions(capabilityRepository, entityService, accountRepository, movementService);
     }
 
     @Test
@@ -136,7 +132,7 @@ public class ExileCommandTest {
         verify(capabilityRepository).findByName(eq(CommandRole.CHAR_NEW.name()));
         verify(entityService).entitySearchGlobal(eq(entity), eq("victim"));
         verifyNoMoreInteractions(capabilityRepository, entityService);
-        verifyZeroInteractions(accountRepository, worldManager);
+        verifyZeroInteractions(accountRepository, movementService);
     }
 
     @Test
@@ -153,7 +149,7 @@ public class ExileCommandTest {
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager, never()).remove(victim);
+        verify(movementService, never()).remove(victim);
     }
 
     @Test
@@ -170,7 +166,7 @@ public class ExileCommandTest {
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager, never()).remove(victim);
+        verify(movementService, never()).remove(victim);
     }
 
     @Test
@@ -189,7 +185,7 @@ public class ExileCommandTest {
         verify(accountRepository).save(eq(account));
         verify(entityService).sendMessageToEntity(eq(victim), any(GameOutput.class));
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager).remove(victim);
+        verify(movementService).remove(victim);
     }
 
     @Test
@@ -207,7 +203,7 @@ public class ExileCommandTest {
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager, never()).remove(victim);
+        verify(movementService, never()).remove(victim);
     }
 
     @Test

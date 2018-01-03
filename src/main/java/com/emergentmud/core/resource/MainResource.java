@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -37,7 +37,7 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
@@ -80,7 +80,7 @@ public class MainResource {
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
     private CapabilityRepository capabilityRepository;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
     private Emote emote;
 
@@ -93,7 +93,7 @@ public class MainResource {
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
                         CapabilityRepository capabilityRepository,
-                        WorldManager worldManager,
+                        MovementService movementService,
                         EntityService entityService,
                         Emote emote) {
 
@@ -105,7 +105,7 @@ public class MainResource {
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.capabilityRepository = capabilityRepository;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
         this.emote = emote;
     }
@@ -295,7 +295,7 @@ public class MainResource {
             entityService.sendMessageToEntity(entity, out);
         }
 
-        entity = worldManager.put(entity, 0L, 0L, 0L);
+        entity = movementService.put(entity, 0L, 0L, 0L);
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);

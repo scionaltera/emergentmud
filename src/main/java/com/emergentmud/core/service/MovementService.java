@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,9 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.repository.EntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -28,18 +30,26 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 @Component
-public class WorldManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
+public class MovementService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MovementService.class);
 
     private EntityRepository entityRepository;
+    private RoomService roomService;
 
     @Inject
-    public WorldManager(EntityRepository entityRepository) {
+    public MovementService(EntityRepository entityRepository, RoomService roomService) {
         this.entityRepository = entityRepository;
+        this.roomService = roomService;
     }
 
     public Entity put(Entity entity, long x, long y, long z) {
         LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
+
+        Room room = roomService.fetchRoom(x, y, z, true);
+
+        if (room == null) {
+            LOGGER.warn("Room at ({}, {}, {}) was null!", x, y, z);
+        }
 
         entity.setX(x);
         entity.setY(y);

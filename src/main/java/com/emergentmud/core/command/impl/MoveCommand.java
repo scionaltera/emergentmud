@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,7 +25,7 @@ import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +36,18 @@ public class MoveCommand extends BaseCommand {
 
     private Direction direction;
     private ApplicationContext applicationContext;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
 
     public MoveCommand(
             Direction direction,
             ApplicationContext applicationContext,
-            WorldManager worldManager,
+            MovementService movementService,
             EntityService entityService) {
 
         this.direction = direction;
         this.applicationContext = applicationContext;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
 
         setDescription("Walk to an adjacent room.");
@@ -77,9 +77,9 @@ public class MoveCommand extends BaseCommand {
 
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
 
-        worldManager.remove(entity);
+        movementService.remove(entity);
 
-        entity = worldManager.put(entity, location[0], location[1], location[2]);
+        entity = movementService.put(entity, location[0], location[1], location[2]);
         LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
         GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));

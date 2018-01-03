@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -71,6 +71,13 @@ public class EmoteLoader {
                     "You smile at %target%.",
                     "%self% smiles at you.",
                     "%self% smiles at %target%."
+            }));
+            emotes.add(setEmoteFields(new EmoteMetadata("grin", 100), new String[] {
+                    "You grin.",
+                    "%self% grins.",
+                    "You grin at %target%.",
+                    "%self% grins at you.",
+                    "%self% grins at %target%."
             }));
             emotes.add(setEmoteFields(new EmoteMetadata("frown", 100), new String[] {
                     "You frown.",

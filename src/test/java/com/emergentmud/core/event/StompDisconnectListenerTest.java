@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,7 +24,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 public class StompDisconnectListenerTest {
     private EntityRepository entityRepository;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
     private OAuth2Authentication principal;
     private SessionDisconnectEvent event;
@@ -50,7 +50,7 @@ public class StompDisconnectListenerTest {
     @Before
     public void setUp() throws Exception {
         entityRepository = mock(EntityRepository.class);
-        worldManager = mock(WorldManager.class);
+        movementService = mock(MovementService.class);
         entityService = mock(EntityService.class);
         principal = mock(OAuth2Authentication.class);
         event = mock(SessionDisconnectEvent.class);
@@ -70,7 +70,7 @@ public class StompDisconnectListenerTest {
 
         stompDisconnectListener = new StompDisconnectListener(
                 entityRepository,
-                worldManager,
+                movementService,
                 entityService
         );
     }
@@ -84,7 +84,7 @@ public class StompDisconnectListenerTest {
                 eq(socialUserName)
         );
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager).remove(eq(entity));
+        verify(movementService).remove(eq(entity));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class StompDisconnectListenerTest {
                 eq(socialUserName)
         );
         verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), any(GameOutput.class));
-        verify(worldManager).remove(eq(entity));
+        verify(movementService).remove(eq(entity));
     }
 
     @Test
@@ -109,6 +109,6 @@ public class StompDisconnectListenerTest {
 
         stompDisconnectListener.onApplicationEvent(event);
 
-        verifyZeroInteractions(worldManager);
+        verifyZeroInteractions(movementService);
     }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class TeleportCommandTest {
     private ApplicationContext applicationContext;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private EntityService entityService;
@@ -78,7 +78,7 @@ public class TeleportCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(worldManager.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
+        when(movementService.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 
             when(entity.getX()).thenReturn((Long)invocation.getArguments()[1]);
@@ -107,7 +107,7 @@ public class TeleportCommandTest {
         when(destination.getY()).thenReturn(1L);
         when(gameOutput.append(anyString())).thenReturn(gameOutput);
 
-        teleportCommand = new TeleportCommand(applicationContext, worldManager, entityService);
+        teleportCommand = new TeleportCommand(applicationContext, movementService, entityService);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class TeleportCommandTest {
 
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -144,7 +144,7 @@ public class TeleportCommandTest {
 
         verify(entityService).entitySearchRoom(eq(scion), eq("scion"));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -157,7 +157,7 @@ public class TeleportCommandTest {
 
         assertNotNull(output);
 
-        verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(entityService, movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class TeleportCommandTest {
 
         assertNotNull(output);
 
-        verifyZeroInteractions(entityService, worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(entityService, movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class TeleportCommandTest {
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -194,7 +194,7 @@ public class TeleportCommandTest {
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -210,7 +210,7 @@ public class TeleportCommandTest {
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService).entitySearchInWorld(eq(scion), eq("1"));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -226,7 +226,7 @@ public class TeleportCommandTest {
         assertNotNull(output);
 
         verify(entityService).entitySearchRoom(eq(scion), eq("morgan"));
-        verifyZeroInteractions(worldManager, applicationContext, lookCommand);
+        verifyZeroInteractions(movementService, applicationContext, lookCommand);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class TeleportCommandTest {
 
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(bnarg), any(GameOutput.class));
-        verify(worldManager).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(bnarg), eq("look"), any(String[].class), eq(""));
@@ -256,7 +256,7 @@ public class TeleportCommandTest {
 
         verify(entityService).entitySearchRoom(eq(scion), eq("bnarg"));
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(bnarg), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
+        verify(movementService, never()).put(eq(bnarg), eq(1L), eq(1L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(bnarg), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(eq(gameOutput), eq(bnarg), eq("look"), any(String[].class), eq(""));

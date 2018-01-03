@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.event;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +38,15 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
     private static final Logger LOGGER = LoggerFactory.getLogger(StompDisconnectListener.class);
 
     private EntityRepository entityRepository;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
 
     @Inject
     public StompDisconnectListener(EntityRepository entityRepository,
-                                   WorldManager worldManager,
+                                   MovementService movementService,
                                    EntityService entityService) {
         this.entityRepository = entityRepository;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
     }
 
@@ -63,7 +63,7 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
                 LOGGER.info("{} has disconnected from the game", entity.getName());
             }
 
-            worldManager.remove(entity);
+            movementService.remove(entity);
         }
     }
 }

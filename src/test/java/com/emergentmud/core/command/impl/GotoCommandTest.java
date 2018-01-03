@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class GotoCommandTest {
     private ApplicationContext applicationContext;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private EntityService entityService;
@@ -81,14 +81,14 @@ public class GotoCommandTest {
         when(destination.getZ()).thenReturn(0L);
         when(entityService.entitySearchInWorld(eq(entity), eq("morgan"))).thenReturn(Optional.of(morgan));
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(worldManager.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenAnswer(invocation -> {
+        when(movementService.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenAnswer(invocation -> {
             when(entity.getX()).thenReturn(1000L);
             when(entity.getY()).thenReturn(1000L);
             when(entity.getZ()).thenReturn(0L);
             return entity;
         });
 
-        command = new GotoCommand(applicationContext, worldManager, entityService);
+        command = new GotoCommand(applicationContext, movementService, entityService);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class GotoCommandTest {
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityService);
-        verifyZeroInteractions(worldManager);
+        verifyZeroInteractions(movementService);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class GotoCommandTest {
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
@@ -135,7 +135,7 @@ public class GotoCommandTest {
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("no one by that name")));
 
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
@@ -152,7 +152,7 @@ public class GotoCommandTest {
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("already there")));
 
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService, never()).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
@@ -165,7 +165,7 @@ public class GotoCommandTest {
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
@@ -178,7 +178,7 @@ public class GotoCommandTest {
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
         verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
@@ -192,7 +192,7 @@ public class GotoCommandTest {
 
         verifyZeroInteractions(applicationContext);
         verifyZeroInteractions(entityService);
-        verifyZeroInteractions(worldManager);
+        verifyZeroInteractions(movementService);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class GotoCommandTest {
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
         verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(worldManager).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
+        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
         verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));

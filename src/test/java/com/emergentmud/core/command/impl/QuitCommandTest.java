@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,9 +21,8 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,16 +38,13 @@ public class QuitCommandTest {
     private EntityService entityService;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Spy
     private GameOutput output;
 
     @Mock
     private Entity entity;
-
-    @Mock
-    private Room room;
 
     private String cmd = "quit";
 
@@ -58,7 +54,7 @@ public class QuitCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        command = new QuitCommand(entityService, worldManager);
+        command = new QuitCommand(entityService, movementService);
     }
 
     @Test
@@ -72,7 +68,7 @@ public class QuitCommandTest {
 
         result.getOutput().forEach(line -> assertFalse(line.contains("window.location")));
         verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
-        verify(worldManager, never()).remove(any(Entity.class));
+        verify(movementService, never()).remove(any(Entity.class));
     }
 
     @Test
@@ -81,7 +77,7 @@ public class QuitCommandTest {
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
-        verify(worldManager).remove(eq(entity));
+        verify(movementService).remove(eq(entity));
     }
 
     @Test
@@ -90,7 +86,7 @@ public class QuitCommandTest {
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
-        verify(worldManager).remove(eq(entity));
+        verify(movementService).remove(eq(entity));
     }
 
     @Test
@@ -99,6 +95,6 @@ public class QuitCommandTest {
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
         verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
-        verify(worldManager, never()).remove(any(Entity.class));
+        verify(movementService, never()).remove(any(Entity.class));
     }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +36,13 @@ public class QuitCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuitCommand.class);
 
     private EntityService entityService;
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Inject
     public QuitCommand(EntityService entityService,
-                       WorldManager worldManager) {
+                       MovementService movementService) {
         this.entityService = entityService;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
 
         setDescription("Leave the game.");
         addParameter("now", true);
@@ -66,7 +66,7 @@ public class QuitCommand extends BaseCommand {
         output.append("[yellow]Goodbye, " + entity.getName() + "[yellow]! Returning to the main menu...");
         output.append("<script type=\"text/javascript\">setTimeout(function(){ window.location=\"/\"; }, 2000);</script>");
 
-        worldManager.remove(entity);
+        movementService.remove(entity);
 
         return output;
     }

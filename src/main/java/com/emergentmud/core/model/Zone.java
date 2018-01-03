@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -34,6 +34,9 @@ public class Zone {
 
     private Long bottomLeftX;
     private Long bottomLeftY;
+
+    private Integer elevation;
+    private Integer moisture;
 
     @DBRef
     private Biome biome;
@@ -76,6 +79,22 @@ public class Zone {
 
     public void setBottomLeftY(Long bottomLeftY) {
         this.bottomLeftY = bottomLeftY;
+    }
+
+    public Integer getElevation() {
+        return elevation;
+    }
+
+    public void setElevation(Integer elevation) {
+        this.elevation = elevation;
+    }
+
+    public Integer getMoisture() {
+        return moisture;
+    }
+
+    public void setMoisture(Integer moisture) {
+        this.moisture = moisture;
     }
 
     public Biome getBiome() {

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -68,6 +68,9 @@ public class EmoteLoaderTest {
             assertTrue(!StringUtils.isEmpty(m.getToSelfWithTarget()));
             assertTrue(!StringUtils.isEmpty(m.getToTarget()));
             assertTrue(!StringUtils.isEmpty(m.getToRoomWithTarget()));
+
+            assertTrue((StringUtils.isEmpty(m.getToSelfAsTarget()) && StringUtils.isEmpty(m.getToRoomTargetingSelf()))
+                    || (!(StringUtils.isEmpty(m.getToSelfAsTarget()) && StringUtils.isEmpty(m.getToRoomTargetingSelf()))));
         });
     }
 

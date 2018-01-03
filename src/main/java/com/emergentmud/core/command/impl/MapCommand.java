@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -52,7 +52,7 @@ public class MapCommand extends BaseCommand {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomService.fetchRoomReadOnly(x, y, entity.getZ());
+                    Room room = roomService.fetchRoom(x, y, entity.getZ(), false);
 
                     if (room != null) {
                         if (room.getZone() != null) {

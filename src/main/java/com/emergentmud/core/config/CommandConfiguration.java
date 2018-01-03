@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,7 +22,7 @@ package com.emergentmud.core.config;
 
 import com.emergentmud.core.command.impl.MoveCommand;
 import com.emergentmud.core.model.Direction;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,28 +36,28 @@ public class CommandConfiguration {
     private ApplicationContext applicationContext;
 
     @Inject
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Inject
     private EntityService entityService;
 
     @Bean(name = "northCommand")
     public MoveCommand northCommand() {
-        return new MoveCommand(Direction.NORTH, applicationContext, worldManager, entityService);
+        return new MoveCommand(Direction.NORTH, applicationContext, movementService, entityService);
     }
 
     @Bean(name = "eastCommand")
     public MoveCommand eastCommand() {
-        return new MoveCommand(Direction.EAST, applicationContext, worldManager, entityService);
+        return new MoveCommand(Direction.EAST, applicationContext, movementService, entityService);
     }
 
     @Bean(name = "southCommand")
     public MoveCommand southCommand() {
-        return new MoveCommand(Direction.SOUTH, applicationContext, worldManager, entityService);
+        return new MoveCommand(Direction.SOUTH, applicationContext, movementService, entityService);
     }
 
     @Bean(name = "westCommand")
     public MoveCommand westCommand() {
-        return new MoveCommand(Direction.WEST, applicationContext, worldManager, entityService);
+        return new MoveCommand(Direction.WEST, applicationContext, movementService, entityService);
     }
 }

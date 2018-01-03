@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -56,7 +56,7 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
+        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ(), false);
 
         if (room == null) {
             output.append("[black]You are floating in a formless void.");
@@ -64,16 +64,15 @@ public class LookCommand extends BaseCommand {
             return output;
         }
 
-        roomName = "No Biome";
-
-        if (room.getZone() != null && room.getZone().getBiome() != null) {
-            roomName = room.getZone().getBiome().getName();
-        }
-
+        roomName = "The Great Emptiness";
         roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
 
         if (room.getZone() != null) {
-            roomDescription += "<br/>The zone ID here is: " + room.getZone().getId();
+            if (room.getZone().getBiome() != null) {
+                roomName = room.getZone().getBiome().getName();
+            }
+
+            roomDescription += "<br/>Moisture: " + room.getZone().getMoisture() + "<br/>Elevation: " + room.getZone().getElevation();
         }
 
         output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",

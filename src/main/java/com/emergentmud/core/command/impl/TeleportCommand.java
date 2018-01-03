@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,7 +24,7 @@ import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +40,16 @@ public class TeleportCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeleportCommand.class);
 
     private ApplicationContext applicationContext;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
 
     @Inject
     public TeleportCommand(ApplicationContext applicationContext,
-                           WorldManager worldManager,
+                           MovementService movementService,
                            EntityService entityService) {
 
         this.applicationContext = applicationContext;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
 
         setDescription("Instantly transport someone from here to a room by its coordinate.");
@@ -128,7 +128,7 @@ public class TeleportCommand extends BaseCommand {
                 .append(String.format("[yellow]You teleport %s.", target.getName()))
                 .append(exitMessage);
 
-        entity = worldManager.put(target, location[0], location[1], location[2]);
+        entity = movementService.put(target, location[0], location[1], location[2]);
         LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", target.getName()));

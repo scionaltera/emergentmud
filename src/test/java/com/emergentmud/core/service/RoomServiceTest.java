@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,28 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.util;
+package com.emergentmud.core.service;
 
-import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
-import com.emergentmud.core.model.WhittakerGridLocation;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import com.emergentmud.core.repository.ZoneRepository;
-import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class RoomServiceTest {
+    @Mock
+    private ZoneService zoneService;
+
     @Mock
     private ZoneRepository zoneRepository;
 
@@ -47,15 +42,7 @@ public class RoomServiceTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private WhittakerGridLocationRepository whittakerGridLocationRepository;
-
-    @Mock
-    private Room room;
-
-    @Mock
     private Entity origin;
-
-    private List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
 
     private RoomService roomService;
 
@@ -67,34 +54,10 @@ public class RoomServiceTest {
         when(origin.getY()).thenReturn(0L);
         when(origin.getZ()).thenReturn(0L);
 
-        for (int i = 0; i < 3; i++) {
-            WhittakerGridLocation whittakerGridLocation = mock(WhittakerGridLocation.class);
-            Biome biome = mock(Biome.class);
-
-            when(biome.getColor()).thenReturn(i);
-            when(biome.getName()).thenReturn("Biome-" + i);
-
-            when(whittakerGridLocation.getBiome()).thenReturn(biome);
-
-            allWhittakerGridLocations.add(whittakerGridLocation);
-        }
-
-        when(whittakerGridLocationRepository.findAll()).thenReturn(allWhittakerGridLocations);
-
         roomService = new RoomService(
+                zoneService,
                 zoneRepository,
-                roomRepository,
-                whittakerGridLocationRepository);
-    }
-
-    @Test
-    public void testFetchRoom() throws Exception {
-        when(roomRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(room);
-
-        Room result = roomService.fetchRoom(0L, 0L, 0L);
-
-        assertEquals(room, result);
-        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
+                roomRepository);
     }
 
     @Test

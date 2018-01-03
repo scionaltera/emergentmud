@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -39,7 +39,7 @@ import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
@@ -99,7 +99,7 @@ public class MainResourceTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private EntityService entityService;
@@ -190,7 +190,7 @@ public class MainResourceTest {
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminAccountCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminCapability));
-        when(worldManager.put(eq(entity), anyLong(), anyLong(), anyLong())).thenReturn(entity);
+        when(movementService.put(eq(entity), anyLong(), anyLong(), anyLong())).thenReturn(entity);
 
         mainResource = new MainResource(
                 applicationContext,
@@ -201,7 +201,7 @@ public class MainResourceTest {
                 commandMetadataRepository,
                 emoteMetadataRepository,
                 capabilityRepository,
-                worldManager,
+                movementService,
                 entityService,
                 emote
         );
@@ -483,7 +483,7 @@ public class MainResourceTest {
 
         verify(roomRepository, never()).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(eq(entity), anyLong(), anyLong(), eq(0L));
+        verify(movementService).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
@@ -563,7 +563,7 @@ public class MainResourceTest {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityService).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
-        verify(worldManager).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
+        verify(movementService).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(model).addAttribute(eq("account"), eq(account));
