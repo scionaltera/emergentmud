@@ -51,10 +51,10 @@ public class ZoneService {
         allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
     }
 
-    public Zone generateZone(Long x, Long y) {
+    public Zone fetchZone(Long x, Long y, boolean generateZone) {
         Zone zone = zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(x, x, y, y);
 
-        if (zone == null) {
+        if (zone == null && generateZone) {
             zone = new Zone();
 
             zone.setTopRightX(x);

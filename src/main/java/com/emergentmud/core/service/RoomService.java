@@ -24,7 +24,6 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.repository.ZoneRepository;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,28 +31,21 @@ import javax.inject.Inject;
 @Component
 public class RoomService {
     private ZoneService zoneService;
-    private ZoneRepository zoneRepository;
     private RoomRepository roomRepository;
 
     @Inject
     public RoomService(ZoneService zoneService,
-                       ZoneRepository zoneRepository,
                        RoomRepository roomRepository) {
 
-        this.zoneRepository = zoneRepository;
         this.roomRepository = roomRepository;
         this.zoneService = zoneService;
     }
 
     public Room fetchRoom(Long x, Long y, Long z, boolean generateZone) {
-        Zone zone = zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(x, x, y, y);
+        Zone zone = zoneService.fetchZone(x, y, generateZone);
 
         if (zone == null) {
-            if (generateZone) {
-                zone = zoneService.generateZone(x, y);
-            } else {
-                return null;
-            }
+            return null;
         }
 
         Room room = roomRepository.findByXAndYAndZ(x, y, z);

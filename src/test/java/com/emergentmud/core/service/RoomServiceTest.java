@@ -22,7 +22,6 @@ package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.repository.RoomRepository;
-import com.emergentmud.core.repository.ZoneRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,9 +33,6 @@ import static org.mockito.Mockito.*;
 public class RoomServiceTest {
     @Mock
     private ZoneService zoneService;
-
-    @Mock
-    private ZoneRepository zoneRepository;
 
     @Mock
     private RoomRepository roomRepository;
@@ -56,7 +52,6 @@ public class RoomServiceTest {
 
         roomService = new RoomService(
                 zoneService,
-                zoneRepository,
                 roomRepository);
     }
 
