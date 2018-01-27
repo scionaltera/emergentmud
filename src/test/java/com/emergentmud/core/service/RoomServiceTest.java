@@ -22,6 +22,7 @@ package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.maze.ZoneFillStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,6 +39,9 @@ public class RoomServiceTest {
     private RoomRepository roomRepository;
 
     @Mock
+    private ZoneFillStrategy zoneFillStrategy;
+
+    @Mock
     private Entity origin;
 
     private RoomService roomService;
@@ -52,7 +56,8 @@ public class RoomServiceTest {
 
         roomService = new RoomService(
                 zoneService,
-                roomRepository);
+                roomRepository,
+                zoneFillStrategy);
     }
 
     @Test

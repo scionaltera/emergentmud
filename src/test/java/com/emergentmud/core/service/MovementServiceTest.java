@@ -67,6 +67,7 @@ public class MovementServiceTest {
         doCallRealMethod().when(entity).setY(anyLong());
         doCallRealMethod().when(entity).setZ(anyLong());
         when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
 
         entity.setX(0L);
         entity.setY(0L);
@@ -83,6 +84,8 @@ public class MovementServiceTest {
 
     @Test
     public void testPutExistingEntity() throws Exception {
+        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
+
         Entity entity = mock(Entity.class);
 
         movementService.put(entity, 2L, 1L, 3L);

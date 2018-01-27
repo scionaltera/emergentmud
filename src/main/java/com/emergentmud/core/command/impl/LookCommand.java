@@ -56,7 +56,7 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ(), false);
+        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
 
         if (room == null) {
             output.append("[black]You are floating in a formless void.");

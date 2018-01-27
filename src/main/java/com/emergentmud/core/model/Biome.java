@@ -35,9 +35,12 @@ public class Biome {
     @Indexed(unique = true)
     private Integer color;
 
-    public Biome(String name, Integer color) {
+    private String cellSelectionStrategy;
+
+    public Biome(String name, Integer color, String cellSelectionStrategy) {
         this.name = name;
         this.color = color;
+        this.cellSelectionStrategy = cellSelectionStrategy;
     }
 
     public String getId() {
@@ -54,5 +57,9 @@ public class Biome {
 
     public Integer getColor() {
         return color;
+    }
+
+    public String getCellSelectionStrategy() {
+        return cellSelectionStrategy;
     }
 }

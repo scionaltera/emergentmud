@@ -25,6 +25,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 apply plugin: 'info.solidsoft.pitest'
 apply plugin: 'org.owasp.dependencycheck'
+apply plugin: 'org.kordamp.gradle.stats'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -32,6 +33,7 @@ targetCompatibility = 1.8
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -39,6 +41,7 @@ buildscript {
         classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
         classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.9'
         classpath 'org.owasp:dependency-check-gradle:1.4.5'
+        classpath 'org.kordamp.gradle:stats-gradle-plugin:0.2.2'
     }
 }
 
@@ -111,4 +114,4 @@ dependencyCheck {
     suppressionFile "codequality/cve-suppressions.xml"
 }
 
-test.finalizedBy project.tasks.pitest, project.tasks.dependencyCheck
+test.finalizedBy project.tasks.pitest, project.tasks.dependencyCheck, project.tasks.stats

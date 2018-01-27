@@ -24,40 +24,52 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.maze.ZoneFillStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 
 @Component
 public class RoomService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoomService.class);
+
     private ZoneService zoneService;
     private RoomRepository roomRepository;
+    private ZoneFillStrategy zoneFillStrategy;
 
     @Inject
     public RoomService(ZoneService zoneService,
-                       RoomRepository roomRepository) {
+                       RoomRepository roomRepository,
+                       ZoneFillStrategy zoneFillStrategy) {
 
         this.roomRepository = roomRepository;
         this.zoneService = zoneService;
+        this.zoneFillStrategy = zoneFillStrategy;
     }
 
-    public Room fetchRoom(Long x, Long y, Long z, boolean generateZone) {
-        Zone zone = zoneService.fetchZone(x, y, generateZone);
+    public Room fetchRoom(Long x, Long y, Long z) {
+        return roomRepository.findByXAndYAndZ(x, y, z);
+    }
+
+    public Room createRoom(Long x, Long y, Long z) {
+        Room room = fetchRoom(x, y, z);
+
+        if (room != null) {
+            LOGGER.debug("Request to create room that already exists: ({}, {}, {})", x, y, z);
+            return room;
+        }
+
+        Zone zone = zoneService.fetchZone(x, y);
 
         if (zone == null) {
-            return null;
+            zone = zoneService.createZone(x, y);
+
+            return zoneFillStrategy.fillZone(zone, x, y, z);
         }
 
-        Room room = roomRepository.findByXAndYAndZ(x, y, z);
-
-        if (room == null) {
-            room = new Room();
-
-            room.setZone(zone);
-            room.setLocation(x, y, z);
-        }
-
-        return room;
+        return null;
     }
 
     public boolean isWithinDistance(Entity origin, Long x, Long y, Long z, double distance) {

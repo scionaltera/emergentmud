@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service;
 
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
@@ -42,19 +43,23 @@ public class MovementService {
         this.roomService = roomService;
     }
 
-    public Entity put(Entity entity, long x, long y, long z) {
-        LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
-
-        Room room = roomService.fetchRoom(x, y, z, true);
+    public Entity put(Entity entity, long x, long y, long z) throws NoSuchRoomException {
+        Room room = roomService.fetchRoom(x, y, z);
 
         if (room == null) {
-            LOGGER.warn("Room at ({}, {}, {}) was null!", x, y, z);
+            room = roomService.createRoom(x, y, z);
+
+            if (room == null) {
+                throw new NoSuchRoomException("Alas, you cannot go that way.");
+            }
         }
 
         entity.setX(x);
         entity.setY(y);
         entity.setZ(z);
         entityRepository.save(entity);
+
+        LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
 
         return entity;
     }

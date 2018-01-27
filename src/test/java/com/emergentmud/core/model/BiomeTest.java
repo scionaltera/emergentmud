@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.Biome;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ public class BiomeTest {
 
     @Before
     public void setUp() throws Exception {
-        biome = new Biome("Biome", 0x112233);
+        biome = new Biome("Biome", 0x112233, "cellSelectionStrategy");
     }
 
     @Test

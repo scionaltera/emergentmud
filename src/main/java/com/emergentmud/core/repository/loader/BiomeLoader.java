@@ -54,19 +54,19 @@ public class BiomeLoader {
 
             List<Biome> biomes = new ArrayList<>();
 
-            biomes.add(new Biome("Snow", 0xffffff));
-            biomes.add(new Biome("Tundra", 0xbbbbaa));
-            biomes.add(new Biome("Bare", 0x888888));
-            biomes.add(new Biome("Scorched", 0x555555));
-            biomes.add(new Biome("Taiga", 0x99aa77));
-            biomes.add(new Biome("Shrubland", 0x889977));
-            biomes.add(new Biome("Temperate Desert", 0xc9d29b));
-            biomes.add(new Biome("Temperate Rain Forest", 0x448855));
-            biomes.add(new Biome("Temperate Deciduous Forest", 0x679459));
-            biomes.add(new Biome("Grassland", 0x88aa55));
-            biomes.add(new Biome("Subtropical Desert", 0xd2b98b));
-            biomes.add(new Biome("Tropical Rain Forest", 0x337755));
-            biomes.add(new Biome("Tropical Seasonal Forest", 0x559944));
+            biomes.add(new Biome("Snow", 0xffffff, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Tundra", 0xbbbbaa, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Bare", 0x888888, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Scorched", 0x555555, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Taiga", 0x99aa77, "middleCellSelectionStrategy"));
+            biomes.add(new Biome("Shrubland", 0x889977, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Desert", 0xc9d29b, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Rain Forest", 0x448855, "halfNewestHalfRandomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Deciduous Forest", 0x679459, "halfNewestHalfRandomCellSelectionStrategy"));
+            biomes.add(new Biome("Grassland", 0x88aa55, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Subtropical Desert", 0xd2b98b, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Tropical Rain Forest", 0x337755, "newestCellSelectionStrategy"));
+            biomes.add(new Biome("Tropical Seasonal Forest", 0x559944, "newestCellSelectionStrategy"));
 
             biomeRepository.save(biomes);
         }

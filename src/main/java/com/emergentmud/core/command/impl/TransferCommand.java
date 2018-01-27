@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.MovementService;
@@ -90,7 +91,13 @@ public class TransferCommand extends BaseCommand {
         String exitMessage = String.format("%s disappears in a puff of smoke!", target.getName());
         entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), target, new GameOutput(exitMessage));
 
-        target = movementService.put(target, entity.getX(), entity.getY(), entity.getZ());
+        try {
+            target = movementService.put(target, entity.getX(), entity.getY(), entity.getZ());
+        } catch (NoSuchRoomException ex) {
+            output.append(ex.getMessage());
+            return output;
+        }
+
         LOGGER.trace("Location after: ({}, {}, {})", target.getX(), target.getY(), target.getZ());
 
         String enterMessage = String.format("%s appears in a puff of smoke!", target.getName());

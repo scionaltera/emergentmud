@@ -86,7 +86,7 @@ public class LookCommandTest {
 
     @Test
     public void testLook() throws Exception {
-        when(roomService.fetchRoom(eq(0L), eq(0L), eq(0L), anyBoolean())).thenReturn(room);
+        when(roomService.fetchRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
         when(biome.getName()).thenReturn("Blasted Hellscape");
 
 

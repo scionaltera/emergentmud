@@ -22,6 +22,7 @@ package com.emergentmud.core.resource;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CapabilityObject;
@@ -295,7 +296,17 @@ public class MainResource {
             entityService.sendMessageToEntity(entity, out);
         }
 
-        entity = movementService.put(entity, 0L, 0L, 0L);
+        try {
+            entity = movementService.put(entity, 0L, 0L, 0L);
+        } catch (NoSuchRoomException ex) {
+            GameOutput errorOut = new GameOutput("[red]No starting room could be found! The administrators have been notified!");
+            entityService.sendMessageToEntity(entity, errorOut);
+
+            LOGGER.error("Start room doesn't exist! Unable to place new player!");
+
+            return "redirect:/";
+        }
+
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);

@@ -51,102 +51,125 @@ public class ZoneService {
         allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
     }
 
-    public Zone fetchZone(Long x, Long y, boolean generateZone) {
-        Zone zone = zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(x, x, y, y);
+    public Zone fetchZone(Long x, Long y) {
+        return zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(x, x, y, y);
+    }
 
-        if (zone == null && generateZone) {
-            zone = new Zone();
+    public Zone createZone(Long x, Long y) {
+        Zone zone = fetchZone(x, y);
 
-            zone.setTopRightX(x);
-            zone.setTopRightY(y);
-            zone.setBottomLeftX(x);
-            zone.setBottomLeftY(y);
+        if (zone != null) {
+            LOGGER.debug("Request to create zone that already exists: ({}, {})", x, y);
+            return zone;
+        }
 
-            List<Zone> collisions;
-            int tries = 0;
+        zone = new Zone();
 
-            do {
-                int direction = random.nextInt(4);
-                int value = random.nextInt(3) + 1;
+        zone.setTopRightX(x);
+        zone.setTopRightY(y);
+        zone.setBottomLeftX(x);
+        zone.setBottomLeftY(y);
+
+        expandZoneBorders(zone);
+        selectZoneBiome(zone);
+
+        zone = zoneRepository.save(zone);
+
+        LOGGER.info("Saving new zone: {} ({}, {}) ({}, {})",
+                zone.getBiome().getName(),
+                zone.getBottomLeftX(),
+                zone.getBottomLeftY(),
+                zone.getTopRightX(),
+                zone.getTopRightY());
+
+        return zone;
+    }
+
+    private void expandZoneBorders(Zone zone) {
+        List<Zone> collisions;
+        int tries = 0;
+
+        do {
+            int direction = random.nextInt(4);
+            int value = random.nextInt(3) + 1;
+
+            switch (direction) {
+                case 0:
+                    zone.setTopRightX(zone.getTopRightX() + value);
+                    LOGGER.debug("Expanding right edge to {}", zone.getTopRightX());
+                    break;
+                case 1:
+                    zone.setTopRightY(zone.getTopRightY() + value);
+                    LOGGER.debug("Expanding top edge to {}", zone.getTopRightY());
+                    break;
+                case 2:
+                    zone.setBottomLeftX(zone.getBottomLeftX() - value);
+                    LOGGER.debug("Expanding left edge to {}", zone.getBottomLeftX());
+                    break;
+                case 3:
+                    zone.setBottomLeftY(zone.getBottomLeftY() - value);
+                    LOGGER.debug("Expanding bottom edge to {}", zone.getBottomLeftY());
+                    break;
+            }
+
+            collisions = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
+                    zone.getTopRightX(),
+                    zone.getBottomLeftX(),
+                    zone.getTopRightY(),
+                    zone.getBottomLeftY()
+            );
+
+            if (!collisions.isEmpty()) {
+                LOGGER.debug("Collision detected");
 
                 switch (direction) {
                     case 0:
-                        zone.setTopRightX(zone.getTopRightX() + value);
-                        LOGGER.debug("Expanding right edge to {}", zone.getTopRightX());
+                        zone.setTopRightX(zone.getTopRightX() - value);
                         break;
                     case 1:
-                        zone.setTopRightY(zone.getTopRightY() + value);
-                        LOGGER.debug("Expanding top edge to {}", zone.getTopRightY());
+                        zone.setTopRightY(zone.getTopRightY() - value);
                         break;
                     case 2:
-                        zone.setBottomLeftX(zone.getBottomLeftX() - value);
-                        LOGGER.debug("Expanding left edge to {}", zone.getBottomLeftX());
+                        zone.setBottomLeftX(zone.getBottomLeftX() + value);
                         break;
                     case 3:
-                        zone.setBottomLeftY(zone.getBottomLeftY() - value);
-                        LOGGER.debug("Expanding bottom edge to {}", zone.getBottomLeftY());
+                        zone.setBottomLeftY(zone.getBottomLeftY() + value);
                         break;
                 }
-
-                collisions = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
-                        zone.getTopRightX(),
-                        zone.getBottomLeftX(),
-                        zone.getTopRightY(),
-                        zone.getBottomLeftY()
-                );
-
-                if (!collisions.isEmpty()) {
-                    LOGGER.debug("Collision detected");
-
-                    switch (direction) {
-                        case 0: zone.setTopRightX(zone.getTopRightX() - value); break;
-                        case 1: zone.setTopRightY(zone.getTopRightY() - value); break;
-                        case 2: zone.setBottomLeftX(zone.getBottomLeftX() + value); break;
-                        case 3: zone.setBottomLeftY(zone.getBottomLeftY() + value); break;
-                    }
-                }
-
-                tries++;
-            } while ((zone.getTopRightX() - zone.getBottomLeftX() < 10 || zone.getTopRightY() - zone.getBottomLeftY() < 10) && tries < 25);
-
-            List<Zone> neighbors = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
-                    zone.getTopRightX() + 1,
-                    zone.getBottomLeftX() - 1,
-                    zone.getTopRightY() + 1,
-                    zone.getBottomLeftY() - 1
-            );
-
-            List<WhittakerGridLocation> validWhittakerGridLocations = allWhittakerGridLocations.stream()
-                    .filter(w -> neighbors.stream().allMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 1 || Math.abs(n.getMoisture() - w.getMoisture()) == 1))
-                    .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) > 1 || Math.abs(n.getMoisture() - w.getMoisture()) > 1))
-                    .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 0 && Math.abs(n.getMoisture() - w.getMoisture()) == 0))
-                    .collect(Collectors.toList());
-
-            if (validWhittakerGridLocations.isEmpty()) {
-                LOGGER.warn("No matching grid locations!");
-                LOGGER.warn(neighbors.stream()
-                        .map(n -> String.format("Neighbor: %s e=%d m=%d", n.getBiome().getName(), n.getElevation(), n.getMoisture()))
-                        .collect(Collectors.joining("\n")));
-
-                validWhittakerGridLocations.addAll(allWhittakerGridLocations);
             }
 
-            Collections.shuffle(validWhittakerGridLocations);
+            tries++;
+        }
+        while ((zone.getTopRightX() - zone.getBottomLeftX() < 10 || zone.getTopRightY() - zone.getBottomLeftY() < 10) && tries < 25);
+    }
 
-            zone.setBiome(validWhittakerGridLocations.get(0).getBiome());
-            zone.setElevation(validWhittakerGridLocations.get(0).getElevation());
-            zone.setMoisture(validWhittakerGridLocations.get(0).getMoisture());
+    private void selectZoneBiome(Zone zone) {
+        List<Zone> neighbors = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
+                zone.getTopRightX() + 1,
+                zone.getBottomLeftX() - 1,
+                zone.getTopRightY() + 1,
+                zone.getBottomLeftY() - 1
+        );
 
-            zone = zoneRepository.save(zone);
+        List<WhittakerGridLocation> validWhittakerGridLocations = allWhittakerGridLocations.stream()
+                .filter(w -> neighbors.stream().allMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 1 || Math.abs(n.getMoisture() - w.getMoisture()) == 1))
+                .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) > 1 || Math.abs(n.getMoisture() - w.getMoisture()) > 1))
+                .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 0 && Math.abs(n.getMoisture() - w.getMoisture()) == 0))
+                .collect(Collectors.toList());
 
-            LOGGER.info("Saving new zone: {} ({}, {}) ({}, {})",
-                    zone.getBiome().getName(),
-                    zone.getBottomLeftX(),
-                    zone.getBottomLeftY(),
-                    zone.getTopRightX(),
-                    zone.getTopRightY());
+        if (validWhittakerGridLocations.isEmpty()) {
+            LOGGER.warn("No matching grid locations!");
+            LOGGER.warn(neighbors.stream()
+                    .map(n -> String.format("Neighbor: %s e=%d m=%d", n.getBiome().getName(), n.getElevation(), n.getMoisture()))
+                    .collect(Collectors.joining("\n")));
+
+            validWhittakerGridLocations.addAll(allWhittakerGridLocations);
         }
 
-        return zone;
+        Collections.shuffle(validWhittakerGridLocations);
+
+        zone.setBiome(validWhittakerGridLocations.get(0).getBiome());
+        zone.setElevation(validWhittakerGridLocations.get(0).getElevation());
+        zone.setMoisture(validWhittakerGridLocations.get(0).getMoisture());
     }
 }

@@ -52,7 +52,7 @@ public class MapCommand extends BaseCommand {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomService.fetchRoom(x, y, entity.getZ(), false);
+                    Room room = roomService.fetchRoom(x, y, entity.getZ());
 
                     if (room != null) {
                         if (room.getZone() != null) {
