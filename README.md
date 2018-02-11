@@ -114,17 +114,6 @@ It is important to understand that OAuth2 is **not secure without HTTPS**. That 
 
 What I have done with [EmergentMUD's dev server](https://emergentmud.com) is to add an [nginx reverse proxy Docker container](https://hub.docker.com/r/jwilder/nginx-proxy/) to my `docker-compose.yaml` and configure it with my SSL certificate. Incoming connections are automatically upgraded to SSL at nginx, and through some sort of wicked sorcery the requests are dynamically routed to the MUD's container. The MUD doesn't need to know anything about SSL, and everybody is happy and safe. The data stores aren't accessible from the internet, which is great for their security. There is a version of my [production docker-compose.yaml](https://github.com/scionaltera/emergentmud/wiki/Production-Docker-Compose-Configuration) on the wiki which should help most people get started. It uses *free* SSL certificates from [letsencrypt](https://letsencrypt.org) to provide the encryption necessary for secure OAuth2.
 
-# Contributing
-If you would like to contribute to the project, please feel free to submit a pull request. For the best chance of success getting your pull request merged, please do the following few things:
-
-1. Check the tickets on [Taiga](https://tree.taiga.io/project/scionaltera-emergentmud/) to see if what you want to do is there already. If it isn't, check the [Roadmap](https://github.com/scionaltera/emergentmud/wiki/Product-Roadmap) to see if it's something I'm planning to work on later. Discuss your proposed change with the dev team before doing the work. I can either assign the ticket to you or create a new ticket as necessary. If what you want to do isn't in line with the vision for EmergentMUD, you are still more than welcome to fork it and develop the code on your own.
-1. Fork a copy of the project.
-1. Match the coding style of existing code as best as possible.
-1. Make sure the code you are contributing is covered by unit tests.
-1. Document your work, or include updates to the existing documentation as necessary.
-1. Include the license header in any new files that you create. Please note that contributing your code means you will give up ownership of it in the legal sense. I will of course still recognize and appreciate your contribution but I will not be able to pull your code back out if you change your mind later.
-1. Finally, submit your pull request from your fork back to the project. I will work with you to get it reviewed and merged.
-
 # Contact
 So far the dev team consists of just me, Scion. I am not looking for partners or MUD staff at this time but I welcome discussion about the future direction of EmergentMUD and I welcome pull requests and forks. I'd love to know if you have used any of my code for your own project. The best motivation for me to continue work on the project is to know that other people are interested and making use of it.
 
