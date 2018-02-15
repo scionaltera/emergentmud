@@ -85,7 +85,20 @@ public class LookCommand extends BaseCommand {
         StringBuilder exits = new StringBuilder("[dcyan]Exits:");
 
         Direction.DIRECTIONS.forEach(d -> {
-            exits.append(" [cyan]");
+            long x = entity.getX() + d.getX();
+            long y = entity.getY() + d.getY();
+            long z = entity.getZ() + d.getZ();
+
+            Room neighbor = roomService.fetchRoom(x, y, z);
+
+            if (neighbor != null) {
+                exits.append(" [cyan]");
+            } else if (!room.getZone().encompasses(x, y, z)) {
+                exits.append(" [black]");
+            } else {
+                return;
+            }
+
             exits.append(d.getName());
         });
 

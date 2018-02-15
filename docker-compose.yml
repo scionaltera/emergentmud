@@ -25,8 +25,8 @@ services:
   emergentmud:
     image: com.emergentmud/emergentmud:latest
     ports:
-     - "8080:8080"
-     - "5005:5005"
+     - "9080:8080"
+     - "5006:5005"
     links:
      - mongo
     env_file: secrets.env

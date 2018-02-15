@@ -107,6 +107,11 @@ public class Zone {
         this.biome = biome;
     }
 
+    public boolean encompasses(long x, long y, long z) {
+        return x >= getBottomLeftX() && x <= getTopRightX() && y >= getBottomLeftY() && y <= getTopRightY();
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
