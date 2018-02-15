@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,7 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class MoveCommandTest {
     private ApplicationContext applicationContext;
 
     @Mock
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Mock
     private EntityService entityService;
@@ -60,7 +60,7 @@ public class MoveCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        command = new MoveCommand(Direction.NORTH, applicationContext, worldManager, entityService);
+        command = new MoveCommand(Direction.NORTH, applicationContext, movementService, entityService);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MoveCommandTest {
 
         command.execute(output, entity, cmd, tokens, raw);
 
-        verifyZeroInteractions(worldManager);
+        verifyZeroInteractions(movementService);
         verifyZeroInteractions(applicationContext);
     }
 }

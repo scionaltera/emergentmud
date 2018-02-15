@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,33 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.exception;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-
-import static org.junit.Assert.assertEquals;
-
-public class WaterTest {
-    private Water water;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
-        water = new Water(FlowType.SPRING);
-    }
-
-    @Test
-    public void testFlowType() throws Exception {
-        assertEquals(FlowType.SPRING, water.getFlowType());
-    }
-
-    @Test
-    public void testChangeFlowType() throws Exception {
-        water.setFlowType(FlowType.SINK);
-
-        assertEquals(FlowType.SINK, water.getFlowType());
+public class NoSuchRoomException extends Exception {
+    public NoSuchRoomException(String message) {
+        super(message);
     }
 }

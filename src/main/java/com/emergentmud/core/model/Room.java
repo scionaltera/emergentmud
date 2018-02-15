@@ -28,25 +28,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @CompoundIndexes({
-        @CompoundIndex(name = "biome_meta_idx", def = "{'elevation': 1, 'moisture': 1}")
+        @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
 })
-public class WhittakerGridLocation {
-    public static final int MAX_ELEVATION = 4;
-
+public class Room {
     @Id
     private String id;
 
     @DBRef
-    private Biome biome;
+    private Zone zone;
 
-    private Integer elevation;
-    private Integer moisture;
-
-    public WhittakerGridLocation(int elevation, int moisture, Biome biome) {
-        this.elevation = elevation;
-        this.moisture = moisture;
-        this.biome = biome;
-    }
+    private Long x;
+    private Long y;
+    private Long z;
 
     public String getId() {
         return id;
@@ -56,27 +49,41 @@ public class WhittakerGridLocation {
         this.id = id;
     }
 
-    public Biome getBiome() {
-        return biome;
+    public Zone getZone() {
+        return zone;
     }
 
-    public void setBiome(Biome biome) {
-        this.biome = biome;
+    public void setZone(Zone zone) {
+        this.zone = zone;
     }
 
-    public Integer getElevation() {
-        return elevation;
+    public void setLocation(Long x, Long y, Long z) {
+        setX(x);
+        setY(y);
+        setZ(z);
     }
 
-    public void setElevation(Integer elevation) {
-        this.elevation = elevation;
+    public Long getX() {
+        return x;
     }
 
-    public Integer getMoisture() {
-        return moisture;
+    public void setX(Long x) {
+        this.x = x;
     }
 
-    public void setMoisture(Integer moisture) {
-        this.moisture = moisture;
+    public Long getY() {
+        return y;
+    }
+
+    public void setY(Long y) {
+        this.y = y;
+    }
+
+    public Long getZ() {
+        return z;
+    }
+
+    public void setZ(Long z) {
+        this.z = z;
     }
 }

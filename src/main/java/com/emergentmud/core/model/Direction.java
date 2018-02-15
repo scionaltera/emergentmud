@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,7 +25,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Document
 public class Direction {
@@ -42,9 +41,7 @@ public class Direction {
     private long z;
 
     public static Direction forName(String name) {
-        Optional<Direction> directionOptional = DIRECTIONS.stream().filter(d -> d.getName().equals(name)).findFirst();
-
-        return directionOptional.orElse(null);
+        return DIRECTIONS.stream().filter(d -> d.getName().equals(name)).findFirst().orElse(null);
     }
 
     private Direction(String name, String opposite, long x, long y, long z) {

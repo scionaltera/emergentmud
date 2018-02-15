@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,10 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.repository.EntityRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,17 +34,17 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class WorldManagerTest {
+public class MovementServiceTest {
     @Mock
     private EntityRepository entityRepository;
 
     @Mock
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Mock
     private Room room;
 
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Before
     public void setUp() throws Exception {
@@ -51,7 +52,7 @@ public class WorldManagerTest {
 
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        worldManager = new WorldManager(entityRepository);
+        movementService = new MovementService(entityRepository, roomService);
     }
 
     @Test
@@ -66,12 +67,13 @@ public class WorldManagerTest {
         doCallRealMethod().when(entity).setY(anyLong());
         doCallRealMethod().when(entity).setZ(anyLong());
         when(entityRepository.findByXAndYAndZ(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
+        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
 
         entity.setX(0L);
         entity.setY(0L);
         entity.setZ(0L);
 
-        Entity result = worldManager.put(entity, 2L, 1L, 3L);
+        Entity result = movementService.put(entity, 2L, 1L, 3L);
 
         assertNotNull(result);
         verify(entityRepository).save(eq(entity));
@@ -82,9 +84,11 @@ public class WorldManagerTest {
 
     @Test
     public void testPutExistingEntity() throws Exception {
+        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
+
         Entity entity = mock(Entity.class);
 
-        worldManager.put(entity, 2L, 1L, 3L);
+        movementService.put(entity, 2L, 1L, 3L);
 
         verify(entityRepository).save(eq(entity));
         verify(entity).setX(eq(2L));
@@ -96,7 +100,7 @@ public class WorldManagerTest {
     public void testRemove() throws Exception {
         Entity entity = mock(Entity.class);
 
-        worldManager.remove(entity);
+        movementService.remove(entity);
 
         verify(entityRepository).save(eq(entity));
         verify(entity).setX(null);
@@ -116,7 +120,7 @@ public class WorldManagerTest {
 
         assertFalse(contents.contains(entity));
 
-        worldManager.remove(entity);
+        movementService.remove(entity);
 
         verify(entityRepository).save(eq(entity));
         verify(entity).setX(null);

@@ -18,23 +18,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Water {
-    private FlowType flowType;
+public class Biome {
+    @Id
+    private String id;
 
-    public Water(FlowType flowType) {
-        this.flowType = flowType;
+    @Indexed(unique = true)
+    private String name;
+
+    @Indexed(unique = true)
+    private Integer color;
+
+    private String cellSelectionStrategy;
+
+    public Biome(String name, Integer color, String cellSelectionStrategy) {
+        this.name = name;
+        this.color = color;
+        this.cellSelectionStrategy = cellSelectionStrategy;
     }
 
-    public FlowType getFlowType() {
-        return flowType;
+    public String getId() {
+        return id;
     }
 
-    public void setFlowType(FlowType flowType) {
-        this.flowType = flowType;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getColor() {
+        return color;
+    }
+
+    public String getCellSelectionStrategy() {
+        return cellSelectionStrategy;
     }
 }

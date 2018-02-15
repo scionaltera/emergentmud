@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,9 +22,10 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +40,16 @@ public class GotoCommand extends BaseCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GotoCommand.class);
 
     private ApplicationContext applicationContext;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
 
     @Inject
     public GotoCommand(ApplicationContext applicationContext,
-                       WorldManager worldManager,
+                       MovementService movementService,
                        EntityService entityService) {
 
         this.applicationContext = applicationContext;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
 
         setDescription("Instantly transport to another person, or a room by its coordinate.");
@@ -106,7 +107,13 @@ public class GotoCommand extends BaseCommand {
 
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
 
-        entity = worldManager.put(entity, location[0], location[1], location[2]);
+        try {
+            entity = movementService.put(entity, location[0], location[1], location[2]);
+        } catch (NoSuchRoomException ex) {
+            output.append(ex.getMessage());
+            return output;
+        }
+
         LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));

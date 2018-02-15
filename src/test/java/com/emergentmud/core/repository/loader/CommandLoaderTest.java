@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.repository.loader;
 
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
@@ -48,9 +49,21 @@ public class CommandLoaderTest {
     @Captor
     private ArgumentCaptor<List<CommandMetadata>> metadataCaptor;
 
+    @Captor
+    private ArgumentCaptor<List<Capability>> capabilityCaptor;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(capabilityRepository.save(anyCollectionOf(Capability.class))).thenAnswer(invocation -> {
+            // noinspection unchecked
+            List<Capability> capabilityList = (List<Capability>)invocation.getArguments()[0];
+
+            capabilityList.forEach(c -> c.setId(UUID.randomUUID().toString()));
+
+            return capabilityList;
+        });
 
         when(commandMetadataRepository.save(anyCollectionOf(CommandMetadata.class))).thenAnswer(invocation -> {
             //noinspection unchecked
@@ -62,6 +75,34 @@ public class CommandLoaderTest {
         });
 
         commandLoader = new CommandLoader(commandMetadataRepository, capabilityRepository);
+    }
+
+    @Test
+    public void testLoadCapabilitiesEmpty() throws Exception {
+        when(capabilityRepository.count()).thenReturn(0L);
+
+        commandLoader.loadCommands();
+
+        verify(capabilityRepository).save(capabilityCaptor.capture());
+
+        List<Capability> capabilityList = capabilityCaptor.getValue();
+
+        capabilityList.forEach(c -> {
+            assertNotNull(c.getId());
+            assertNotNull(c.getName());
+            assertNotNull(c.getDescription());
+            assertNotNull(c.getObject());
+            assertNotNull(c.getScope());
+        });
+    }
+
+    @Test
+    public void testLoadCapabilitiesNotEmpty() throws Exception {
+        when(capabilityRepository.count()).thenReturn(30L);
+
+        commandLoader.loadCommands();
+
+        verify(capabilityRepository, never()).save(anyCollectionOf(Capability.class));
     }
 
     @Test

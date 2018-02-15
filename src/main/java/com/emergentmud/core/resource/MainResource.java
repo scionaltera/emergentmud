@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,6 +22,7 @@ package com.emergentmud.core.resource;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.Emote;
 import com.emergentmud.core.exception.NoAccountException;
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CapabilityObject;
@@ -37,12 +38,11 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -73,8 +73,6 @@ import java.util.stream.Collectors;
 public class MainResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainResource.class);
 
-    private final int WORLD_EXTENT;
-
     private ApplicationContext applicationContext;
     private List<SocialNetwork> networks;
     private SecurityContextLogoutHandler securityContextLogoutHandler;
@@ -83,7 +81,7 @@ public class MainResource {
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
     private CapabilityRepository capabilityRepository;
-    private WorldManager worldManager;
+    private MovementService movementService;
     private EntityService entityService;
     private Emote emote;
 
@@ -96,12 +94,10 @@ public class MainResource {
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
                         CapabilityRepository capabilityRepository,
-                        WorldManager worldManager,
+                        MovementService movementService,
                         EntityService entityService,
-                        Emote emote,
-                        @Qualifier("worldExtent") int worldExtent) {
+                        Emote emote) {
 
-        this.WORLD_EXTENT = worldExtent;
         this.applicationContext = applicationContext;
         this.networks = networks;
         this.securityContextLogoutHandler = securityContextLogoutHandler;
@@ -110,7 +106,7 @@ public class MainResource {
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.capabilityRepository = capabilityRepository;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
         this.entityService = entityService;
         this.emote = emote;
     }
@@ -300,7 +296,17 @@ public class MainResource {
             entityService.sendMessageToEntity(entity, out);
         }
 
-        entity = worldManager.put(entity, WORLD_EXTENT / 2, WORLD_EXTENT / 2, 0L);
+        try {
+            entity = movementService.put(entity, 0L, 0L, 0L);
+        } catch (NoSuchRoomException ex) {
+            GameOutput errorOut = new GameOutput("[red]No starting room could be found! The administrators have been notified!");
+            entityService.sendMessageToEntity(entity, errorOut);
+
+            LOGGER.error("Start room doesn't exist! Unable to place new player!");
+
+            return "redirect:/";
+        }
+
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
         entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);

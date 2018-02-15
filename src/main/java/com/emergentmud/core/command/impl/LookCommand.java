@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,10 +23,10 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomBuilder;
+import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -35,12 +35,12 @@ import java.util.List;
 @Component
 public class LookCommand extends BaseCommand {
     private EntityRepository entityRepository;
-    private RoomBuilder roomBuilder;
+    private RoomService roomService;
 
     @Inject
-    public LookCommand(EntityRepository entityRepository, RoomBuilder roomBuilder) {
+    public LookCommand(EntityRepository entityRepository, RoomService roomService) {
         this.entityRepository = entityRepository;
-        this.roomBuilder = roomBuilder;
+        this.roomService = roomService;
 
         setDescription("Describes the things in the world around you.");
         addParameter("target", false);
@@ -56,19 +56,23 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomBuilder.generateRoom(entity.getX(), entity.getY(), entity.getZ());
+        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
 
-        if (room.getBiome() == null) {
-            roomName = "No Biome";
-        } else {
-            roomName = room.getBiome().getName();
+        if (room == null) {
+            output.append("[black]You are floating in a formless void.");
+
+            return output;
         }
 
+        roomName = "The Great Emptiness";
         roomDescription = "A bleak, empty landscape stretches beyond the limits of your vision.";
-        roomDescription += String.format("<br/>elevation=%d moisture=%d", room.getElevation(), room.getMoisture());
 
-        if (room.getWater() != null) {
-            roomDescription += String.format("<br/>[cyan]The water here is: %s", room.getWater().getFlowType());
+        if (room.getZone() != null) {
+            if (room.getZone().getBiome() != null) {
+                roomName = room.getZone().getBiome().getName();
+            }
+
+            roomDescription += "<br/>Moisture: " + room.getZone().getMoisture() + "<br/>Elevation: " + room.getZone().getElevation();
         }
 
         output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
@@ -81,7 +85,20 @@ public class LookCommand extends BaseCommand {
         StringBuilder exits = new StringBuilder("[dcyan]Exits:");
 
         Direction.DIRECTIONS.forEach(d -> {
-            exits.append(" [cyan]");
+            long x = entity.getX() + d.getX();
+            long y = entity.getY() + d.getY();
+            long z = entity.getZ() + d.getZ();
+
+            Room neighbor = roomService.fetchRoom(x, y, z);
+
+            if (neighbor != null) {
+                exits.append(" [cyan]");
+            } else if (!room.getZone().encompasses(x, y, z)) {
+                exits.append(" [black]");
+            } else {
+                return;
+            }
+
             exits.append(d.getName());
         });
 

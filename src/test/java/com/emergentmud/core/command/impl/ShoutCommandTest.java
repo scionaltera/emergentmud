@@ -32,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +47,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     @Mock
     private EntityService entityService;
 
-    @Spy
+    @Mock
     private RoomService roomService;
 
     @Mock
@@ -76,6 +75,8 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
         when(entity.getX()).thenReturn(0L);
         when(entity.getY()).thenReturn(0L);
         when(entity.getZ()).thenReturn(0L);
+
+        when(roomService.isWithinDistance(any(Entity.class), anyLong(), anyLong(), anyLong(), anyDouble())).thenCallRealMethod();
 
         command = new ShoutCommand(entityRepository, roomService, entityService);
     }

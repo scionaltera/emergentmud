@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,7 +21,7 @@
 package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.WhittakerGridLocation;
-import com.emergentmud.core.model.room.Biome;
+import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.slf4j.Logger;
@@ -54,25 +54,19 @@ public class BiomeLoader {
 
             List<Biome> biomes = new ArrayList<>();
 
-            biomes.add(new Biome("Ocean", 0x444471));
-            biomes.add(new Biome("Lake", 0x336699));
-            biomes.add(new Biome("Beach", 0xa09077));
-            biomes.add(new Biome("Snow", 0xffffff));
-            biomes.add(new Biome("Tundra", 0xbbbbaa));
-            biomes.add(new Biome("Bare", 0x888888));
-            biomes.add(new Biome("Scorched", 0x555555));
-            biomes.add(new Biome("Taiga", 0x99aa77));
-            biomes.add(new Biome("Shrubland", 0x889977));
-            biomes.add(new Biome("Temperate Desert", 0xc9d29b));
-            biomes.add(new Biome("Temperate Rain Forest", 0x448855));
-            biomes.add(new Biome("Temperate Deciduous Forest", 0x679459));
-            biomes.add(new Biome("Grassland", 0x88aa55));
-            biomes.add(new Biome("Subtropical Desert", 0xd2b98b));
-            biomes.add(new Biome("Ice", 0x99ffff));
-            biomes.add(new Biome("Marsh", 0x2f6666));
-            biomes.add(new Biome("Tropical Rain Forest", 0x337755));
-            biomes.add(new Biome("Tropical Seasonal Forest", 0x559944));
-            biomes.add(new Biome("River", 0x225588));
+            biomes.add(new Biome("Snow", 0xffffff, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Tundra", 0xbbbbaa, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Bare", 0x888888, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Scorched", 0x555555, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Taiga", 0x99aa77, "middleCellSelectionStrategy"));
+            biomes.add(new Biome("Shrubland", 0x889977, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Desert", 0xc9d29b, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Rain Forest", 0x448855, "halfNewestHalfRandomCellSelectionStrategy"));
+            biomes.add(new Biome("Temperate Deciduous Forest", 0x679459, "halfNewestHalfRandomCellSelectionStrategy"));
+            biomes.add(new Biome("Grassland", 0x88aa55, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Subtropical Desert", 0xd2b98b, "randomCellSelectionStrategy"));
+            biomes.add(new Biome("Tropical Rain Forest", 0x337755, "newestCellSelectionStrategy"));
+            biomes.add(new Biome("Tropical Seasonal Forest", 0x559944, "newestCellSelectionStrategy"));
 
             biomeRepository.save(biomes);
         }
@@ -81,13 +75,6 @@ public class BiomeLoader {
             LOGGER.warn("No Whittaker grid data found! Loading default grid...");
 
             List<WhittakerGridLocation> gridLocations = new ArrayList<>();
-
-            gridLocations.add(new WhittakerGridLocation(0, 1, biomeRepository.findByName("Ocean")));
-            gridLocations.add(new WhittakerGridLocation(0, 2, biomeRepository.findByName("Ocean")));
-            gridLocations.add(new WhittakerGridLocation(0, 3, biomeRepository.findByName("Ocean")));
-            gridLocations.add(new WhittakerGridLocation(0, 4, biomeRepository.findByName("Ocean")));
-            gridLocations.add(new WhittakerGridLocation(0, 5, biomeRepository.findByName("Ocean")));
-            gridLocations.add(new WhittakerGridLocation(0, 6, biomeRepository.findByName("Ocean")));
 
             gridLocations.add(new WhittakerGridLocation(1, 1, biomeRepository.findByName("Subtropical Desert")));
             gridLocations.add(new WhittakerGridLocation(1, 2, biomeRepository.findByName("Grassland")));

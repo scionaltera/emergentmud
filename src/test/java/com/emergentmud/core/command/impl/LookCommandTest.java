@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,11 +21,12 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Biome;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Biome;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
-import com.emergentmud.core.repository.RoomBuilder;
+import com.emergentmud.core.service.RoomService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ public class LookCommandTest {
     private EntityRepository entityRepository;
 
     @Mock
-    private RoomBuilder roomBuilder;
+    private RoomService roomService;
 
     @Mock
     private GameOutput output;
@@ -53,6 +54,9 @@ public class LookCommandTest {
     @Mock
     private Biome biome;
 
+    @Mock
+    private Zone zone;
+
     private String[] tokens = new String[0];
     private String raw = "";
     private String cmd = "look";
@@ -63,7 +67,7 @@ public class LookCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        command = new LookCommand(entityRepository, roomBuilder);
+        command = new LookCommand(entityRepository, roomService);
     }
 
     @Test
@@ -86,10 +90,9 @@ public class LookCommandTest {
 
     @Test
     public void testLook() throws Exception {
-        when(roomBuilder.generateRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
-        when(room.getBiome()).thenReturn(biome);
-        when(room.getElevation()).thenReturn(1);
-        when(room.getMoisture()).thenReturn(0);
+        when(zone.encompasses(anyLong(), anyLong(), anyLong())).thenReturn(true, false, true, false);
+        when(room.getZone()).thenReturn(zone);
+        when(roomService.fetchRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
         when(biome.getName()).thenReturn("Blasted Hellscape");
 
 

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,17 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.service.maze;
 
 import com.emergentmud.core.model.Room;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import com.emergentmud.core.model.Zone;
 
-import java.util.List;
-
-@Repository
-public interface RoomRepository extends MongoRepository<Room, String> {
-    Room findByXAndYAndZ(Long x, Long y, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZ(Long xFrom, Long xTo, Long yFrom, Long yTo, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
+public interface ZoneFillStrategy {
+    Room fillZone(Zone zone, Long x, Long y, Long z);
 }

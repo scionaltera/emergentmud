@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,49 +20,15 @@
 
 package com.emergentmud.core.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Random;
+
 @Configuration
 public class WorldConfiguration {
-    @Value("${world.seed.elevation}")
-    private long seedElevation;
-
-    @Value("${world.seed.moisture}")
-    private long seedMoisture;
-
-    @Value("${world.extent}")
-    private int worldExtent;
-
-    @Value("${world.scale}")
-    private double worldScale;
-
-    @Value("${world.octaves}")
-    private int worldOctaves;
-
-    @Bean(name = "worldSeedElevation")
-    public long getSeedElevation() {
-        return seedElevation;
-    }
-
-    @Bean(name = "worldSeedMoisture")
-    public long getSeedMoisture() {
-        return seedMoisture;
-    }
-
-    @Bean(name = "worldExtent")
-    public int getWorldExtent() {
-        return worldExtent;
-    }
-
-    @Bean(name = "worldScale")
-    public double getWorldScale() {
-        return worldScale;
-    }
-
-    @Bean(name = "worldOctaves")
-    public int getWorldOctaves() {
-        return worldOctaves;
+    @Bean
+    public Random random() {
+        return new Random();
     }
 }

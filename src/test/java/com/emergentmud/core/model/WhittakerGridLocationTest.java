@@ -20,7 +20,6 @@
 
 package com.emergentmud.core.model;
 
-import com.emergentmud.core.model.room.Biome;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

@@ -18,22 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
 
 public class RoomTest {
-    @Mock
-    private Biome biome;
-
-    @Mock
-    private Water water;
-
     private Room room = new Room();
 
     @Before
@@ -46,20 +39,6 @@ public class RoomTest {
         room.setId("roomId");
 
         assertEquals("roomId", room.getId());
-    }
-
-    @Test
-    public void testBiome() throws Exception {
-        room.setBiome(biome);
-
-        assertEquals(biome, room.getBiome());
-    }
-
-    @Test
-    public void testWater() throws Exception {
-        room.setWater(water);
-
-        assertEquals(water, room.getWater());
     }
 
     @Test

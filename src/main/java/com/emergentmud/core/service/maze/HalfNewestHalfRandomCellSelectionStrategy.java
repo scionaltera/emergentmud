@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,41 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.service.maze;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 
-@Document
-public class Biome {
-    @Id
-    private String id;
+import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.Random;
 
-    @Indexed(unique = true)
-    private String name;
+@Component
+public class HalfNewestHalfRandomCellSelectionStrategy implements CellSelectionStrategy {
+    private Random random;
 
-    @Indexed(unique = true)
-    private Integer color;
-
-    public Biome(String name, Integer color) {
-        this.name = name;
-        this.color = color;
+    @Inject
+    public HalfNewestHalfRandomCellSelectionStrategy(Random random) {
+        this.random = random;
     }
 
-    public String getId() {
-        return id;
-    }
+    @Override
+    public Cell selectCell(LinkedList<Cell> queue) {
+        Cell selected;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        if (random.nextBoolean()) {
+            selected = queue.getFirst();
+        } else {
+            selected = queue.get(random.nextInt(queue.size()));
+        }
 
-    public String getName() {
-        return name;
-    }
-
-    public Integer getColor() {
-        return color;
+        return selected;
     }
 }

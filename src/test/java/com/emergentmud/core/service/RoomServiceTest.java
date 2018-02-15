@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,10 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.util;
+package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.service.RoomService;
+import com.emergentmud.core.model.Room;
+import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.service.maze.ZoneFillStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,10 +33,19 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class RoomServiceTest {
-    private RoomService roomService;
+    @Mock
+    private ZoneService zoneService;
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private ZoneFillStrategy zoneFillStrategy;
 
     @Mock
     private Entity origin;
+
+    private RoomService roomService;
 
     @Before
     public void setUp() throws Exception {
@@ -44,7 +55,17 @@ public class RoomServiceTest {
         when(origin.getY()).thenReturn(0L);
         when(origin.getZ()).thenReturn(0L);
 
-        roomService = new RoomService();
+        roomService = new RoomService(
+                zoneService,
+                roomRepository,
+                zoneFillStrategy);
+    }
+
+    @Test
+    public void testFetchRoom() throws Exception {
+        roomService.fetchRoom(0L, 0L, 0L);
+
+        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
     }
 
     @Test

@@ -18,16 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.repository;
 
-public enum FlowType {
-    SPRING,
-    SINK,
-    STRAIGHT,
-    LEFT,
-    RIGHT,
-    STRAIGHT_LEFT,
-    STRAIGHT_RIGHT,
-    LEFT_RIGHT,
-    STRAIGHT_LEFT_RIGHT
+import com.emergentmud.core.model.Zone;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ZoneRepository extends MongoRepository<Zone, String> {
+    Zone findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
+    List<Zone> findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,17 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.repository;
+package com.emergentmud.core.service.maze;
 
-import com.emergentmud.core.model.Room;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.Random;
 
-@Repository
-public interface RoomRepository extends MongoRepository<Room, String> {
-    Room findByXAndYAndZ(Long x, Long y, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZ(Long xFrom, Long xTo, Long yFrom, Long yTo, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
+/*
+ * Prim's Algorithm
+ */
+@Component
+public class RandomCellSelectionStrategy implements CellSelectionStrategy {
+    private Random random;
+
+    @Inject
+    public RandomCellSelectionStrategy(Random random) {
+        this.random = random;
+    }
+
+    @Override
+    public Cell selectCell(LinkedList<Cell> queue) {
+        return queue.get(random.nextInt(queue.size()));
+    }
 }

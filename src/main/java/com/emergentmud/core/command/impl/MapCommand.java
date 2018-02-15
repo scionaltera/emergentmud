@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,9 +22,9 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
-import com.emergentmud.core.repository.RoomBuilder;
+import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -34,31 +34,36 @@ public class MapCommand extends BaseCommand {
     private static final int MAP_EXTENT_X = 40;
     private static final int MAP_EXTENT_Y = 20;
 
-    private RoomBuilder roomBuilder;
+    private RoomService roomService;
 
     @Inject
-    public MapCommand(RoomBuilder roomBuilder) {
-        this.roomBuilder = roomBuilder;
+    public MapCommand(RoomService roomService) {
+        this.roomService = roomService;
 
         setDescription("Shows a bird's eye view of the rooms around you.");
     }
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        Room center = roomBuilder.generateRoom(entity.getX(), entity.getY(), entity.getZ());
-
-        for (long y = center.getY() + MAP_EXTENT_Y, i = 0; y >= center.getY() - MAP_EXTENT_Y; y--, i++) {
+        for (long y = entity.getY() + MAP_EXTENT_Y, i = 0; y >= entity.getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
 
-            for (long x = center.getX() - MAP_EXTENT_X; x <= center.getX() + MAP_EXTENT_X; x++) {
-                if (x == center.getX() && y == center.getY()) {
+            for (long x = entity.getX() - MAP_EXTENT_X; x <= entity.getX() + MAP_EXTENT_X; x++) {
+                if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomBuilder.generateRoom(x, y, center.getZ());
+                    Room room = roomService.fetchRoom(x, y, entity.getZ());
 
                     if (room != null) {
-                        line.append(String.format("<span style='color: #%02x'>[]</span>",
-                                room.getBiome() != null ? room.getBiome().getColor() : 0xFF00FF));
+                        if (room.getZone() != null) {
+                            if (room.getZone().getBiome() != null) {
+                                line.append(String.format("<span style='color: #%02x'>[]</span>", room.getZone().getBiome().getColor()));
+                            } else {
+                                line.append(String.format("<span style='color: #%02x'>[]</span>", 0xFF00FF));
+                            }
+                        } else {
+                            line.append(String.format("<span style='color: #%02x'>[]</span>", 0x666666));
+                        }
                     } else {
                         line.append(String.format("<span style='color: #%02x%02x%02x'>&nbsp;&nbsp;</span>", 0, 0, 0));
                     }
@@ -75,7 +80,7 @@ public class MapCommand extends BaseCommand {
         StringBuilder line = new StringBuilder("[yellow]");
         int offset = 0;
 
-        for (long x = center.getX() - MAP_EXTENT_X, i = 0; x <= center.getX() + MAP_EXTENT_X; x++, i++) {
+        for (long x = entity.getX() - MAP_EXTENT_X, i = 0; x <= entity.getX() + MAP_EXTENT_X; x++, i++) {
             if (i % 10 == 0) {
                 line.append(x + offset);
 

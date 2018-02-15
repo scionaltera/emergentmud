@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class BiomeTest {
 
     @Before
     public void setUp() throws Exception {
-        biome = new Biome("Biome", 0x112233);
+        biome = new Biome("Biome", 0x112233, "cellSelectionStrategy");
     }
 
     @Test

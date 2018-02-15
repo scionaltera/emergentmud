@@ -23,7 +23,7 @@ package com.emergentmud.core.logging;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.room.Room;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -28,7 +28,7 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CapabilityRepository;
-import com.emergentmud.core.repository.WorldManager;
+import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.service.EntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,18 +45,18 @@ public class ExileCommand extends BaseCommand {
     private EntityService entityService;
     private AccountRepository accountRepository;
     private CapabilityRepository capabilityRepository;
-    private WorldManager worldManager;
+    private MovementService movementService;
 
     @Inject
     public ExileCommand(EntityService entityService,
                         AccountRepository accountRepository,
                         CapabilityRepository capabilityRepository,
-                        WorldManager worldManager) {
+                        MovementService movementService) {
 
         this.entityService = entityService;
         this.accountRepository = accountRepository;
         this.capabilityRepository = capabilityRepository;
-        this.worldManager = worldManager;
+        this.movementService = movementService;
 
         setDescription("Kick somebody out of the game.");
         addParameter("add|remove", true);
@@ -112,7 +112,7 @@ public class ExileCommand extends BaseCommand {
 
             entityService.sendMessageToRoom(target.getX(), target.getY(), target.getZ(), Arrays.asList(entity, target), roomOutput);
 
-            worldManager.remove(target);
+            movementService.remove(target);
 
             output
                     .append(String.format("[yellow]You exile %s.", target))

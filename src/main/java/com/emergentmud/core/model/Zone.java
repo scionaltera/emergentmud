@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -18,30 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.emergentmud.core.model.room;
+package com.emergentmud.core.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Objects;
+
 @Document
-@CompoundIndexes({
-        @CompoundIndex(name = "room_idx", def = "{'x': 1, 'y': 1, 'z': 1}")
-})
-public class Room {
+public class Zone {
     @Id
     private String id;
 
-    @DBRef
-    private Biome biome;
+    private Long topRightX;
+    private Long topRightY;
+
+    private Long bottomLeftX;
+    private Long bottomLeftY;
+
     private Integer elevation;
     private Integer moisture;
-    private Water water;
-    private Long x;
-    private Long y;
-    private Long z;
+
+    @DBRef
+    private Biome biome;
 
     public String getId() {
         return id;
@@ -51,12 +51,36 @@ public class Room {
         this.id = id;
     }
 
-    public Biome getBiome() {
-        return biome;
+    public Long getTopRightX() {
+        return topRightX;
     }
 
-    public void setBiome(Biome biome) {
-        this.biome = biome;
+    public void setTopRightX(Long topRightX) {
+        this.topRightX = topRightX;
+    }
+
+    public Long getTopRightY() {
+        return topRightY;
+    }
+
+    public void setTopRightY(Long topRightY) {
+        this.topRightY = topRightY;
+    }
+
+    public Long getBottomLeftX() {
+        return bottomLeftX;
+    }
+
+    public void setBottomLeftX(Long bottomLeftX) {
+        this.bottomLeftX = bottomLeftX;
+    }
+
+    public Long getBottomLeftY() {
+        return bottomLeftY;
+    }
+
+    public void setBottomLeftY(Long bottomLeftY) {
+        this.bottomLeftY = bottomLeftY;
     }
 
     public Integer getElevation() {
@@ -75,41 +99,30 @@ public class Room {
         this.moisture = moisture;
     }
 
-    public void setLocation(Long x, Long y, Long z) {
-        setX(x);
-        setY(y);
-        setZ(z);
+    public Biome getBiome() {
+        return biome;
     }
 
-    public Water getWater() {
-        return water;
+    public void setBiome(Biome biome) {
+        this.biome = biome;
     }
 
-    public void setWater(Water water) {
-        this.water = water;
+    public boolean encompasses(long x, long y, long z) {
+        return x >= getBottomLeftX() && x <= getTopRightX() && y >= getBottomLeftY() && y <= getTopRightY();
+
     }
 
-    public Long getX() {
-        return x;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Zone zone = (Zone) o;
+        return Objects.equals(getId(), zone.getId());
     }
 
-    public void setX(Long x) {
-        this.x = x;
-    }
+    @Override
+    public int hashCode() {
 
-    public Long getY() {
-        return y;
-    }
-
-    public void setY(Long y) {
-        this.y = y;
-    }
-
-    public Long getZ() {
-        return z;
-    }
-
-    public void setZ(Long z) {
-        this.z = z;
+        return Objects.hash(getId());
     }
 }
