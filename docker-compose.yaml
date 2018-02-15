@@ -1,5 +1,5 @@
 #    EmergentMUD - A modern MUD with a procedurally generated world.
-#    Copyright (C) 2016 Peter Keeler
+#    Copyright (C) 2016-2018 Peter Keeler
 #
 #    This file is part of EmergentMUD.
 #
@@ -25,8 +25,8 @@ services:
   emergentmud:
     image: com.emergentmud/emergentmud:latest
     ports:
-     - "9080:8080"
-     - "5006:5005"
+     - "8080:8080"
+     - "5005:5005"
     links:
      - mongo
     env_file: secrets.env
