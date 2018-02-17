@@ -20,4 +20,4 @@ FROM frolvlad/alpine-oraclejre8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
 COPY emergentmud-*.jar /opt/mud/app.jar
-CMD ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["/usr/bin/java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
