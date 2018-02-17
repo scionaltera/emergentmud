@@ -18,6 +18,7 @@
 
 - service: emergentmud
   type: push
+  tag: master
   image_name: scionaltera/emergentmud
   encrypted_dockercfg_path: dockercfg.encrypted
 - service: emergentmud
