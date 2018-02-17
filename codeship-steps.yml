@@ -16,12 +16,14 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-- service: emergentmud
+- name: tag_latest
+  service: emergentmud
   type: push
   tag: master
   image_name: scionaltera/emergentmud
   encrypted_dockercfg_path: dockercfg.encrypted
-- service: emergentmud
+- name: tag_branch
+  service: emergentmud
   type: push
   image_name: scionaltera/emergentmud
   image_tag: "{{ .Branch }}-{{ .Timestamp }}"
