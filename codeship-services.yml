@@ -17,4 +17,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 emergentmud:
-  build: .
+  build:
+    image: scionaltera/emergentmud
+    dockerfile: Dockerfile
