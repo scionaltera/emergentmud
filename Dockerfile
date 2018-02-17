@@ -20,8 +20,7 @@ FROM frolvlad/alpine-oraclejdk8:slim as build
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 WORKDIR /opt/build
 COPY . /opt/build/
-RUN mkdir -p /opt/mud \
-&& cd /opt/build \
+RUN cd /opt/build \
 && apk update \
 && apk upgrade \
 && apk add --no-cache bash \
@@ -30,5 +29,5 @@ RUN mkdir -p /opt/mud \
 FROM frolvlad/alpine-oraclejre8:slim as run
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
-COPY --from=build /opt/mud/app.jar /opt/mud/app.jar
+COPY --from=build /opt/build/build/libs/emergentmud-*.jar /opt/mud/app.jar
 CMD ["/usr/bin/java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
