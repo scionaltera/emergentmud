@@ -20,4 +20,4 @@
   type: push
   image_name: scionaltera/emergentmud
   image_tag: "{{ .Branch }}-{{ .BuildID }}-{{ .Timestamp }}"
-  encrypted_dockercfg_path: dockercfg
+  encrypted_dockercfg_path: dockercfg.encrypted
