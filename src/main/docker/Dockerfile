@@ -1,5 +1,5 @@
 #    EmergentMUD - A modern MUD with a procedurally generated world.
-#    Copyright (C) 2016-2017 Peter Keeler
+#    Copyright (C) 2016-2018 Peter Keeler
 #
 #    This file is part of EmergentMUD.
 #
@@ -16,8 +16,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM develar/java:8u45
+FROM frolvlad/alpine-oraclejre8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
 COPY emergentmud-*.jar /opt/mud/app.jar
-CMD ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["/usr/bin/java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]

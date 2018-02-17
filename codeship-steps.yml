@@ -16,18 +16,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM frolvlad/alpine-oraclejdk8:slim as build
-MAINTAINER Peter Keeler <scion@emergentmud.com>
-WORKDIR /opt/build
-COPY . /opt/build/
-RUN cd /opt/build \
-&& apk update \
-&& apk upgrade \
-&& apk add --no-cache bash \
-&& ./gradlew clean build -x dependencyCheck
-
-FROM frolvlad/alpine-oraclejre8:slim as run
-MAINTAINER Peter Keeler <scion@emergentmud.com>
-EXPOSE 8080
-COPY --from=build /opt/build/build/libs/emergentmud-*.jar /opt/mud/app.jar
-CMD ["/usr/bin/java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+- name: tag_latest
+  service: emergentmud
+  type: push
+  tag: master
+  image_name: scionaltera/emergentmud
+  encrypted_dockercfg_path: dockercfg.encrypted
+- name: tag_branch
+  service: emergentmud
+  type: push
+  image_name: scionaltera/emergentmud
+  image_tag: "{{ .Branch }}-{{ .Timestamp }}"
+  encrypted_dockercfg_path: dockercfg.encrypted
