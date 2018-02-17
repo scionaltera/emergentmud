@@ -41,14 +41,13 @@ public class ZoneService {
     private ZoneRepository zoneRepository;
     private Random random;
 
-    private List<WhittakerGridLocation> allWhittakerGridLocations;
+    private WhittakerGridLocationRepository whittakerGridLocationRepository;
 
     @Inject
     public ZoneService(ZoneRepository zoneRepository, WhittakerGridLocationRepository whittakerGridLocationRepository, Random random) {
         this.zoneRepository = zoneRepository;
+        this.whittakerGridLocationRepository = whittakerGridLocationRepository;
         this.random = random;
-
-        allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
     }
 
     public Zone fetchZone(Long x, Long y) {
@@ -151,6 +150,7 @@ public class ZoneService {
                 zone.getBottomLeftY() - 1
         );
 
+        List<WhittakerGridLocation> allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
         List<WhittakerGridLocation> validWhittakerGridLocations = allWhittakerGridLocations.stream()
                 .filter(w -> neighbors.stream().allMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 1 || Math.abs(n.getMoisture() - w.getMoisture()) == 1))
                 .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) > 1 || Math.abs(n.getMoisture() - w.getMoisture()) > 1))
