@@ -22,9 +22,17 @@
   tag: master
   image_name: scionaltera/emergentmud
   encrypted_dockercfg_path: dockercfg.encrypted
-- name: tag_branch
+- name: tag_master
   service: emergentmud
   type: push
+  tag: master
   image_name: scionaltera/emergentmud
-  image_tag: "{{ .Branch }}-{{ .Timestamp }}"
+  image_tag: "{{ .Branch }}"
+  encrypted_dockercfg_path: dockercfg.encrypted
+- name: tag_release
+  service: emergentmud
+  type: push
+  tag: ^(v[0-9.]+)$
+  image_name: scionaltera/emergentmud
+  image_tag: "{{ .Branch }}"
   encrypted_dockercfg_path: dockercfg.encrypted
