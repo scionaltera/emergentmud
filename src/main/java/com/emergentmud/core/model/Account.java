@@ -30,7 +30,9 @@ import javax.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -43,7 +45,7 @@ public class Account implements Capable {
     private String socialNetworkId;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Capability> capabilities = new ArrayList<>();
+    private Set<Capability> capabilities = new HashSet<>();
 
     public UUID getId() {
         return id;
