@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,27 +20,33 @@
 
 package com.emergentmud.core.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-@Document
+@javax.persistence.Entity
 public class Entity implements Capable {
     @Id
-    private String id;
+    @GeneratedValue
+    @Type(type = "pg-uuid")
+    private UUID id;
     private String name;
 
-    @DBRef
+    @ManyToOne
     private Account account;
 
-    @DBRef
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Capability> capabilities = new HashSet<>();
 
     private Long x;
@@ -54,11 +60,11 @@ public class Entity implements Capable {
     private String remoteAddr;
     private String userAgent;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

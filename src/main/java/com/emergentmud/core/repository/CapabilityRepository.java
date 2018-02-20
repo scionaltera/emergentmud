@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,13 +23,14 @@ package com.emergentmud.core.repository;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CapabilityObject;
 import com.emergentmud.core.model.CapabilityScope;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface CapabilityRepository extends MongoRepository<Capability, String> {
+public interface CapabilityRepository extends CrudRepository<Capability, UUID> {
     Capability findByName(String name);
     Capability findByNameIgnoreCase(String name);
     List<Capability> findByObjectAndScope(CapabilityObject object, CapabilityScope scope);

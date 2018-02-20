@@ -29,16 +29,16 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class CommandEditCommand extends BaseCommand {
-    static final Sort SORT = new Sort("priority", "name");
-
     private CommandMetadataRepository commandMetadataRepository;
     private CapabilityRepository capabilityRepository;
 
@@ -74,7 +74,13 @@ public class CommandEditCommand extends BaseCommand {
                         "Commands"
                 );
 
-                commandMetadataRepository.findAll(SORT)
+                List<CommandMetadata> allCommandMetadata = new ArrayList<>();
+
+                commandMetadataRepository.findAll().forEach(allCommandMetadata::add);
+
+                allCommandMetadata
+                        .stream()
+                        .sorted(Comparator.comparing(CommandMetadata::getPriority).thenComparing(CommandMetadata::getName))
                         .forEach(cm -> tableFormatter.addRow(Arrays.asList(
                                 cm.getPriority().toString(),
                                 cm.getName().toUpperCase(),

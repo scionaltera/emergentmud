@@ -20,16 +20,21 @@
 
 package com.emergentmud.core.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Objects;
+import java.util.UUID;
 
-@Document
+@Entity
 public class Zone {
     @Id
-    private String id;
+    @GeneratedValue
+    @Type(type = "pg-uuid")
+    private UUID id;
 
     private Long topRightX;
     private Long topRightY;
@@ -40,14 +45,14 @@ public class Zone {
     private Integer elevation;
     private Integer moisture;
 
-    @DBRef
+    @ManyToOne
     private Biome biome;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

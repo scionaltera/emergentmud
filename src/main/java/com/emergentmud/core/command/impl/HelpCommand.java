@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -30,16 +30,16 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class HelpCommand extends BaseCommand {
-    private static final Sort SORT = new Sort("name");
-
     private ApplicationContext applicationContext;
     private CommandMetadataRepository commandMetadataRepository;
     private CapabilityRepository capabilityRepository;
@@ -67,8 +67,11 @@ public class HelpCommand extends BaseCommand {
                     "Commands"
             );
 
-            commandMetadataRepository.findAll(SORT)
+            List<CommandMetadata> allCommandMetadata = new ArrayList<>();
+            commandMetadataRepository.findAll().forEach(allCommandMetadata::add);
+            allCommandMetadata
                     .stream()
+                    .sorted(Comparator.comparing(CommandMetadata::getName))
                     .filter(cm -> entity.isCapable(cm.getCapability()) || entity.isCapable(capabilityRepository.findByName(CommandRole.SUPER.name())))
                     .forEach(cm -> {
                         Command bean = (Command)applicationContext.getBean(cm.getBeanName());

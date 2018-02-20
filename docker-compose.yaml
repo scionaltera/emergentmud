@@ -18,15 +18,19 @@
 
 version: "2"
 services:
-  mongo:
-    image: mongo
+  postgres:
+    image: postgres:9.6
     ports:
-     - "27017"
+     - "5432:5432"
+    environment:
+      POSTGRES_USER: emergentmud
+      POSTGRES_PASSWORD: emergentmud
+      POSTGRES_DB: emergentmud
   emergentmud:
     image: com.emergentmud/emergentmud:latest
     ports:
      - "8080:8080"
      - "5005:5005"
     links:
-     - mongo
+     - postgres
     env_file: secrets.env

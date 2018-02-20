@@ -20,13 +20,10 @@
 
 package com.emergentmud.core.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@Document
 public class Direction {
     public static final Direction NORTH = new Direction("north", "south", 0, 1, 0);
     public static final Direction EAST = new Direction("east", "west", 1, 0, 0);

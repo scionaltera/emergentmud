@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,8 +21,10 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.EmoteMetadata;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface EmoteMetadataRepository extends MongoRepository<EmoteMetadata, String> {
+import java.util.UUID;
+
+public interface EmoteMetadataRepository extends CrudRepository<EmoteMetadata, UUID> {
     EmoteMetadata findByName(String name);
 }

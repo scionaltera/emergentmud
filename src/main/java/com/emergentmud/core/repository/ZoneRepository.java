@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,13 +21,14 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Zone;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface ZoneRepository extends MongoRepository<Zone, String> {
+public interface ZoneRepository extends CrudRepository<Zone, UUID> {
     Zone findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
     List<Zone> findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
 }
