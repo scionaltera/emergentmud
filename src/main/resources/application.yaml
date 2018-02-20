@@ -25,7 +25,7 @@ spring:
   session:
     store-type: jdbc
   jpa:
-    show-sql: true
+#    show-sql: true
     generate-ddl: true
 
 facebook:
