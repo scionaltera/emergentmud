@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -37,12 +37,13 @@ public class BiomeTest {
 
     @Test
     public void testId() throws Exception {
-        String guid = UUID.randomUUID().toString();
+        UUID guid2 = UUID.randomUUID();
+        UUID guid = UUID.randomUUID();
 
-        biome.setId("foo");
-        assertEquals("foo", biome.getId());
         biome.setId(guid);
         assertEquals(guid, biome.getId());
+        biome.setId(guid2);
+        assertEquals(guid2, biome.getId());
     }
 
     @Test

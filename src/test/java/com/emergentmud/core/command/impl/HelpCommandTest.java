@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -97,7 +97,7 @@ public class HelpCommandTest {
         when(adminCommand.getDescription()).thenReturn("An admin command.");
         when(applicationContext.getBean(eq("normalCommand"))).thenReturn(normalCommand);
         when(applicationContext.getBean(eq("adminCommand"))).thenReturn(adminCommand);
-        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(metadata);
+        when(commandMetadataRepository.findAll()).thenReturn(metadata);
         when(entity.isCapable(eq(normalCapability))).thenReturn(true);
         when(capabilityRepository.findByName(CommandRole.SUPER.name())).thenReturn(superCapability);
 

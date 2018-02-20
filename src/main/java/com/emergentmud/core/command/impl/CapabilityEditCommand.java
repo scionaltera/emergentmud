@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -31,17 +31,17 @@ import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class CapabilityEditCommand extends BaseCommand {
-    static final Sort SORT = new Sort("name");
-
     private CapabilityRepository capabilityRepository;
     private AccountRepository accountRepository;
     private EntityRepository entityRepository;
@@ -80,7 +80,13 @@ public class CapabilityEditCommand extends BaseCommand {
                         "Capabilities"
                 );
 
-                capabilityRepository.findAll(SORT)
+                List<Capability> allCapabilities = new ArrayList<>();
+
+                capabilityRepository.findAll().forEach(allCapabilities::add);
+
+                allCapabilities
+                        .stream()
+                        .sorted(Comparator.comparing(Capability::getName))
                         .forEach(capability -> tableFormatter.addRow(Arrays.asList(
                                 capability.getDescription(),
                                 capability.getName(),

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -27,6 +27,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -54,7 +55,7 @@ public class EntityTest {
 
     @Test
     public void testId() throws Exception {
-        String id = "id";
+        UUID id = UUID.randomUUID();
 
         entity.setId(id);
 
@@ -170,7 +171,7 @@ public class EntityTest {
 
     @Test
     public void testEqualsOperator() throws Exception {
-        entity.setId("foo");
+        entity.setId(UUID.randomUUID());
 
         //noinspection EqualsWithItself
         assertTrue(entity.equals(entity));
@@ -188,9 +189,10 @@ public class EntityTest {
     public void testEquals() throws Exception {
         Entity o1 = new Entity();
         Entity o2 = new Entity();
+        UUID uuid = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("foo");
+        o1.setId(uuid);
+        o2.setId(uuid);
 
         assertTrue(o1.equals(o2));
     }
@@ -199,9 +201,11 @@ public class EntityTest {
     public void testNotEquals() throws Exception {
         Entity o1 = new Entity();
         Entity o2 = new Entity();
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("bar");
+        o1.setId(uuid1);
+        o2.setId(uuid2);
 
         assertFalse(o1.equals(o2));
     }
@@ -231,7 +235,7 @@ public class EntityTest {
 
     @Test
     public void testHashCode() throws Exception {
-        String id = "foo";
+        UUID id = UUID.randomUUID();
 
         entity.setId(id);
 

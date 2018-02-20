@@ -17,55 +17,64 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.emergentmud.core.model;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+import java.util.Objects;
 
-public class Direction {
-    public static final Direction NORTH = new Direction("north", "south", 0, 1, 0);
-    public static final Direction EAST = new Direction("east", "west", 1, 0, 0);
-    public static final Direction SOUTH = new Direction("south", "north", 0, -1, 0);
-    public static final Direction WEST = new Direction("west", "east", -1, 0, 0);
-    public static final List<Direction> DIRECTIONS = Collections.unmodifiableList(Arrays.asList(NORTH, EAST, SOUTH, WEST));
-
-    private String name;
-    private String opposite;
+@Embeddable
+public class Coordinate implements Serializable {
     private long x;
     private long y;
     private long z;
 
-    public static Direction forName(String name) {
-        return DIRECTIONS.stream().filter(d -> d.getName().equals(name)).findFirst().orElse(null);
+    public Coordinate() {
+        // this method intentionally left blank
     }
 
-    private Direction(String name, String opposite, long x, long y, long z) {
-        this.name = name;
-        this.opposite = opposite;
+    public Coordinate(long x, long y, long z) {
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getOpposite() {
-        return opposite;
     }
 
     public long getX() {
         return x;
     }
 
+    public void setX(long x) {
+        this.x = x;
+    }
+
     public long getY() {
         return y;
     }
 
+    public void setY(long y) {
+        this.y = y;
+    }
+
     public long getZ() {
         return z;
+    }
+
+    public void setZ(long z) {
+        this.z = z;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Coordinate that = (Coordinate) o;
+        return getX() == that.getX() &&
+                getY() == that.getY() &&
+                getZ() == that.getZ();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getX(), getY(), getZ());
     }
 }

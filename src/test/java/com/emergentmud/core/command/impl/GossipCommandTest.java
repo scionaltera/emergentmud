@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -63,7 +64,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
 
         List<Entity> worldContents = generateRoomContents();
 
-        when(entity.getId()).thenReturn("id");
+        when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
         when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(worldContents);
 

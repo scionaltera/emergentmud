@@ -67,7 +67,7 @@ public class ZoneServiceTest {
         when(zoneRepository.save(any(Zone.class))).thenAnswer(i -> {
             Zone zone = i.getArgumentAt(0, Zone.class);
 
-            zone.setId(UUID.randomUUID().toString());
+            zone.setId(UUID.randomUUID());
 
             return zone;
         });

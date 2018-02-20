@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,6 +25,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -37,7 +38,7 @@ public abstract class BaseCommunicationCommandTest {
 
         stu = mock(Entity.class);
 
-        when(stu.getId()).thenReturn("stuId");
+        when(stu.getId()).thenReturn(UUID.randomUUID());
         when(stu.getName()).thenReturn("Stu");
         when(stu.getStompSessionId()).thenReturn("stuSimpSessionId");
         when(stu.getStompUsername()).thenReturn("stuSimpUsername");

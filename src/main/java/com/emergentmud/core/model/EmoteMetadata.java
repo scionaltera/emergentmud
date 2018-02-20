@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,21 +20,21 @@
 
 package com.emergentmud.core.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
-@Document
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.UUID;
+
+@Entity
 public class EmoteMetadata {
     @Id
-    private String id;
-
-    @Indexed(unique = true)
+    @GeneratedValue
+    @Type(type = "pg-uuid")
+    private UUID id;
     private String name;
-
-    @Indexed
     private Integer priority;
-
     private String toSelfUntargeted;
     private String toRoomUntargeted;
     private String toSelfWithTarget;
@@ -52,11 +52,11 @@ public class EmoteMetadata {
         setPriority(priority);
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

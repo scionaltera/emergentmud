@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -78,7 +79,7 @@ public class EntityServiceTest {
         when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
         when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(stu);
-        when(entity.getId()).thenReturn("entityId");
+        when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getX()).thenReturn(0L);
         when(entity.getY()).thenReturn(0L);
         when(entity.getZ()).thenReturn(0L);
@@ -117,7 +118,7 @@ public class EntityServiceTest {
         Entity excludeMe = mock(Entity.class);
         List<Entity> exclude = Collections.singletonList(excludeMe);
 
-        when(excludeMe.getId()).thenReturn("excludeMe");
+        when(excludeMe.getId()).thenReturn(UUID.randomUUID());
         when(excludeMe.getStompSessionId()).thenReturn("excludeMeStompSessionId");
         when(excludeMe.getStompUsername()).thenReturn("excludeMeStompUsername");
 
@@ -230,7 +231,7 @@ public class EntityServiceTest {
 
             when(e.getStompUsername()).thenReturn("stompUsername" + i);
             when(e.getStompSessionId()).thenReturn("stompSessionId" + i);
-            when(e.getId()).thenReturn("entityId" + i);
+            when(e.getId()).thenReturn(UUID.randomUUID());
             when(e.getName()).thenReturn("Entity" + i);
 
             contents.add(e);

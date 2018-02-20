@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -28,16 +28,16 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.service.InputService;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class EmoteEditCommand extends BaseCommand {
-    static final Sort SORT = new Sort("priority", "name");
-
     private EmoteMetadataRepository emoteMetadataRepository;
     private InputService inputService;
 
@@ -74,7 +74,13 @@ public class EmoteEditCommand extends BaseCommand {
                         "Emotes"
                 );
 
-                emoteMetadataRepository.findAll(SORT)
+                List<EmoteMetadata> allEmoteMetadata = new ArrayList<>();
+
+                emoteMetadataRepository.findAll().forEach(allEmoteMetadata::add);
+
+                allEmoteMetadata
+                        .stream()
+                        .sorted(Comparator.comparing(EmoteMetadata::getPriority).thenComparing(EmoteMetadata::getName))
                         .forEach(emote -> tableFormatter.addRow(Arrays.asList(
                                 emote.getPriority().toString(),
                                 emote.getName())));

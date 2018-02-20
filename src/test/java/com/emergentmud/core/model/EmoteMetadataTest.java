@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,6 +22,8 @@ package com.emergentmud.core.model;
 
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class EmoteMetadataTest {
@@ -41,9 +43,11 @@ public class EmoteMetadataTest {
 
     @Test
     public void testId() throws Exception {
-        emoteMetadata.setId("id");
+        UUID uuid = UUID.randomUUID();
 
-        assertEquals("id", emoteMetadata.getId());
+        emoteMetadata.setId(uuid);
+
+        assertEquals(uuid, emoteMetadata.getId());
     }
 
     @Test

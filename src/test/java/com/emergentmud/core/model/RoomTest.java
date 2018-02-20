@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class RoomTest {
@@ -36,9 +38,11 @@ public class RoomTest {
 
     @Test
     public void testId() throws Exception {
-        room.setId("roomId");
+        UUID uuid = UUID.randomUUID();
 
-        assertEquals("roomId", room.getId());
+        room.setId(uuid);
+
+        assertEquals(uuid, room.getId());
     }
 
     @Test

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class WhittakerGridLocationTest {
@@ -42,11 +44,11 @@ public class WhittakerGridLocationTest {
 
     @Test
     public void testId() throws Exception {
-        String string = "string";
+        UUID uuid = UUID.randomUUID();
 
-        whittakerGridLocation.setId(string);
+        whittakerGridLocation.setId(uuid);
 
-        assertEquals(string, whittakerGridLocation.getId());
+        assertEquals(uuid, whittakerGridLocation.getId());
     }
 
     @Test

@@ -37,7 +37,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -50,14 +49,16 @@ import org.springframework.stereotype.Controller;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class WebSocketResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketResource.class);
-    private static final Sort SORT = new Sort("priority", "name");
 
     private String applicationVersion;
     private Long applicationBootDate;
@@ -99,7 +100,8 @@ public class WebSocketResource {
                                   @Header("simpSessionId") String simpSessionId) {
         Session session = getSessionFromPrincipal(principal);
         Map<String, String> sessionMap = session.getAttribute(breadcrumb);
-        Entity entity = entityRepository.findOne(sessionMap.get("entity"));
+        UUID entityId = UUID.fromString(sessionMap.get("entity"));
+        Entity entity = entityRepository.findOne(entityId);
 
         entity.setStompUsername(principal.getName());
         entity.setStompSessionId(simpSessionId);
@@ -142,7 +144,8 @@ public class WebSocketResource {
                               @Header("simpSessionId") String simpSessionId) {
         Session session = getSessionFromPrincipal(principal);
         Map<String, String> sessionMap = session.getAttribute(breadcrumb);
-        Entity entity = entityRepository.findOne(sessionMap.get("entity"));
+        UUID entityId = UUID.fromString(sessionMap.get("entity"));
+        Entity entity = entityRepository.findOne(entityId);
 
         GameOutput output = new GameOutput();
 
@@ -163,7 +166,10 @@ public class WebSocketResource {
             String[] args = new String[tokens.length - 1];
             System.arraycopy(tokens, 1, args, 0, tokens.length - 1);
             String raw = input.getInput().indexOf(' ') == -1 ? "" : input.getInput().substring(input.getInput().indexOf(' ') + 1);
-            List<CommandMetadata> commandMetadataList = commandMetadataRepository.findAll(SORT);
+            List<CommandMetadata> commandMetadataList = new ArrayList<>();
+
+            commandMetadataRepository.findAll().forEach(commandMetadataList::add);
+            commandMetadataList.sort(Comparator.comparing(CommandMetadata::getPriority).thenComparing(CommandMetadata::getName));
 
             Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
                     .stream()
@@ -177,7 +183,10 @@ public class WebSocketResource {
 
                 command.execute(output, entity, cmd, args, raw);
             } else if (entity.isCapable(capabilityRepository.findByName(CommandRole.EMOTE.name()))) {
-                List<EmoteMetadata> emoteMetadataList = emoteMetadataRepository.findAll(SORT);
+                List<EmoteMetadata> emoteMetadataList = new ArrayList<>();
+
+                emoteMetadataRepository.findAll().forEach(emoteMetadataList::add);
+                emoteMetadataList.sort(Comparator.comparing(EmoteMetadata::getName));
 
                 Optional<EmoteMetadata> optionalEmoteMetadata = emoteMetadataList
                         .stream()
@@ -206,6 +215,6 @@ public class WebSocketResource {
         OAuth2AuthenticationDetails oAuth2AuthenticationDetails = (OAuth2AuthenticationDetails)oauth2Authentication.getDetails();
         String sessionId = oAuth2AuthenticationDetails.getSessionId();
 
-        return sessionRepository.getSession(sessionId);
+        return sessionRepository.findById(sessionId);
     }
 }

@@ -61,6 +61,7 @@ import javax.servlet.http.HttpSession;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -243,7 +244,7 @@ public class MainResource {
 
     @RequestMapping(method=RequestMethod.GET, value="/play")
     public String getPlay(HttpSession session, Model model) {
-        String entityId = (String)session.getAttribute("entityId");
+        UUID entityId = (UUID) session.getAttribute("entityId");
 
         model.addAttribute("entityId", entityId);
         session.removeAttribute("entityId");
@@ -253,13 +254,12 @@ public class MainResource {
 
     @RequestMapping(method=RequestMethod.POST, value="/play")
     public String play(PlayRequest playRequest, HttpSession session, HttpServletRequest httpServletRequest, Principal principal, Model model) {
-        String entityId = playRequest.getEntityId();
-
-        if (StringUtils.isEmpty(entityId)) {
+        if (StringUtils.isEmpty(playRequest.getEntityId())) {
             LOGGER.info("No ID provided.");
             return "redirect:/";
         }
 
+        UUID entityId = UUID.fromString(playRequest.getEntityId());
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
@@ -316,8 +316,8 @@ public class MainResource {
         String breadcrumb = UUID.randomUUID().toString();
         Map<String, String> sessionMap = new HashMap<>();
 
-        sessionMap.put("account", account.getId());
-        sessionMap.put("entity", entity.getId());
+        sessionMap.put("account", account.getId().toString());
+        sessionMap.put("entity", entity.getId().toString());
 
         session.setAttribute(breadcrumb, sessionMap);
 
@@ -353,8 +353,11 @@ public class MainResource {
         }
 
         Map<String, Command> commandMap = new HashMap<>();
-        List<CommandMetadata> metadata = commandMetadataRepository.findAll()
-                .stream()
+        List<CommandMetadata> allMetadata = new ArrayList<>();
+
+        commandMetadataRepository.findAll().forEach(allMetadata::add);
+
+        List<CommandMetadata> metadata = allMetadata.stream()
                 .filter(m -> capabilities.contains(m.getCapability()) || capabilities.contains(superCapability))
                 .collect(Collectors.toList());
 
@@ -371,7 +374,10 @@ public class MainResource {
 
     @RequestMapping("/public/emotes")
     public String emotes(Model model, Principal principal, HttpSession httpSession) {
-        List<EmoteMetadata> metadata = emoteMetadataRepository.findAll();
+        List<EmoteMetadata> metadata = new ArrayList<>();
+
+        emoteMetadataRepository.findAll().forEach(metadata::add);
+
         Map<String, EmoteMetadata> emoteMap = new HashMap<>();
         Entity self;
         Entity target;

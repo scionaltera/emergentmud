@@ -51,8 +51,6 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
 
     private RoomRepository roomRepository;
     private Map<String, CellSelectionStrategy> cellSelectionStrategies;
-    private LinkedList<Cell> queue = new LinkedList<>();
-    private List<Cell> carvedRooms = new ArrayList<>();
 
     @Inject
     public GrowingTreeMazeStrategy(RoomRepository roomRepository, Map<String, CellSelectionStrategy> cellSelectionStrategies) {
@@ -63,6 +61,8 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
     @Override
     public Room fillZone(Zone zone, Long x, Long y, Long z) {
         long start = System.currentTimeMillis();
+        LinkedList<Cell> queue = new LinkedList<>();
+        List<Cell> carvedRooms = new ArrayList<>();
         CellSelectionStrategy selectionStrategy = cellSelectionStrategies.get(zone.getBiome().getCellSelectionStrategy());
         Cell current = new Cell(x, y, z);
 
@@ -74,7 +74,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
             current = selectionStrategy.selectCell(queue);
             LOGGER.debug("Selected cell from queue: {}", current);
 
-            Cell neighbor = selectValidNeighbor(current, zone);
+            Cell neighbor = selectValidNeighbor(current, zone, queue, carvedRooms);
 
             if (neighbor == null) {
                 carvedRooms.add(current);
@@ -107,7 +107,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         return roomRepository.findByXAndYAndZ(x, y, z);
     }
 
-    private Cell selectValidNeighbor(Cell current, Zone zone) {
+    private Cell selectValidNeighbor(Cell current, Zone zone, LinkedList<Cell> queue, List<Cell> carvedRooms) {
         Collections.shuffle(DIRECTIONS);
 
         for (Direction direction : DIRECTIONS) {
@@ -132,8 +132,13 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
                 continue;
             }
 
-            if (countNeighbors(target, zone) > 1) {
+            if (countNeighbors(target, zone, queue, carvedRooms) > 1) {
                 LOGGER.debug("Cannot select neighbor: it has another neighbor");
+                continue;
+            }
+
+            if (roomRepository.findByXAndYAndZ(target.getX(), target.getY(), target.getZ()) != null) {
+                LOGGER.debug("Cannot select neighbor: it already exists in another zone");
                 continue;
             }
 
@@ -145,7 +150,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         return null;
     }
 
-    private int countNeighbors(Cell query, Zone zone) {
+    private int countNeighbors(Cell query, Zone zone, LinkedList<Cell> queue, List<Cell> carvedRooms) {
         int neighbors = 0;
 
         for (Direction direction : Direction.DIRECTIONS) {

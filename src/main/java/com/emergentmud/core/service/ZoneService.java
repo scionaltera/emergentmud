@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -150,7 +151,10 @@ public class ZoneService {
                 zone.getBottomLeftY() - 1
         );
 
-        List<WhittakerGridLocation> allWhittakerGridLocations = whittakerGridLocationRepository.findAll();
+        List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
+
+        whittakerGridLocationRepository.findAll().forEach(allWhittakerGridLocations::add);
+
         List<WhittakerGridLocation> validWhittakerGridLocations = allWhittakerGridLocations.stream()
                 .filter(w -> neighbors.stream().allMatch(n -> Math.abs(n.getElevation() - w.getElevation()) == 1 || Math.abs(n.getMoisture() - w.getMoisture()) == 1))
                 .filter(w -> neighbors.stream().noneMatch(n -> Math.abs(n.getElevation() - w.getElevation()) > 1 || Math.abs(n.getMoisture() - w.getMoisture()) > 1))

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -23,6 +23,8 @@ package com.emergentmud.core.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class CommandMetadataTest {
@@ -35,9 +37,11 @@ public class CommandMetadataTest {
 
     @Test
     public void testId() throws Exception {
-        commandMetadata.setId("id");
+        UUID guid = UUID.randomUUID();
 
-        assertEquals("id", commandMetadata.getId());
+        commandMetadata.setId(guid);
+
+        assertEquals(guid, commandMetadata.getId());
     }
 
     @Test
@@ -63,7 +67,7 @@ public class CommandMetadataTest {
 
     @Test
     public void testEqualsOperator() throws Exception {
-        commandMetadata.setId("foo");
+        commandMetadata.setId(UUID.randomUUID());
 
         //noinspection EqualsWithItself
         assertTrue(commandMetadata.equals(commandMetadata));
@@ -81,9 +85,10 @@ public class CommandMetadataTest {
     public void testEquals() throws Exception {
         CommandMetadata o1 = new CommandMetadata();
         CommandMetadata o2 = new CommandMetadata();
+        UUID uuid = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("foo");
+        o1.setId(uuid);
+        o2.setId(uuid);
 
         assertTrue(o1.equals(o2));
     }
@@ -92,16 +97,18 @@ public class CommandMetadataTest {
     public void testNotEquals() throws Exception {
         CommandMetadata o1 = new CommandMetadata();
         CommandMetadata o2 = new CommandMetadata();
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("bar");
+        o1.setId(uuid1);
+        o2.setId(uuid2);
 
         assertFalse(o1.equals(o2));
     }
 
     @Test
     public void testHashCode() throws Exception {
-        String id = "foo";
+        UUID id = UUID.randomUUID();
 
         commandMetadata.setId(id);
 

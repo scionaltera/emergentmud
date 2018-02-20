@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 public class CapabilityTest {
@@ -39,7 +41,7 @@ public class CapabilityTest {
 
     @Test
     public void testId() throws Exception {
-        String id = "id";
+        UUID id = UUID.randomUUID();
 
         capability.setId(id);
 
@@ -82,15 +84,17 @@ public class CapabilityTest {
     @Test
     public void testEquals() throws Exception {
         Capability capabilityB = new Capability("B", "alternate", CapabilityObject.ENTITY, CapabilityScope.PLAYER);
+        UUID uuidA = UUID.randomUUID();
+        UUID uuidB = UUID.randomUUID();
 
-        capability.setId("capA");
-        capabilityB.setId("capB");
+        capability.setId(uuidA);
+        capabilityB.setId(uuidB);
 
         assertEquals(capability, capability);
         assertNotEquals(capability, this);
         assertNotEquals(capability, capabilityB);
 
-        capabilityB.setId("capA");
+        capabilityB.setId(uuidA);
 
         assertEquals(capability, capabilityB);
     }

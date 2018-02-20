@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -17,12 +17,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.emergentmud.core.config;
+package com.emergentmud.core.model;
 
-import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
+import org.junit.Before;
+import org.junit.Test;
 
-public class HttpSessionApplicationInitializer extends AbstractHttpSessionApplicationInitializer {
-    public HttpSessionApplicationInitializer() {
-        super(SessionConfiguration.class);
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class ZoneTest {
+    private Zone zone;
+
+    @Before
+    public void setUp() {
+        zone = new Zone();
+        zone.setBottomLeftX(0L);
+        zone.setBottomLeftY(0L);
+        zone.setTopRightX(10L);
+        zone.setTopRightY(10L);
+    }
+
+    @Test
+    public void testEncompasses() {
+        assertTrue(zone.encompasses(5L, 5L, 0L));
+        assertTrue(zone.encompasses(0L, 0L, 0L));
+        assertTrue(zone.encompasses(5L, 5L, 150L));
+        assertFalse(zone.encompasses(-5L, -5L, 0L));
+        assertFalse(zone.encompasses(15L, 15L, 0L));
     }
 }

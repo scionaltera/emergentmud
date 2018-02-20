@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +83,7 @@ public class CapabilityEditCommandTest {
         combinedCapabilities.addAll(accountCapabilities);
         combinedCapabilities.addAll(entityCapabilities);
 
-        when(capabilityRepository.findAll(any(Sort.class))).thenReturn(combinedCapabilities);
+        when(capabilityRepository.findAll()).thenReturn(combinedCapabilities);
         when(capabilityRepository.findByNameIgnoreCase(eq("accountcap"))).thenReturn(accountCapabilities.get(0));
         when(capabilityRepository.findByNameIgnoreCase(eq("entitycap"))).thenReturn(entityCapabilities.get(0));
         when(entityService.entitySearchGlobal(eq(entity), eq("ghan"))).thenReturn(Optional.empty());
@@ -132,7 +131,7 @@ public class CapabilityEditCommandTest {
     public void testList() throws Exception {
         GameOutput result = command.execute(gameOutput, entity, "capedit", new String[] {"list"}, "list");
 
-        verify(capabilityRepository).findAll(any(Sort.class));
+        verify(capabilityRepository).findAll();
         verify(result).append(contains("All Capabilities"));
         verify(result).append(contains("ENTITY"));
         verify(result).append(contains("ACCOUNT"));

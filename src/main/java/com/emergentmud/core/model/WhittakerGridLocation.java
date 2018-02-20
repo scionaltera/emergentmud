@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,27 +20,30 @@
 
 package com.emergentmud.core.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
-@Document
-@CompoundIndexes({
-        @CompoundIndex(name = "biome_meta_idx", def = "{'elevation': 1, 'moisture': 1}")
-})
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import java.util.UUID;
+
+@Entity
 public class WhittakerGridLocation {
-    public static final int MAX_ELEVATION = 4;
-
     @Id
-    private String id;
+    @GeneratedValue
+    @Type(type = "pg-uuid")
+    private UUID id;
 
-    @DBRef
+    @ManyToOne
     private Biome biome;
 
     private Integer elevation;
     private Integer moisture;
+
+    public WhittakerGridLocation() {
+        // this method intentionally left blank
+    }
 
     public WhittakerGridLocation(int elevation, int moisture, Biome biome) {
         this.elevation = elevation;
@@ -48,11 +51,11 @@ public class WhittakerGridLocation {
         this.biome = biome;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
