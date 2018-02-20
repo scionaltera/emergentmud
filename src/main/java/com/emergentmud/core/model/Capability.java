@@ -33,10 +33,7 @@ public class Capability {
     @GeneratedValue
     @Type(type = "pg-uuid")
     private UUID id;
-
-//    @Indexed(unique = true)
     private String name;
-
     private String description;
     private CapabilityObject object;
     private CapabilityScope scope;

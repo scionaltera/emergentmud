@@ -34,11 +34,7 @@ public class CommandMetadata {
     @GeneratedValue
     @Type(type = "pg-uuid")
     private UUID id;
-
-//    @Indexed(unique = true)
     private String name;
-
-//    @Indexed
     private Integer priority;
 
     @ManyToOne

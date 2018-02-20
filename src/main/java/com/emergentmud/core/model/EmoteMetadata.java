@@ -33,13 +33,8 @@ public class EmoteMetadata {
     @GeneratedValue
     @Type(type = "pg-uuid")
     private UUID id;
-
-//    @Indexed(unique = true)
     private String name;
-
-//    @Indexed
     private Integer priority;
-
     private String toSelfUntargeted;
     private String toRoomUntargeted;
     private String toSelfWithTarget;

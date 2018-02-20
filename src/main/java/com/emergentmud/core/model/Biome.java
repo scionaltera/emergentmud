@@ -34,12 +34,8 @@ public class Biome {
     @Type(type = "pg-uuid")
     private UUID id;
 
-//    @Indexed(unique = true)
     private String name;
-
-//    @Indexed(unique = true)
     private Integer color;
-
     private String cellSelectionStrategy;
 
     public Biome() {
