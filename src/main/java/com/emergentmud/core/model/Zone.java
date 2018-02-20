@@ -114,7 +114,6 @@ public class Zone {
 
     public boolean encompasses(long x, long y, long z) {
         return x >= getBottomLeftX() && x <= getTopRightX() && y >= getBottomLeftY() && y <= getTopRightY();
-
     }
 
     @Override
@@ -127,7 +126,6 @@ public class Zone {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getId());
     }
 }
