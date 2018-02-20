@@ -78,8 +78,8 @@ dependencies {
     }
 
     compile 'org.springframework.session:spring-session-jdbc:2.0.1.RELEASE'
-    compile 'org.springframework.session:spring-session-hazelcast:2.0.1.RELEASE'
-    compile 'org.springframework.session:spring-session-data-redis:2.0.1.RELEASE'
+    compile 'org.springframework.session:spring-session-hazelcast:2.0.1.RELEASE' // mysteriously required by spring-session
+    compile 'org.springframework.session:spring-session-data-redis:2.0.1.RELEASE' // mysteriously required by spring-session
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-all:1.10.19'
