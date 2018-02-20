@@ -244,7 +244,7 @@ public class MainResource {
 
     @RequestMapping(method=RequestMethod.GET, value="/play")
     public String getPlay(HttpSession session, Model model) {
-        UUID entityId = (UUID)session.getAttribute("entityId");
+        UUID entityId = (UUID) session.getAttribute("entityId");
 
         model.addAttribute("entityId", entityId);
         session.removeAttribute("entityId");
@@ -254,13 +254,12 @@ public class MainResource {
 
     @RequestMapping(method=RequestMethod.POST, value="/play")
     public String play(PlayRequest playRequest, HttpSession session, HttpServletRequest httpServletRequest, Principal principal, Model model) {
-        UUID entityId = UUID.fromString(playRequest.getEntityId());
-
-        if (StringUtils.isEmpty(entityId)) {
+        if (StringUtils.isEmpty(playRequest.getEntityId())) {
             LOGGER.info("No ID provided.");
             return "redirect:/";
         }
 
+        UUID entityId = UUID.fromString(playRequest.getEntityId());
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);

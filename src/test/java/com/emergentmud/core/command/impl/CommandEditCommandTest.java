@@ -78,12 +78,13 @@ public class CommandEditCommandTest {
             CommandMetadata mock = mock(CommandMetadata.class);
 
             when(mock.getName()).thenReturn("command" + i);
+            when(mock.getPriority()).thenReturn(i + 10);
             when(mock.getCapability()).thenReturn(capability);
 
             commands.add(mock);
         }
 
-        when(commandMetadataRepository.findAll(eq(CommandEditCommand.SORT))).thenReturn(commands);
+        when(commandMetadataRepository.findAll()).thenReturn(commands);
         when(commandMetadataRepository.findByName(eq("test"))).thenReturn(metadata);
         when(capabilityRepository.findByName(eq("CAP"))).thenReturn(capability);
 
@@ -116,11 +117,11 @@ public class CommandEditCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
-        verify(commandMetadataRepository).findAll(eq(CommandEditCommand.SORT));
+        verify(commandMetadataRepository).findAll();
 
         commands.forEach(command -> {
-                    verify(command).getPriority();
-                    verify(command).getName();
+                    verify(command, atLeastOnce()).getPriority();
+                    verify(command, atLeastOnce()).getName();
                 });
     }
 

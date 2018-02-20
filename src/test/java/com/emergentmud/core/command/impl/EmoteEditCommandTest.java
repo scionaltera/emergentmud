@@ -69,11 +69,16 @@ public class EmoteEditCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(emoteMetadataRepository.findAll(eq(EmoteEditCommand.SORT))).thenReturn(emotes);
+        when(emoteMetadataRepository.findAll()).thenReturn(emotes);
         when(emoteMetadataRepository.findByName(eq("nod"))).thenReturn(emote);
 
         for (int i = 0; i < 3; i++) {
-            emotes.add(mock(EmoteMetadata.class));
+            EmoteMetadata mock = mock(EmoteMetadata.class);
+
+            when(mock.getPriority()).thenReturn(i + 10);
+            when(mock.getName()).thenReturn("test" + i);
+
+            emotes.add(mock);
         }
 
         command = new EmoteEditCommand(emoteMetadataRepository, inputService);
@@ -105,11 +110,11 @@ public class EmoteEditCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
-        verify(emoteMetadataRepository).findAll(eq(EmoteEditCommand.SORT));
+        verify(emoteMetadataRepository).findAll();
 
         emotes.forEach(emote -> {
-                    verify(emote).getPriority();
-                    verify(emote).getName();
+                    verify(emote, atLeastOnce()).getPriority();
+                    verify(emote, atLeastOnce()).getName();
                 });
     }
 

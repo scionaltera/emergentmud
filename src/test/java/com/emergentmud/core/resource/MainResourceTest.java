@@ -72,7 +72,7 @@ public class MainResourceTest {
     private static final String NETWORK_NAME = "AlteraNet";
     private static final String NETWORK_ID = "alteranet";
     private static final String NETWORK_USER = "007";
-    private static final String ACCOUNT_ID = "1234567890";
+    private static final UUID ACCOUNT_ID = UUID.randomUUID();
 
     @Mock
     private ApplicationContext applicationContext;
@@ -158,6 +158,8 @@ public class MainResourceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        UUID entity0 = UUID.randomUUID();
+
         generateSocialNetworks();
         account = generateAccount();
         generateEntities();
@@ -168,20 +170,20 @@ public class MainResourceTest {
         when(principal.getName()).thenReturn(NETWORK_USER);
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> {
             Account account = (Account)invocation.getArguments()[0];
-            account.setId(UUID.randomUUID().toString());
+            account.setId(UUID.randomUUID());
             return account;
         });
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
-            entity.setId(UUID.randomUUID().toString());
+            entity.setId(UUID.randomUUID());
             return entity;
         });
         when(account.isCapable(eq(playCapability))).thenReturn(true);
         when(accountRepository.count()).thenReturn(100L);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(account);
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
-        when(entityRepository.findByAccountAndId(eq(account), eq("entity0"))).thenReturn(entity);
-        when(playRequest.getEntityId()).thenReturn("entity0");
+        when(entityRepository.findByAccountAndId(eq(account), eq(entity0))).thenReturn(entity);
+        when(playRequest.getEntityId()).thenReturn(entity0.toString());
         when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(adminCapability);
         when(capabilityRepository.findByName(eq(CommandRole.BASIC.name()))).thenReturn(normalCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
@@ -467,11 +469,13 @@ public class MainResourceTest {
 
     @Test
     public void testPlayGet() throws Exception {
-        when(httpSession.getAttribute(eq("entityId"))).thenReturn("entityId");
+        UUID entityId = UUID.randomUUID();
+
+        when(httpSession.getAttribute(eq("entityId"))).thenReturn(entityId);
 
         String view = mainResource.getPlay(httpSession, model);
 
-        verify(model).addAttribute(eq("entityId"), eq("entityId"));
+        verify(model).addAttribute(eq("entityId"), eq(entityId));
         verify(httpSession).removeAttribute(eq("entityId"));
 
         assertEquals("play-post", view);
@@ -499,8 +503,8 @@ public class MainResourceTest {
 
         Map<String, String> sessionMap = mapCaptor.getValue();
 
-        assertEquals(account.getId(), sessionMap.get("account"));
-        assertEquals(entity.getId(), sessionMap.get("entity"));
+        assertEquals(account.getId(), UUID.fromString(sessionMap.get("account")));
+        assertEquals(entity.getId(), UUID.fromString(sessionMap.get("entity")));
     }
 
     @Test
@@ -540,7 +544,7 @@ public class MainResourceTest {
 
     @Test
     public void testPlayNoEntity() throws Exception {
-        when(entityRepository.findByAccountAndId(any(Account.class), anyString())).thenReturn(null);
+        when(entityRepository.findByAccountAndId(any(Account.class), any(UUID.class))).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
@@ -600,7 +604,7 @@ public class MainResourceTest {
         when(httpSession.getAttribute(eq("social"))).thenReturn("alteraBook");
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
-        when(account.getId()).thenReturn("accountId");
+        when(account.getId()).thenReturn(UUID.randomUUID());
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
 
         String view = mainResource.commands(model, principal, httpSession);
@@ -622,7 +626,7 @@ public class MainResourceTest {
         when(httpSession.getAttribute(eq("social"))).thenReturn("alteraBook");
         when(principal.getName()).thenReturn("2928749020");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("alteraBook"), eq("2928749020"))).thenReturn(account);
-        when(account.getId()).thenReturn("accountId");
+        when(account.getId()).thenReturn(UUID.randomUUID());
         when(entities.get(2).isCapable(eq(adminCapability))).thenReturn(true);
         when(entities.get(2).getCapabilities()).thenReturn(Arrays.asList(normalCapability, adminCapability));
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
@@ -665,7 +669,7 @@ public class MainResourceTest {
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
-        when(account.getId()).thenReturn("accountId");
+        when(account.getId()).thenReturn(UUID.randomUUID());
         when(entityRepository.findByAccount(eq(account))).thenReturn(new ArrayList<>());
 
         String view = mainResource.emotes(model, principal, httpSession);
@@ -695,7 +699,7 @@ public class MainResourceTest {
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
-        when(account.getId()).thenReturn("accountId");
+        when(account.getId()).thenReturn(UUID.randomUUID());
         when(entityRepository.findByAccount(eq(account))).thenReturn(oneEntity);
 
         String view = mainResource.emotes(model, principal, httpSession);
@@ -726,7 +730,7 @@ public class MainResourceTest {
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq("social"), eq("principal"))).thenReturn(account);
-        when(account.getId()).thenReturn("accountId");
+        when(account.getId()).thenReturn(UUID.randomUUID());
         when(entityRepository.findByAccount(eq(account))).thenReturn(twoEntities);
 
         String view = mainResource.emotes(model, principal, httpSession);
@@ -777,7 +781,7 @@ public class MainResourceTest {
         for (int i = 0; i < 3; i++) {
             Entity entity = mock(Entity.class);
 
-            when(entity.getId()).thenReturn("entity" + i);
+            when(entity.getId()).thenReturn(UUID.randomUUID());
             when(entity.getName()).thenReturn("Entity" + ALPHABET.charAt(i));
             when(entity.getAccount()).thenReturn(account);
             when(entity.isCapable(eq(normalCapability))).thenReturn(true);

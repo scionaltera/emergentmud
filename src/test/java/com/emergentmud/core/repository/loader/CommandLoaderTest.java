@@ -60,7 +60,7 @@ public class CommandLoaderTest {
             // noinspection unchecked
             List<Capability> capabilityList = (List<Capability>)invocation.getArguments()[0];
 
-            capabilityList.forEach(c -> c.setId(UUID.randomUUID().toString()));
+            capabilityList.forEach(c -> c.setId(UUID.randomUUID()));
 
             return capabilityList;
         });
@@ -69,7 +69,7 @@ public class CommandLoaderTest {
             //noinspection unchecked
             List<CommandMetadata> metadataList = (List<CommandMetadata>)invocation.getArguments()[0];
 
-            metadataList.forEach(m -> m.setId(UUID.randomUUID().toString()));
+            metadataList.forEach(m -> m.setId(UUID.randomUUID()));
 
             return metadataList;
         });

@@ -28,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -52,7 +53,7 @@ public class AccountTest {
 
     @Test
     public void testId() throws Exception {
-        String id = "id";
+        UUID id = UUID.randomUUID();
 
         account.setId(id);
 
@@ -120,7 +121,7 @@ public class AccountTest {
 
     @Test
     public void testEqualsOperator() throws Exception {
-        account.setId("foo");
+        account.setId(UUID.randomUUID());
 
         //noinspection EqualsWithItself
         assertTrue(account.equals(account));
@@ -138,9 +139,10 @@ public class AccountTest {
     public void testEquals() throws Exception {
         Account o1 = new Account();
         Account o2 = new Account();
+        UUID guid = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("foo");
+        o1.setId(guid);
+        o2.setId(guid);
 
         assertTrue(o1.equals(o2));
     }
@@ -149,16 +151,18 @@ public class AccountTest {
     public void testNotEquals() throws Exception {
         Account o1 = new Account();
         Account o2 = new Account();
+        UUID guid1 = UUID.randomUUID();
+        UUID guid2 = UUID.randomUUID();
 
-        o1.setId("foo");
-        o2.setId("bar");
+        o1.setId(guid1);
+        o2.setId(guid2);
 
         assertFalse(o1.equals(o2));
     }
 
     @Test
     public void testHashCode() throws Exception {
-        String id = "foo";
+        UUID id = UUID.randomUUID();
 
         account.setId(id);
 

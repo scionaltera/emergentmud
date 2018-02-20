@@ -58,9 +58,9 @@ public class WebSocketResourceTest {
     private static final String APPLICATION_VERSION = "0.1.0-SNAPSHOT";
     private static final Long APPLICATION_BOOT_DATE = System.currentTimeMillis();
     private static final String PRINCIPAL_USER = "124567890";
-    private static final String ACCOUNT_ID = UUID.randomUUID().toString();
-    private static final String ESSENCE_ID = UUID.randomUUID().toString();
-    private static final String ENTITY_ID = UUID.randomUUID().toString();
+    private static final UUID ACCOUNT_ID = UUID.randomUUID();
+    private static final UUID ESSENCE_ID = UUID.randomUUID();
+    private static final UUID ENTITY_ID = UUID.randomUUID();
 
     @Mock
     private ApplicationContext applicationContext;
@@ -160,18 +160,18 @@ public class WebSocketResourceTest {
         when(observer.getName()).thenReturn("Observer");
         when(oauth2Details.getSessionId()).thenReturn(httpSessionId);
         when(httpSession.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
-        when(sessionRepository.getSession(eq(httpSessionId))).thenReturn(httpSession);
+        when(sessionRepository.findById(eq(httpSessionId))).thenReturn(httpSession);
         when(entityRepository.findOne(eq(ENTITY_ID))).thenReturn(entity);
         when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 
-            entity.setId(UUID.randomUUID().toString());
+            entity.setId(UUID.randomUUID());
 
             return entity;
         });
-        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commandList);
-        when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emoteList);
+        when(commandMetadataRepository.findAll()).thenReturn(commandList);
+        when(emoteMetadataRepository.findAll()).thenReturn(emoteList);
         when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(superCapability);
         when(capabilityRepository.findByName(eq(CommandRole.EMOTE.name()))).thenReturn(emoteCapability);
         when(applicationContext.getBean(anyString())).thenReturn(mockCommand);
@@ -244,7 +244,7 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext, never()).getBean(anyString());
-        verify(emoteMetadataRepository).findAll(any(Sort.class));
+        verify(emoteMetadataRepository).findAll();
         verify(emote).execute(eq(output), any(EmoteMetadata.class), eq(entity), eq(new String[0]));
     }
 
@@ -312,7 +312,7 @@ public class WebSocketResourceTest {
         UserInput input = mock(UserInput.class);
 
         when(input.getInput()).thenReturn("look");
-        when(entityRepository.findOne(anyString())).thenReturn(null);
+        when(entityRepository.findOne(any(UUID.class))).thenReturn(null);
 
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
@@ -338,9 +338,9 @@ public class WebSocketResourceTest {
     private Map<String, String> generateSessionMap() {
         Map<String, String> sessionMap = new HashMap<>();
 
-        sessionMap.put("account", ACCOUNT_ID);
-        sessionMap.put("essence", ESSENCE_ID);
-        sessionMap.put("entity", ENTITY_ID);
+        sessionMap.put("account", ACCOUNT_ID.toString());
+        sessionMap.put("essence", ESSENCE_ID.toString());
+        sessionMap.put("entity", ENTITY_ID.toString());
 
         return sessionMap;
     }
@@ -361,7 +361,7 @@ public class WebSocketResourceTest {
 
         EmoteMetadata wink = mock(EmoteMetadata.class);
 
-        when(wink.getId()).thenReturn(UUID.randomUUID().toString());
+        when(wink.getId()).thenReturn(UUID.randomUUID());
         when(wink.getName()).thenReturn("wink");
         when(wink.getPriority()).thenReturn(100);
         when(wink.getToSelfUntargeted()).thenReturn("You wink.");
@@ -374,7 +374,7 @@ public class WebSocketResourceTest {
 
         EmoteMetadata nod = mock(EmoteMetadata.class);
 
-        when(nod.getId()).thenReturn(UUID.randomUUID().toString());
+        when(nod.getId()).thenReturn(UUID.randomUUID());
         when(nod.getName()).thenReturn("nod");
         when(nod.getPriority()).thenReturn(100);
         when(nod.getToSelfUntargeted()).thenReturn("You nod.");
