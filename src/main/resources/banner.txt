@@ -1,0 +1,7 @@
+${Ansi.BRIGHT_BLACK}  ___                            _   __  __ _   _ ___
+${Ansi.WHITE} | __|_ __  ___ _ _ __ _ ___ _ _| |_|  \/  | | | |   \
+${Ansi.WHITE} | _|| '  \/ -_) '_/ _` / -_) ' \  _| |\/| | |_| | |) |
+${Ansi.BRIGHT_WHITE} |___|_|_|_\___|_| \__, \___|_||_\__|_|  |_|\___/|___/
+${Ansi.BRIGHT_WHITE}                   |___/
+
+${Ansi.GREEN}:: ${Ansi.BRIGHT_GREEN}Spring Boot ${Ansi.GREEN}::   ${Ansi.WHITE}${spring-boot.formatted-version}${Ansi.DEFAULT}
