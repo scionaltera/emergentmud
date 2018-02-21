@@ -26,8 +26,8 @@ RUN cd /opt/build \
 && apk add --no-cache bash \
 && ./gradlew clean build -x dependencyCheck
 
-FROM frolvlad/alpine-oraclejre8:slim as run
+FROM frolvlad/alpine-oraclejre8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
 EXPOSE 8080
 COPY --from=build /opt/build/build/libs/emergentmud-*.jar /opt/mud/app.jar
-CMD ["/usr/bin/java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005","-jar","/opt/mud/app.jar"]
+CMD ["/usr/bin/java", "-jar", "/opt/mud/app.jar"]

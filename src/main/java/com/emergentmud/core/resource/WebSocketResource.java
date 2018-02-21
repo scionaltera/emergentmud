@@ -142,12 +142,19 @@ public class WebSocketResource {
                               Principal principal,
                               @Header("breadcrumb") String breadcrumb,
                               @Header("simpSessionId") String simpSessionId) {
+
+        GameOutput output = new GameOutput();
         Session session = getSessionFromPrincipal(principal);
+
+        if (session == null) {
+            LOGGER.warn("Session could not be found for principal: {}", principal.getName());
+            output.append("[red]This session is no longer valid. Please refresh your browser.");
+            return output;
+        }
+
         Map<String, String> sessionMap = session.getAttribute(breadcrumb);
         UUID entityId = UUID.fromString(sessionMap.get("entity"));
         Entity entity = entityRepository.findOne(entityId);
-
-        GameOutput output = new GameOutput();
 
         if (entity == null) {
             LOGGER.error("Entity was null for user {}", principal.getName());
@@ -156,7 +163,8 @@ public class WebSocketResource {
         }
 
         if (!principal.getName().equals(entity.getStompUsername()) || !simpSessionId.equals(entity.getStompSessionId())) {
-            output.append("[red]This session is no longer valid.");
+            LOGGER.warn("Principal had stale session information: {}", principal.getName());
+            output.append("[red]This session is no longer valid. Please refresh your browser.");
             return output;
         }
 
