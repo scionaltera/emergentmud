@@ -22,11 +22,12 @@ spring:
   resources:
     chain:
       enabled: true
-  session:
-    store-type: jdbc
   jpa:
-#    show-sql: true
-    generate-ddl: true
+    generate-ddl: false
+
+logging:
+  level:
+    org.hibernate.SQL: INFO # set to DEBUG to see SQL statements in the log
 
 facebook:
   client:

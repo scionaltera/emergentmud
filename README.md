@@ -11,11 +11,11 @@ EmergentMUD is a free, open source, text based "Multi-User Domain" that you play
 Help an NPC gather resources to build his house and he'll build his house - not just continue asking everyone he sees for resources. Steal the gold from the King's vault and he won't be able to fund the war he's waging - having a direct effect on international politics. Burn down a village and maybe it will be rebuilt - but maybe it won't. Help someone in need and make an ally you can rely on later. Start a business and hire NPCs to work for you. Head out in a direction that isn't on the map yet and it will be created as you begin to walk through it - complete with new plants, animals, NPCs, religions, cultures and discoveries that the world has never seen before. Everything you do in this world has a real effect. You won't see any quest vendors and you won't experience the same "content" that everyone else has already devoured before you. You can forge your own path, create your own destiny, and leave your own mark upon the world in the process.
 
 # Current State
-The code has been in active development for about two years now, and still going strong although there is still a very long way to go. Please [drop in](https://emergentmud.com) and take a look around, and pardon the dust. Let me know what you think. New things are being added on a [regular basis](https://github.com/scionaltera/emergentmud/wiki/Product-Roadmap).
+The code has been in active development for about two years now and still going strong, although there is still a very long way to go. Please [drop in](https://emergentmud.com) and take a look around. New things are being added on a [regular basis](https://github.com/scionaltera/emergentmud/wiki/Product-Roadmap).
+
+I'm not looking for MUD staff at this time since the game isn't in what I'd call a "playable" state. There are often issues on GitHub labeled "good first issue" or "help wanted". Pull requests against those issues are always welcome as are new issues from visitors to suggest features, ask questions or provide feedback. I am hoping to start building a community around this project as it progresses, and ultimately to build the game I described in the paragraphs above. It's a game I think a lot of people would like to play; myself included.
 
 # Contact
-So far the dev team consists of just me, Scion. I am not looking for partners or MUD staff at this time but I welcome discussion about the future direction of EmergentMUD and I welcome pull requests and forks. I'd love to know if you have used any of my code for your own project. The best motivation for me to continue work on the project is to know that other people are interested and making use of it.
-
 The best way to contact me about this project is to open a [GitHub issue](https://github.com/scionaltera/emergentmud/issues). You could also just hop onto the [MUD](https://emergentmud.com) and see if I'm hanging around there.
 
 # License

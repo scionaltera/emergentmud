@@ -131,7 +131,7 @@ public class MainResource {
             account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
 
             if (accountRepository.count() == 0) {
-                LOGGER.info("Making {}:{} into an administrator", account.getSocialNetwork(), account.getSocialNetworkId());
+                LOGGER.warn("Making {}:{} into an administrator", account.getSocialNetwork(), account.getSocialNetworkId());
 
                 account.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ACCOUNT, CapabilityScope.ADMINISTRATOR));
             }
@@ -221,7 +221,7 @@ public class MainResource {
         }
 
         if (entityRepository.count() == 0) {
-            LOGGER.info("Making {} into an administrator", entity.getName());
+            LOGGER.warn("Making {} into an administrator", entity.getName());
 
             entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
         }
@@ -322,8 +322,6 @@ public class MainResource {
         session.setAttribute(breadcrumb, sessionMap);
 
         model.addAttribute("breadcrumb", breadcrumb);
-        model.addAttribute("account", account);
-        model.addAttribute("entity", entity);
 
         return "play";
     }

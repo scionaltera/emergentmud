@@ -64,6 +64,7 @@ dependencies {
     compile 'org.webjars:font-awesome:4.5.0'
 
     compile 'org.postgresql:postgresql:42.2.1'
+    compile 'org.flywaydb:flyway-core:5.0.7'
 
     compile 'org.springframework.boot:spring-boot-starter:1.5.9.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE'

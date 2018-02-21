@@ -490,8 +490,6 @@ public class MainResourceTest {
         verify(movementService).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
-        verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("entity"), eq(entity));
         verify(entity).setLastLoginDate(anyLong());
         verify(entity).setRemoteAddr(anyString());
         verify(entity).setUserAgent(anyString());
@@ -570,8 +568,6 @@ public class MainResourceTest {
         verify(movementService).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
-        verify(model).addAttribute(eq("account"), eq(account));
-        verify(model).addAttribute(eq("entity"), eq(entity));
         assertEquals("play", view);
 
         GameOutput output = outputCaptor.getValue();
