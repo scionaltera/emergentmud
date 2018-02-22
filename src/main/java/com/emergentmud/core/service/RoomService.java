@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class RoomService {
@@ -51,6 +52,10 @@ public class RoomService {
 
     public Room fetchRoom(Long x, Long y, Long z) {
         return roomRepository.findByXAndYAndZ(x, y, z);
+    }
+
+    public List<Room> fetchRooms(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo) {
+        return roomRepository.findByXBetweenAndYBetweenAndZBetween(xFrom, xTo, yFrom, yTo, zFrom, zTo);
     }
 
     public Room createRoom(Long x, Long y, Long z) {

@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -28,6 +29,9 @@ import com.emergentmud.core.service.RoomService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class MapCommand extends BaseCommand {
@@ -45,6 +49,16 @@ public class MapCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
+        List<Room> rooms = roomService.fetchRooms(
+                entity.getX() - MAP_EXTENT_X, entity.getX() + MAP_EXTENT_X,
+                entity.getY() - MAP_EXTENT_Y, entity.getY() + MAP_EXTENT_Y,
+                entity.getZ(), entity.getZ()
+        );
+
+        Map<Coordinate, Room> roomsByLocation = new HashMap<>();
+
+        rooms.forEach(room -> roomsByLocation.put(new Coordinate(room.getX(), room.getY(), room.getZ()), room));
+
         for (long y = entity.getY() + MAP_EXTENT_Y, i = 0; y >= entity.getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
 
@@ -52,7 +66,7 @@ public class MapCommand extends BaseCommand {
                 if (x == entity.getX() && y == entity.getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomService.fetchRoom(x, y, entity.getZ());
+                    Room room = roomsByLocation.get(new Coordinate(x, y, entity.getZ()));
 
                     if (room != null) {
                         if (room.getZone() != null) {
