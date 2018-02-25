@@ -48,6 +48,16 @@ CREATE TABLE emote_metadata (
   to_target              CHARACTER VARYING(255),
   PRIMARY KEY (id)
 );
+CREATE TABLE pronoun (
+  id                      UUID NOT NULL,
+  name                    CHARACTER VARYING(255),
+  subject                 CHARACTER VARYING(255),
+  object                  CHARACTER VARYING(255),
+  possessive              CHARACTER VARYING(255),
+  possessive_pronoun      CHARACTER VARYING(255),
+  reflexive               CHARACTER VARYING(255),
+  PRIMARY KEY (id)
+);
 CREATE TABLE entity (
   id               UUID NOT NULL,
   creation_date    BIGINT,
@@ -61,8 +71,10 @@ CREATE TABLE entity (
   y                BIGINT,
   z                BIGINT,
   account_id       UUID,
+  gender_id        UUID,
   PRIMARY KEY (id),
-  CONSTRAINT fk3uhpujqgis0u08wa5k3vmbis5 FOREIGN KEY (account_id) REFERENCES "account" ("id")
+  CONSTRAINT fk3uhpujqgis0u08wa5k3vmbis5 FOREIGN KEY (account_id) REFERENCES "account" ("id"),
+  CONSTRAINT fkqt5l8hg2e4r00w79nozinncxb FOREIGN KEY (gender_id) REFERENCES "pronoun" ("id")
 );
 CREATE TABLE entity_capabilities (
   entity_id       UUID NOT NULL,

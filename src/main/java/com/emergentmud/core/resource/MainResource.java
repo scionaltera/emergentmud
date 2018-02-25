@@ -31,6 +31,7 @@ import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Pronoun;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -38,6 +39,8 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.PronounRepository;
+import com.emergentmud.core.resource.model.EntityCreateRequest;
 import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
@@ -79,6 +82,7 @@ public class MainResource {
     private SecurityContextLogoutHandler securityContextLogoutHandler;
     private AccountRepository accountRepository;
     private EntityRepository entityRepository;
+    private PronounRepository pronounRepository;
     private CommandMetadataRepository commandMetadataRepository;
     private EmoteMetadataRepository emoteMetadataRepository;
     private CapabilityRepository capabilityRepository;
@@ -92,6 +96,7 @@ public class MainResource {
                         SecurityContextLogoutHandler securityContextLogoutHandler,
                         AccountRepository accountRepository,
                         EntityRepository entityRepository,
+                        PronounRepository pronounRepository,
                         CommandMetadataRepository commandMetadataRepository,
                         EmoteMetadataRepository emoteMetadataRepository,
                         CapabilityRepository capabilityRepository,
@@ -104,6 +109,7 @@ public class MainResource {
         this.securityContextLogoutHandler = securityContextLogoutHandler;
         this.accountRepository = accountRepository;
         this.entityRepository = entityRepository;
+        this.pronounRepository = pronounRepository;
         this.commandMetadataRepository = commandMetadataRepository;
         this.emoteMetadataRepository = emoteMetadataRepository;
         this.capabilityRepository = capabilityRepository;
@@ -169,7 +175,7 @@ public class MainResource {
     }
 
     @RequestMapping(method=RequestMethod.POST, value="/entity")
-    public String saveNewEntity(HttpSession session, Principal principal, Entity entity, Model model) {
+    public String saveNewEntity(HttpSession session, Principal principal, EntityCreateRequest entityRequest, Model model) {
         String network = (String)session.getAttribute("social");
         String networkId = principal.getName();
         Account account = accountRepository.findBySocialNetworkAndSocialNetworkId(network, networkId);
@@ -179,49 +185,68 @@ public class MainResource {
         }
 
         if (!account.isCapable(capabilityRepository.findByName(CommandRole.CHAR_NEW.name()))) {
-            model.addAttribute("entityName", entity.getName());
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "You are not allowed to create new characters at this time.");
             return "new-entity";
         }
 
-        if (entity.getName().length() < 3) {
-            model.addAttribute("entityName", entity.getName());
+        if (entityRequest.getName().length() < 3) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names must be at least 3 letters long.");
             return "new-entity";
         }
 
-        if (entity.getName().length() > 30) {
-            model.addAttribute("entityName", entity.getName());
+        if (entityRequest.getName().length() > 30) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names must be less than 30 letters long.");
             return "new-entity";
         }
 
-        if (!entity.getName().matches("^[A-Z].+$")) {
-            model.addAttribute("entityName", entity.getName());
+        if (!entityRequest.getName().matches("^[A-Z].+$")) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names must begin with a capital letter.");
             return "new-entity";
         }
 
-        if (!entity.getName().matches("^[A-Za-z'-]+$")) {
-            model.addAttribute("entityName", entity.getName());
+        if (!entityRequest.getName().matches("^[A-Za-z'-]+$")) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names may only contain letters, hyphens and apostrophes.");
             return "new-entity";
         }
 
-        if (entity.getName().matches("^[A-Za-z'-]\\w+['-]$")) {
-            model.addAttribute("entityName", entity.getName());
+        if (entityRequest.getName().matches("^[A-Za-z'-]\\w+['-]$")) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names may not end with a hyphen or apostrophe.");
             return "new-entity";
         }
 
-        if (entity.getName().matches("^\\w+['-].*['-]\\w+$")) {
-            model.addAttribute("entityName", entity.getName());
+        if (entityRequest.getName().matches("^\\w+['-].*['-]\\w+$")) {
+            model.addAttribute("entityName", entityRequest.getName());
             model.addAttribute("errorName", "Names may only contain one hyphen or apostrophe.");
             return "new-entity";
         }
 
+        if (entityRequest.getGender() == null) {
+            model.addAttribute("entityName", entityRequest.getName());
+            model.addAttribute("errorName", "Please select a gender.");
+            return "new-entity";
+        }
+
+        Pronoun pronoun = pronounRepository.findByName(entityRequest.getGender());
+
+        if (pronoun == null) {
+            model.addAttribute("entityName", entityRequest.getName());
+            model.addAttribute("errorName", "Please choose one of the provided gender options.");
+            return "new-entity";
+        }
+
+        Entity entity = new Entity();
+
+        entity.setName(entityRequest.getName());
+        entity.setGender(pronoun);
+
         if (entityRepository.count() == 0) {
-            LOGGER.warn("Making {} into an administrator", entity.getName());
+            LOGGER.warn("Making {} into an administrator", entityRequest.getName());
 
             entity.addCapabilities(capabilityRepository.findByObjectAndScope(CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
         }
@@ -231,7 +256,7 @@ public class MainResource {
         entity.setAccount(account);
         entity = entityRepository.save(entity);
 
-        LOGGER.info("Saved new Entity: {} -> {}", entity.getName(), entity.getId());
+        LOGGER.info("Saved new Entity: {} -> {}", entityRequest.getName(), entity.getId());
 
         if ("true".equals(session.getAttribute("firstLogin"))) {
             session.removeAttribute("firstLogin");
@@ -389,24 +414,30 @@ public class MainResource {
             if (entities.size() > 0) {
                 self = new Entity();
                 self.setName(entities.get(0).getName());
+                self.setGender(entities.get(0).getGender());
             } else {
                 self = new Entity();
                 self.setName("Alice");
+                self.setGender(pronounRepository.findByName("female"));
             }
 
             if (entities.size() > 1) {
                 target = new Entity();
                 target.setName(entities.get(1).getName());
+                target.setGender(entities.get(1).getGender());
             } else {
                 target = new Entity();
                 target.setName("Bob");
+                target.setGender(pronounRepository.findByName("male"));
             }
         } else {
             self = new Entity();
             self.setName("Alice");
+            self.setGender(pronounRepository.findByName("female"));
 
             target = new Entity();
             target.setName("Bob");
+            target.setGender(pronounRepository.findByName("male"));
         }
 
         metadata.forEach(m -> {
