@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -117,13 +117,13 @@ public class Emote {
             message = message.replace("%target%", (target == null ? "NULL" : target.getName()));
         }
 
-        message = message.replace("%him%", "him");
+        message = message.replace("%him%", self.getGender().getObject());
         message = message.replace("%selfpos%", self.getName() + "'s");
         message = message.replace("%targetpos%", (target == null ? "NULL" : target.getName()) + "'s");
-        message = message.replace("%his%", "his");
-        message = message.replace("%he%", "he");
-        message = message.replace("%himself%", "himself");
-        message = message.replace("%hispos%", "his");
+        message = message.replace("%his%", self.getGender().getPossessive());
+        message = message.replace("%he%", self.getGender().getSubject());
+        message = message.replace("%himself%", self.getGender().getReflexive());
+        message = message.replace("%hispos%", self.getGender().getPossessivePronoun());
 
         return StringUtils.capitalize(message);
     }

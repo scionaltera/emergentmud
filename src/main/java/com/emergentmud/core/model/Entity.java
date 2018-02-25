@@ -46,6 +46,9 @@ public class Entity implements Capable {
     @ManyToOne
     private Account account;
 
+    @ManyToOne
+    private Pronoun gender;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Capability> capabilities = new HashSet<>();
 
@@ -82,6 +85,14 @@ public class Entity implements Capable {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Pronoun getGender() {
+        return gender;
+    }
+
+    public void setGender(Pronoun gender) {
+        this.gender = gender;
     }
 
     public Long getX() {

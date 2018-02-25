@@ -31,6 +31,7 @@ import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Pronoun;
 import com.emergentmud.core.model.SocialNetwork;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -38,7 +39,9 @@ import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import com.emergentmud.core.repository.EmoteMetadataRepository;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.PronounRepository;
 import com.emergentmud.core.repository.RoomRepository;
+import com.emergentmud.core.resource.model.EntityCreateRequest;
 import com.emergentmud.core.service.MovementService;
 import com.emergentmud.core.resource.model.PlayRequest;
 import com.emergentmud.core.service.EntityService;
@@ -96,6 +99,9 @@ public class MainResourceTest {
     private CapabilityRepository capabilityRepository;
 
     @Mock
+    private PronounRepository pronounRepository;
+
+    @Mock
     private RoomRepository roomRepository;
 
     @Mock
@@ -136,6 +142,15 @@ public class MainResourceTest {
 
     @Mock
     private PlayRequest playRequest;
+
+    @Mock
+    private EntityCreateRequest entityCreateRequest;
+
+    @Mock
+    private Pronoun malePronoun;
+
+    @Mock
+    private Pronoun femalePronoun;
 
     @Captor
     private ArgumentCaptor<Map<String, String>> mapCaptor;
@@ -181,9 +196,12 @@ public class MainResourceTest {
         when(account.isCapable(eq(playCapability))).thenReturn(true);
         when(accountRepository.count()).thenReturn(100L);
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(account);
+        when(pronounRepository.findByName(eq("male"))).thenReturn(malePronoun);
         when(entityRepository.findByAccount(eq(account))).thenReturn(entities);
         when(entityRepository.findByAccountAndId(eq(account), eq(entity0))).thenReturn(entity);
         when(playRequest.getEntityId()).thenReturn(entity0.toString());
+        when(entityCreateRequest.getName()).thenReturn("Abraham");
+        when(entityCreateRequest.getGender()).thenReturn("male");
         when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(adminCapability);
         when(capabilityRepository.findByName(eq(CommandRole.BASIC.name()))).thenReturn(normalCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
@@ -200,6 +218,7 @@ public class MainResourceTest {
                 securityContextLogoutHandler,
                 accountRepository,
                 entityRepository,
+                pronounRepository,
                 commandMetadataRepository,
                 emoteMetadataRepository,
                 capabilityRepository,
@@ -295,11 +314,15 @@ public class MainResourceTest {
     public void testSaveFirstNewEntity() throws Exception {
         when(entityRepository.count()).thenReturn(0L);
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity).setAccount(eq(account));
-        verify(entity).setCreationDate(anyLong());
-        verify(entity, times(2)).addCapabilities(anyListOf(Capability.class));
+        verify(entityRepository).save(entityCaptor.capture());
+
+        Entity savedEntity = entityCaptor.getValue();
+
+        assertEquals(account, savedEntity.getAccount());
+        assertNotNull(savedEntity.getCreationDate());
+        assertTrue(savedEntity.getCapabilities().size() == 2);
 
         assertEquals("redirect:/", view);
     }
@@ -308,11 +331,15 @@ public class MainResourceTest {
     public void testSaveNewEntity() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity).setAccount(eq(account));
-        verify(entity).setCreationDate(anyLong());
-        verify(entity).addCapabilities(anyListOf(Capability.class));
+        verify(entityRepository).save(entityCaptor.capture());
+
+        Entity savedEntity = entityCaptor.getValue();
+
+        assertEquals(account, savedEntity.getAccount());
+        assertNotNull(savedEntity.getCreationDate());
+        assertTrue(savedEntity.getCapabilities().size() == 1);
 
         assertEquals("redirect:/", view);
     }
@@ -322,10 +349,10 @@ public class MainResourceTest {
         when(entityRepository.count()).thenReturn(100L);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(null);
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(eq(account));
-        verify(model).addAttribute(eq("entityName"), eq("EntityA"));
+        verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("entityName"), eq("Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
     }
@@ -333,11 +360,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameTooShort() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("A");
+        when(entityCreateRequest.getName()).thenReturn("A");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("A"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -346,11 +373,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameTooLong() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Supercalifragilisticexpealadocious");
+        when(entityCreateRequest.getName()).thenReturn("Supercalifragilisticexpealadocious");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Supercalifragilisticexpealadocious"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -359,11 +386,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameNotCapitalized() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("abraham");
+        when(entityCreateRequest.getName()).thenReturn("abraham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -372,11 +399,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameInvalidCharacters() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Abra!ham");
+        when(entityCreateRequest.getName()).thenReturn("Abra!ham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Abra!ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -385,11 +412,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameStartsWithHyphen() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("-Abraham");
+        when(entityCreateRequest.getName()).thenReturn("-Abraham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("-Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -398,11 +425,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameStartsWithApostrophe() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("'Abraham");
+        when(entityCreateRequest.getName()).thenReturn("'Abraham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("'Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -411,11 +438,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameEndsWithHyphen() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Abraham-");
+        when(entityCreateRequest.getName()).thenReturn("Abraham-");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Abraham-"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -424,11 +451,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameEndsWithApostrophe() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Abraham'");
+        when(entityCreateRequest.getName()).thenReturn("Abraham'");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Abraham'"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -437,11 +464,11 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameMultipleSymbols1() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Abra--ham");
+        when(entityCreateRequest.getName()).thenReturn("Abra--ham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Abra--ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -450,12 +477,25 @@ public class MainResourceTest {
     @Test
     public void testSaveNewEntityNameMultipleSymbols2() throws Exception {
         when(entityRepository.count()).thenReturn(100L);
-        when(entity.getName()).thenReturn("Ab-ra-ham");
+        when(entityCreateRequest.getName()).thenReturn("Ab-ra-ham");
 
-        String view = mainResource.saveNewEntity(httpSession, principal, entity, model);
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
-        verify(entity, never()).setAccount(any(Account.class));
+        verify(entityRepository, never()).save(entityCaptor.capture());
         verify(model).addAttribute(eq("entityName"), eq("Ab-ra-ham"));
+        verify(model).addAttribute(eq("errorName"), anyString());
+        assertEquals("new-entity", view);
+    }
+
+    @Test
+    public void testUnknownGender() throws Exception {
+        when(entityRepository.count()).thenReturn(100L);
+        when(entityCreateRequest.getGender()).thenReturn("martian");
+
+        String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
+
+        verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("entityName"), eq("Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
     }
@@ -464,7 +504,7 @@ public class MainResourceTest {
     public void testSaveNewEssenceMissingAccount() throws Exception {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
-        mainResource.saveNewEntity(httpSession, principal, entity, model);
+        mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
     }
 
     @Test

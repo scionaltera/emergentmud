@@ -22,6 +22,7 @@ package com.emergentmud.core.command;
 
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Pronoun;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
@@ -60,6 +61,9 @@ public class EmoteTest {
     @Mock
     private Entity observer;
 
+    @Mock
+    private Pronoun malePronoun;
+
     @Captor
     private ArgumentCaptor<GameOutput> outputCaptor;
 
@@ -68,6 +72,12 @@ public class EmoteTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(malePronoun.getSubject()).thenReturn("he");
+        when(malePronoun.getObject()).thenReturn("him");
+        when(malePronoun.getPossessive()).thenReturn("his");
+        when(malePronoun.getPossessivePronoun()).thenReturn("his");
+        when(malePronoun.getReflexive()).thenReturn("himself");
 
         when(metadata.getToSelfUntargeted()).thenReturn("You grin.");
         when(metadata.getToRoomUntargeted()).thenReturn("%self% grins.");
@@ -78,16 +88,19 @@ public class EmoteTest {
         when(metadata.getToRoomTargetingSelf()).thenReturn("%self% grins to %himself%.");
 
         when(entity.getName()).thenReturn("Scion");
+        when(entity.getGender()).thenReturn(malePronoun);
         when(entity.getX()).thenReturn(0L);
         when(entity.getY()).thenReturn(0L);
         when(entity.getZ()).thenReturn(0L);
 
         when(target.getName()).thenReturn("Bnarg");
+        when(target.getGender()).thenReturn(malePronoun);
         when(target.getX()).thenReturn(0L);
         when(target.getY()).thenReturn(0L);
         when(target.getZ()).thenReturn(0L);
 
         when(observer.getName()).thenReturn("Ghan");
+        when(observer.getGender()).thenReturn(malePronoun);
         when(observer.getX()).thenReturn(0L);
         when(observer.getY()).thenReturn(0L);
         when(observer.getZ()).thenReturn(0L);
