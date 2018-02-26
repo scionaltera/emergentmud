@@ -49,9 +49,6 @@ public class CommandLoaderTest {
     @Captor
     private ArgumentCaptor<List<CommandMetadata>> metadataCaptor;
 
-    @Captor
-    private ArgumentCaptor<List<Capability>> capabilityCaptor;
-
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -75,34 +72,6 @@ public class CommandLoaderTest {
         });
 
         commandLoader = new CommandLoader(commandMetadataRepository, capabilityRepository);
-    }
-
-    @Test
-    public void testLoadCapabilitiesEmpty() throws Exception {
-        when(capabilityRepository.count()).thenReturn(0L);
-
-        commandLoader.loadCommands();
-
-        verify(capabilityRepository).save(capabilityCaptor.capture());
-
-        List<Capability> capabilityList = capabilityCaptor.getValue();
-
-        capabilityList.forEach(c -> {
-            assertNotNull(c.getId());
-            assertNotNull(c.getName());
-            assertNotNull(c.getDescription());
-            assertNotNull(c.getObject());
-            assertNotNull(c.getScope());
-        });
-    }
-
-    @Test
-    public void testLoadCapabilitiesNotEmpty() throws Exception {
-        when(capabilityRepository.count()).thenReturn(30L);
-
-        commandLoader.loadCommands();
-
-        verify(capabilityRepository, never()).save(anyCollectionOf(Capability.class));
     }
 
     @Test

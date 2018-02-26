@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,9 +20,6 @@
 
 package com.emergentmud.core.repository.loader;
 
-import com.emergentmud.core.model.Capability;
-import com.emergentmud.core.model.CapabilityObject;
-import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.repository.CapabilityRepository;
@@ -52,31 +49,6 @@ public class CommandLoader {
 
     @PostConstruct
     public void loadCommands() {
-        if (capabilityRepository.count() == 0) {
-            LOGGER.warn("No capabilities found! Loading default capabilities...");
-
-            List<Capability> capabilityList = new ArrayList<>();
-
-            capabilityList.add(new Capability(CommandRole.SUPER.name(), "use every command", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.TELEPORT.name(), "use teleport commands", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.CMDEDIT.name(), "use command editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.EMOTEEDIT.name(), "use emote editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.CAPEDIT.name(), "use capability editor", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.DATA.name(), "use data commands", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-            capabilityList.add(new Capability(CommandRole.LOG.name(), "see log messages", CapabilityObject.ENTITY, CapabilityScope.ADMINISTRATOR));
-
-            capabilityList.add(new Capability(CommandRole.CHAR_NEW.name(), "create characters", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
-            capabilityList.add(new Capability(CommandRole.CHAR_PLAY.name(), "play the game", CapabilityObject.ACCOUNT, CapabilityScope.PLAYER));
-
-            capabilityList.add(new Capability(CommandRole.BASIC.name(), "use basic commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
-            capabilityList.add(new Capability(CommandRole.MOVE.name(), "use movement commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
-            capabilityList.add(new Capability(CommandRole.SEE.name(), "use sight commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
-            capabilityList.add(new Capability(CommandRole.EMOTE.name(), "use emotes", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
-            capabilityList.add(new Capability(CommandRole.TALK.name(), "use speech commands", CapabilityObject.ENTITY, CapabilityScope.PLAYER));
-
-            capabilityRepository.save(capabilityList);
-        }
-
         if (commandMetadataRepository.count() == 0) {
             LOGGER.warn("No commands found! Loading default commands...");
 

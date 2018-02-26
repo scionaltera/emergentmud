@@ -7,7 +7,7 @@ CREATE TABLE account (
 CREATE TABLE capability (
   id          UUID NOT NULL,
   description CHARACTER VARYING(255),
-  name        CHARACTER VARYING(255),
+  name        CHARACTER VARYING(255) UNIQUE,
   object      INTEGER,
   scope       INTEGER,
   PRIMARY KEY (id)
@@ -23,7 +23,7 @@ CREATE TABLE biome (
   id                      UUID NOT NULL,
   cell_selection_strategy CHARACTER VARYING(255),
   color                   INTEGER,
-  name                    CHARACTER VARYING(255),
+  name                    CHARACTER VARYING(255) UNIQUE,
   PRIMARY KEY (id)
 );
 CREATE TABLE command_metadata (
@@ -37,7 +37,7 @@ CREATE TABLE command_metadata (
 );
 CREATE TABLE emote_metadata (
   id                     UUID NOT NULL,
-  name                   CHARACTER VARYING(255),
+  name                   CHARACTER VARYING(255) UNIQUE,
   priority               INTEGER,
   to_room_targeting_self CHARACTER VARYING(255),
   to_room_untargeted     CHARACTER VARYING(255),
@@ -50,7 +50,7 @@ CREATE TABLE emote_metadata (
 );
 CREATE TABLE pronoun (
   id                      UUID NOT NULL,
-  name                    CHARACTER VARYING(255),
+  name                    CHARACTER VARYING(255) UNIQUE,
   subject                 CHARACTER VARYING(255),
   object                  CHARACTER VARYING(255),
   possessive              CHARACTER VARYING(255),

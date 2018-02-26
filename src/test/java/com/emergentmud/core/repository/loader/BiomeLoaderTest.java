@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,20 +20,15 @@
 
 package com.emergentmud.core.repository.loader;
 
-import com.emergentmud.core.model.Biome;
+import com.emergentmud.core.model.WhittakerGridLocation;
 import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class BiomeLoaderTest {
@@ -45,9 +40,6 @@ public class BiomeLoaderTest {
 
     @Mock
     private WhittakerGridLocationRepository whittakerGridLocationRepository;
-
-    @Captor
-    private ArgumentCaptor<List<Biome>> biomeCaptor;
 
     private BiomeLoader biomeLoader;
 
@@ -65,15 +57,8 @@ public class BiomeLoaderTest {
 
         biomeLoader.onConstruct();
 
-        verify(biomeRepository).count();
-        verify(biomeRepository).save(biomeCaptor.capture());
-
-        List<Biome> biomes = biomeCaptor.getValue();
-
-        biomes.forEach(biome -> {
-            assertNotNull(biome.getName());
-            assertNotNull(biome.getColor());
-        });
+        verify(whittakerGridLocationRepository).count();
+        verify(whittakerGridLocationRepository).save(anyListOf(WhittakerGridLocation.class));
     }
 
     @Test
@@ -82,9 +67,6 @@ public class BiomeLoaderTest {
         when(whittakerGridLocationRepository.count()).thenReturn(1000L);
 
         biomeLoader.onConstruct();
-
-        verify(biomeRepository).count();
-        verifyNoMoreInteractions(biomeRepository);
 
         verify(whittakerGridLocationRepository).count();
         verifyNoMoreInteractions(whittakerGridLocationRepository);

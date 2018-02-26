@@ -21,7 +21,6 @@
 package com.emergentmud.core.repository.loader;
 
 import com.emergentmud.core.model.WhittakerGridLocation;
-import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.repository.BiomeRepository;
 import com.emergentmud.core.repository.WhittakerGridLocationRepository;
 import org.slf4j.Logger;
@@ -49,28 +48,6 @@ public class BiomeLoader {
 
     @PostConstruct
     public void onConstruct() {
-        if (biomeRepository.count() == 0) {
-            LOGGER.warn("No biomes found! Loading default biomes...");
-
-            List<Biome> biomes = new ArrayList<>();
-
-            biomes.add(new Biome("Snow", 0xffffff, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Tundra", 0xbbbbaa, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Bare", 0x888888, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Scorched", 0x555555, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Taiga", 0x99aa77, "middleCellSelectionStrategy"));
-            biomes.add(new Biome("Shrubland", 0x889977, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Temperate Desert", 0xc9d29b, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Temperate Rain Forest", 0x448855, "halfNewestHalfRandomCellSelectionStrategy"));
-            biomes.add(new Biome("Temperate Deciduous Forest", 0x679459, "halfNewestHalfRandomCellSelectionStrategy"));
-            biomes.add(new Biome("Grassland", 0x88aa55, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Subtropical Desert", 0xd2b98b, "randomCellSelectionStrategy"));
-            biomes.add(new Biome("Tropical Rain Forest", 0x337755, "newestCellSelectionStrategy"));
-            biomes.add(new Biome("Tropical Seasonal Forest", 0x559944, "newestCellSelectionStrategy"));
-
-            biomeRepository.save(biomes);
-        }
-
         if (whittakerGridLocationRepository.count() == 0) {
             LOGGER.warn("No Whittaker grid data found! Loading default grid...");
 
