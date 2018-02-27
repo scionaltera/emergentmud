@@ -29,7 +29,7 @@ CREATE TABLE biome (
 CREATE TABLE command_metadata (
   id            UUID NOT NULL,
   bean_name     CHARACTER VARYING(255),
-  name          CHARACTER VARYING(255),
+  name          CHARACTER VARYING(255) UNIQUE,
   priority      INTEGER,
   capability_id UUID,
   PRIMARY KEY (id),
@@ -110,5 +110,6 @@ CREATE TABLE whittaker_grid_location (
   moisture  INTEGER,
   biome_id  UUID,
   PRIMARY KEY (id),
+  UNIQUE (elevation, moisture),
   CONSTRAINT fks49vo599b6sj4gl21o6jewpqy FOREIGN KEY (biome_id) REFERENCES "biome" ("id")
 );
