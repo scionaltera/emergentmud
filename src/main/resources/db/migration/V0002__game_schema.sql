@@ -7,7 +7,7 @@ CREATE TABLE account (
 CREATE TABLE capability (
   id          UUID NOT NULL,
   description CHARACTER VARYING(255),
-  name        CHARACTER VARYING(255),
+  name        CHARACTER VARYING(255) UNIQUE,
   object      INTEGER,
   scope       INTEGER,
   PRIMARY KEY (id)
@@ -23,13 +23,13 @@ CREATE TABLE biome (
   id                      UUID NOT NULL,
   cell_selection_strategy CHARACTER VARYING(255),
   color                   INTEGER,
-  name                    CHARACTER VARYING(255),
+  name                    CHARACTER VARYING(255) UNIQUE,
   PRIMARY KEY (id)
 );
 CREATE TABLE command_metadata (
   id            UUID NOT NULL,
   bean_name     CHARACTER VARYING(255),
-  name          CHARACTER VARYING(255),
+  name          CHARACTER VARYING(255) UNIQUE,
   priority      INTEGER,
   capability_id UUID,
   PRIMARY KEY (id),
@@ -37,7 +37,7 @@ CREATE TABLE command_metadata (
 );
 CREATE TABLE emote_metadata (
   id                     UUID NOT NULL,
-  name                   CHARACTER VARYING(255),
+  name                   CHARACTER VARYING(255) UNIQUE,
   priority               INTEGER,
   to_room_targeting_self CHARACTER VARYING(255),
   to_room_untargeted     CHARACTER VARYING(255),
@@ -50,7 +50,7 @@ CREATE TABLE emote_metadata (
 );
 CREATE TABLE pronoun (
   id                      UUID NOT NULL,
-  name                    CHARACTER VARYING(255),
+  name                    CHARACTER VARYING(255) UNIQUE,
   subject                 CHARACTER VARYING(255),
   object                  CHARACTER VARYING(255),
   possessive              CHARACTER VARYING(255),
@@ -110,5 +110,6 @@ CREATE TABLE whittaker_grid_location (
   moisture  INTEGER,
   biome_id  UUID,
   PRIMARY KEY (id),
+  UNIQUE (elevation, moisture),
   CONSTRAINT fks49vo599b6sj4gl21o6jewpqy FOREIGN KEY (biome_id) REFERENCES "biome" ("id")
 );
