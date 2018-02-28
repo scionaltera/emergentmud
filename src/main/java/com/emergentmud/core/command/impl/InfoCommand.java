@@ -83,6 +83,7 @@ public class InfoCommand extends BaseCommand {
                 COLOR);
 
         tableFormatter.addRow(Arrays.asList("Name", target.getName()));
+        tableFormatter.addRow(Arrays.asList("Gender", target.getGender().toString()));
         tableFormatter.addRow(Arrays.asList("Location", location));
         tableFormatter.addRow(Arrays.asList("Entity Capabilities", target.getCapabilities().toString()));
 

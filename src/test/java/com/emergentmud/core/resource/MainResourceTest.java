@@ -246,6 +246,7 @@ public class MainResourceTest {
         String view = mainResource.index(httpSession, principal, model);
 
         verify(model).addAttribute(eq("networks"), eq(socialNetworks));
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(accountRepository).save(accountCaptor.capture());
         verify(model, never()).addAttribute(eq("account"), any(Account.class));
         verify(model, never()).addAttribute(eq("entities"), eq(entities));
@@ -300,12 +301,15 @@ public class MainResourceTest {
         String view = mainResource.social(NETWORK_ID, httpSession);
 
         verify(httpSession).setAttribute(eq("social"), eq(NETWORK_ID));
+
         assertEquals("redirect:/login/" + NETWORK_ID, view);
     }
 
     @Test
     public void testNewEntity() throws Exception {
-        String view = mainResource.newEntity();
+        String view = mainResource.newEntity(model);
+
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
 
         assertEquals("new-entity", view);
     }
@@ -352,6 +356,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -365,6 +370,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("A"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -378,6 +384,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Supercalifragilisticexpealadocious"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -391,6 +398,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -417,6 +425,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("-Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -430,6 +439,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("'Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -443,6 +453,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Abraham-"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -456,6 +467,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Abraham'"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -469,6 +481,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Abra--ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -482,6 +495,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Ab-ra-ham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);
@@ -495,6 +509,7 @@ public class MainResourceTest {
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
 
         verify(entityRepository, never()).save(entityCaptor.capture());
+        verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
         verify(model).addAttribute(eq("entityName"), eq("Abraham"));
         verify(model).addAttribute(eq("errorName"), anyString());
         assertEquals("new-entity", view);

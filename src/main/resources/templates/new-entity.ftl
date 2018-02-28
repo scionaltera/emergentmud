@@ -42,15 +42,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-md-push-4">
-                    <label class="radio-inline">
-                        <input type="radio" name="gender" id="gender1" value="male"> He/Him
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="gender" id="gender2" value="female"> She/Her
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="gender" id="gender3" value="neutral"> They/Them
-                    </label>
+                    <#list genders as gender>
+                        <label class="radio-inline">
+                            <input type="radio" name="gender" id="gender${gender?counter}" value="${gender.name}"> ${gender}
+                        </label>
+                    </#list>
                 </div>
             </div>
             <#if errorName??>

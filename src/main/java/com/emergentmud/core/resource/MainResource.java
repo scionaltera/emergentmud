@@ -152,7 +152,9 @@ public class MainResource {
         List<Entity> entities = entityRepository.findByAccount(account);
 
         if (entities.isEmpty()) {
+            model.addAttribute("genders", pronounRepository.findAll());
             httpSession.setAttribute("firstLogin", "true");
+            
             return "new-entity";
         }
 
@@ -170,7 +172,9 @@ public class MainResource {
     }
 
     @RequestMapping("/entity")
-    public String newEntity() {
+    public String newEntity(Model model) {
+        model.addAttribute("genders", pronounRepository.findAll());
+
         return "new-entity";
     }
 
@@ -183,6 +187,8 @@ public class MainResource {
         if (account == null) {
             throw new NoAccountException(network, networkId);
         }
+
+        model.addAttribute("genders", pronounRepository.findAll());
 
         if (!account.isCapable(capabilityRepository.findByName(CommandRole.CHAR_NEW.name()))) {
             model.addAttribute("entityName", entityRequest.getName());
