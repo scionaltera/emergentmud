@@ -24,7 +24,7 @@ RUN cd /opt/build \
 && apk update \
 && apk upgrade \
 && apk add --no-cache bash \
-&& ./gradlew clean build -x check
+&& ./gradlew clean build -x dependencyCheck
 
 FROM frolvlad/alpine-oraclejre8:slim
 MAINTAINER Peter Keeler <scion@emergentmud.com>
