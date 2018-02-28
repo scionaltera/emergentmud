@@ -27,7 +27,7 @@ services:
       POSTGRES_PASSWORD: emergentmud
       POSTGRES_DB: emergentmud
   emergentmud:
-    image: com.emergentmud/emergentmud:latest
+    image: scionaltera/emergentmud:latest
     ports:
      - "8080:8080"
      - "5005:5005"
