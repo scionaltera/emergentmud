@@ -23,6 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoSuchRoomException;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -74,9 +75,7 @@ public class MoveCommand extends BaseCommand {
         location[1] += direction.getY();
         location[2] += direction.getZ();
 
-        GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
-
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
+        Coordinate original = new Coordinate(entity.getX(), entity.getY(), entity.getZ());
 
         try {
             entity = movementService.put(entity, location[0], location[1], location[2]);
@@ -85,6 +84,10 @@ public class MoveCommand extends BaseCommand {
 
             return output;
         }
+
+        GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
+
+        entityService.sendMessageToRoom(original.getX(), original.getY(), original.getZ(), entity, exitMessage);
 
         LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
 
