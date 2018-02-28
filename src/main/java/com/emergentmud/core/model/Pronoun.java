@@ -21,6 +21,7 @@
 package com.emergentmud.core.model;
 
 import org.hibernate.annotations.Type;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -108,5 +109,10 @@ public class Pronoun {
 
     public void setReflexive(String reflexive) {
         this.reflexive = reflexive;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtils.capitalize(getSubject()) + "/" + StringUtils.capitalize(getObject());
     }
 }

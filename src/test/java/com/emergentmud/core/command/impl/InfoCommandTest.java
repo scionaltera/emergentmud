@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Pronoun;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
@@ -48,6 +49,9 @@ public class InfoCommandTest {
     private Account account;
 
     @Mock
+    private Pronoun gender;
+
+    @Mock
     private EntityService entityService;
 
     private String cmd = "info";
@@ -58,12 +62,15 @@ public class InfoCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
+        when(gender.toString()).thenReturn("Test/Test");
         when(entity.getX()).thenReturn(0L);
         when(entity.getY()).thenReturn(0L);
         when(entity.getZ()).thenReturn(0L);
         when(entity.getName()).thenReturn("Scion");
+        when(entity.getGender()).thenReturn(gender);
         when(entity.getAccount()).thenReturn(account);
         when(target.getName()).thenReturn("Bnarg");
+        when(target.getGender()).thenReturn(gender);
         when(entityService.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
         when(entityService.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
 
@@ -99,6 +106,7 @@ public class InfoCommandTest {
         verify(entity, atLeastOnce()).getZ();
         verify(entity).getId();
         verify(entity).getName();
+        verify(entity).getGender();
         verify(entity).getCapabilities();
         verify(entity, atLeastOnce()).getAccount();
         verify(account).getCapabilities();
@@ -123,6 +131,7 @@ public class InfoCommandTest {
         verify(target, atLeastOnce()).getZ();
         verify(target).getId();
         verify(target).getName();
+        verify(target).getGender();
         verify(target).getCapabilities();
         verify(target).getAccount();
         verify(output, atLeastOnce()).append(anyString());
