@@ -20,6 +20,8 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.command.Command;
+import com.emergentmud.core.exception.NoSuchRoomException;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -50,6 +52,9 @@ public class MoveCommandTest {
     @Mock
     private Entity entity;
 
+    @Mock
+    private Command look;
+
     private String[] tokens = new String[] {};
     private String raw = "";
     private String cmd = "e";
@@ -59,6 +64,21 @@ public class MoveCommandTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        when(applicationContext.getBean(eq("lookCommand"))).thenReturn(look);
+
+        doAnswer(i -> {
+            Entity entity = i.getArgumentAt(0, Entity.class);
+            long x = i.getArgumentAt(1, Long.class);
+            long y = i.getArgumentAt(2, Long.class);
+            long z = i.getArgumentAt(3, Long.class);
+
+            when(entity.getX()).thenReturn(x);
+            when(entity.getY()).thenReturn(y);
+            when(entity.getZ()).thenReturn(z);
+
+            return entity;
+        }).when(movementService).put(any(Entity.class), anyLong(), anyLong(), anyLong());
 
         command = new MoveCommand(Direction.NORTH, applicationContext, movementService, entityService);
     }
@@ -78,5 +98,26 @@ public class MoveCommandTest {
 
         verifyZeroInteractions(movementService);
         verifyZeroInteractions(applicationContext);
+    }
+
+    @Test
+    public void testExitMessageOnBlockedMovement() {
+        try {
+            doThrow(new NoSuchRoomException("Alas!")).when(movementService).put(any(Entity.class), anyLong(), anyLong(), anyLong());
+
+            command.execute(output, entity, cmd, tokens, raw);
+        } catch (NoSuchRoomException e) {
+            fail("Exception should not have bubbled up this far.");
+        }
+
+        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), any(GameOutput.class));
+    }
+
+    @Test
+    public void testExitMessageOnMovement() {
+        command.execute(output, entity, cmd, tokens, raw);
+
+        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(0L), eq(1L), eq(0L), eq(entity), any(GameOutput.class));
     }
 }
