@@ -16,9 +16,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-- name: build
+- name: test
   service: emergentmud
-  command: ./gradlew clean build -x dependencyCheck
+  command: ./gradlew check -x dependencyCheck
 - name: tag_latest
   service: emergentmud
   type: push

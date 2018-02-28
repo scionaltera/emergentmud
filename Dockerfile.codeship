@@ -23,4 +23,11 @@ COPY . /opt/build/
 RUN cd /opt/build \
 && apk update \
 && apk upgrade \
-&& apk add --no-cache bash
+&& apk add --no-cache bash \
+&& ./gradlew clean build -x check
+
+FROM frovlad/alpine-oraclejre8:slim
+MAINTAINER Peter Keeler <scion@emergentmud.com>
+EXPOSE 8080
+COPY --from=build /opt/build/build/libs/emergentmud-*.jar /opt/mud/app.jar
+CMD ["/usr/bin/java", "-jar", "/opt/mud/app.jar"]
