@@ -22,9 +22,12 @@ package com.emergentmud.core.model;
 
 import org.hibernate.annotations.Type;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,6 +40,9 @@ public class Biome {
     private String name;
     private Integer color;
     private String cellSelectionStrategy;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> description;
 
     public Biome() {
         // this method intentionally left blank
@@ -58,6 +64,10 @@ public class Biome {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription(Long x, Long y, Long z) {
+        return description.get((int) (x + y + z) % description.size());
     }
 
     public Integer getColor() {

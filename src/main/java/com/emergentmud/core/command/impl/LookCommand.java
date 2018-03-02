@@ -70,9 +70,8 @@ public class LookCommand extends BaseCommand {
         if (room.getZone() != null) {
             if (room.getZone().getBiome() != null) {
                 roomName = room.getZone().getBiome().getName();
+                roomDescription = room.getZone().getBiome().getDescription(entity.getX(), entity.getY(), entity.getZ());
             }
-
-            roomDescription += "<br/>Moisture: " + room.getZone().getMoisture() + "<br/>Elevation: " + room.getZone().getElevation();
         }
 
         output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
