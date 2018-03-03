@@ -170,8 +170,8 @@ public class WebSocketResourceTest {
 
             return entity;
         });
-        when(commandMetadataRepository.findAll()).thenReturn(commandList);
-        when(emoteMetadataRepository.findAll()).thenReturn(emoteList);
+        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commandList);
+        when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emoteList);
         when(capabilityRepository.findByName(eq(CommandRole.SUPER.name()))).thenReturn(superCapability);
         when(capabilityRepository.findByName(eq(CommandRole.EMOTE.name()))).thenReturn(emoteCapability);
         when(applicationContext.getBean(anyString())).thenReturn(mockCommand);
@@ -244,7 +244,7 @@ public class WebSocketResourceTest {
         GameOutput output = webSocketResource.onInput(input, principal, breadcrumb, simpSessionId);
 
         verify(applicationContext, never()).getBean(anyString());
-        verify(emoteMetadataRepository).findAll();
+        verify(emoteMetadataRepository).findAll(any(Sort.class));
         verify(emote).execute(eq(output), any(EmoteMetadata.class), eq(entity), eq(new String[0]));
     }
 

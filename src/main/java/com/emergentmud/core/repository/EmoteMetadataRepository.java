@@ -21,10 +21,10 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.EmoteMetadata;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.UUID;
 
-public interface EmoteMetadataRepository extends CrudRepository<EmoteMetadata, UUID> {
+public interface EmoteMetadataRepository extends PagingAndSortingRepository<EmoteMetadata, UUID> {
     EmoteMetadata findByName(String name);
 }

@@ -22,14 +22,15 @@ package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface EntityRepository extends CrudRepository<Entity, UUID> {
+public interface EntityRepository extends PagingAndSortingRepository<Entity, UUID> {
     Entity findByAccountAndId(Account account, UUID id);
     Entity findByNameStartingWithIgnoreCase(String name);
     Entity findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(String name);
@@ -38,5 +39,5 @@ public interface EntityRepository extends CrudRepository<Entity, UUID> {
     List<Entity> findByXIsNotNullAndYIsNotNullAndZIsNotNull();
     List<Entity> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
     List<Entity> findByAccount(Account account);
-    List<Entity> findByAccountIsNotNull();
+    List<Entity> findByAccountIsNotNull(Sort sort);
 }

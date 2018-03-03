@@ -97,7 +97,7 @@ public class HelpCommandTest {
         when(adminCommand.getDescription()).thenReturn("An admin command.");
         when(applicationContext.getBean(eq("normalCommand"))).thenReturn(normalCommand);
         when(applicationContext.getBean(eq("adminCommand"))).thenReturn(adminCommand);
-        when(commandMetadataRepository.findAll()).thenReturn(metadata);
+        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(metadata);
         when(entity.isCapable(eq(normalCapability))).thenReturn(true);
         when(capabilityRepository.findByName(CommandRole.SUPER.name())).thenReturn(superCapability);
 
@@ -110,7 +110,7 @@ public class HelpCommandTest {
     }
 
     @Test
-    public void testExecuteNoArgs() throws Exception {
+    public void testExecuteNoArgs() {
         GameOutput result = command.execute(output, entity, "help", new String[0], "help");
 
         assertEquals(output, result);

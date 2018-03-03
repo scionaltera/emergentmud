@@ -23,14 +23,14 @@ package com.emergentmud.core.repository;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CapabilityObject;
 import com.emergentmud.core.model.CapabilityScope;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CapabilityRepository extends CrudRepository<Capability, UUID> {
+public interface CapabilityRepository extends PagingAndSortingRepository<Capability, UUID> {
     Capability findByName(String name);
     Capability findByNameIgnoreCase(String name);
     List<Capability> findByObjectAndScope(CapabilityObject object, CapabilityScope scope);
