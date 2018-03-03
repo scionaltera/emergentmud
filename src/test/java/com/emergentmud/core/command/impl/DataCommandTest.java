@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,7 @@ public class DataCommandTest {
         entities.add(baker);
         entities.add(able);
 
-        when(entityRepository.findByAccountIsNotNull()).thenReturn(entities);
+        when(entityRepository.findByAccountIsNotNull(any(Sort.class))).thenReturn(entities);
         when(able.getAccount()).thenReturn(ableAccount);
         when(baker.getAccount()).thenReturn(bakerAccount);
 

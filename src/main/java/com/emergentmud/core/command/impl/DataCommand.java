@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -26,16 +26,17 @@ import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class DataCommand extends BaseCommand {
+    private static final Sort SORT_BY_NAME = new Sort(Sort.Direction.ASC, "name");
+
     private EntityRepository entityRepository;
 
     @Inject
@@ -53,7 +54,6 @@ public class DataCommand extends BaseCommand {
 
             return output;
         } else if ("entity".equals(tokens[0])) {
-            List<Entity> entities = entityRepository.findByAccountIsNotNull();
             TableFormatter tableFormatter = new TableFormatter(
                     "Player Characters in Database",
                     Arrays.asList("Name", "Social Network", "Social ID", "Created", "Last Login"),
@@ -61,8 +61,7 @@ public class DataCommand extends BaseCommand {
                     "Entities"
             );
 
-            entities.sort(Comparator.comparing(Entity::getName));
-            entities.forEach(e -> {
+            entityRepository.findByAccountIsNotNull(SORT_BY_NAME).forEach(e -> {
                 Account account = e.getAccount();
 
                 tableFormatter.addRow(Arrays.asList(

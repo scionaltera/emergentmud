@@ -31,17 +31,17 @@ import com.emergentmud.core.repository.AccountRepository;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 @Component
 public class CapabilityEditCommand extends BaseCommand {
+    private static final Sort SORT_BY_NAME = new Sort(Sort.Direction.ASC, "name");
+
     private CapabilityRepository capabilityRepository;
     private AccountRepository accountRepository;
     private EntityRepository entityRepository;
@@ -80,19 +80,12 @@ public class CapabilityEditCommand extends BaseCommand {
                         "Capabilities"
                 );
 
-                List<Capability> allCapabilities = new ArrayList<>();
-
-                capabilityRepository.findAll().forEach(allCapabilities::add);
-
-                allCapabilities
-                        .stream()
-                        .sorted(Comparator.comparing(Capability::getName))
-                        .forEach(capability -> tableFormatter.addRow(Arrays.asList(
-                                capability.getDescription(),
-                                capability.getName(),
-                                capability.getObject().toString(),
-                                capability.getScope().toString()
-                        )));
+                capabilityRepository.findAll(SORT_BY_NAME).forEach(capability -> tableFormatter.addRow(Arrays.asList(
+                        capability.getDescription(),
+                        capability.getName(),
+                        capability.getObject().toString(),
+                        capability.getScope().toString()
+                )));
 
                 tableFormatter.toTable(output, "yellow");
 

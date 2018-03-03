@@ -32,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class CommandEditCommandTest {
             commands.add(mock);
         }
 
-        when(commandMetadataRepository.findAll()).thenReturn(commands);
+        when(commandMetadataRepository.findAll(any(Sort.class))).thenReturn(commands);
         when(commandMetadataRepository.findByName(eq("test"))).thenReturn(metadata);
         when(capabilityRepository.findByName(eq("CAP"))).thenReturn(capability);
 
@@ -117,7 +118,7 @@ public class CommandEditCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
-        verify(commandMetadataRepository).findAll();
+        verify(commandMetadataRepository).findAll(any(Sort.class));
 
         commands.forEach(command -> {
                     verify(command, atLeastOnce()).getPriority();

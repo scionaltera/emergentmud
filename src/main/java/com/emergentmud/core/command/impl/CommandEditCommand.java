@@ -29,16 +29,16 @@ import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 @Component
 public class CommandEditCommand extends BaseCommand {
+    private static final Sort SORT_BY_NAME = new Sort(Sort.Direction.ASC, "name");
+
     private CommandMetadataRepository commandMetadataRepository;
     private CapabilityRepository capabilityRepository;
 
@@ -74,18 +74,11 @@ public class CommandEditCommand extends BaseCommand {
                         "Commands"
                 );
 
-                List<CommandMetadata> allCommandMetadata = new ArrayList<>();
-
-                commandMetadataRepository.findAll().forEach(allCommandMetadata::add);
-
-                allCommandMetadata
-                        .stream()
-                        .sorted(Comparator.comparing(CommandMetadata::getPriority).thenComparing(CommandMetadata::getName))
-                        .forEach(cm -> tableFormatter.addRow(Arrays.asList(
-                                cm.getPriority().toString(),
-                                cm.getName().toUpperCase(),
-                                cm.getCapability().getName()
-                        )));
+                commandMetadataRepository.findAll(SORT_BY_NAME).forEach(cm -> tableFormatter.addRow(Arrays.asList(
+                        cm.getPriority().toString(),
+                        cm.getName().toUpperCase(),
+                        cm.getCapability().getName()
+                )));
 
                 tableFormatter.toTable(output, "yellow");
             } else if ("add".equals(tokens[0])) {

@@ -67,7 +67,7 @@ public class Biome {
     }
 
     public String getDescription(Long x, Long y, Long z) {
-        return description.get((int) (x + y + z) % description.size());
+        return description.get((int) (Math.abs(x + y + z)) % description.size());
     }
 
     public Integer getColor() {
