@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.repository;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Zone;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -29,6 +30,6 @@ import java.util.UUID;
 
 @Repository
 public interface ZoneRepository extends CrudRepository<Zone, UUID> {
-    Zone findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
-    List<Zone> findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
+    Zone findZoneByTopRightLessThanEqualAndBottomLeftGreaterThanEqual(Coordinate topRight, Coordinate bottomLeft);
+    List<Zone> findZonesByTopRightLessThanEqualAndBottomLeftGreaterThanEqual(Coordinate topRight, Coordinate bottomLeft);
 }

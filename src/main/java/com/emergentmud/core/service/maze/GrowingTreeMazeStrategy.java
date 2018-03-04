@@ -172,10 +172,10 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
     }
 
     private boolean isWithinZone(Coordinate query, Zone zone) {
-        return query.getX() >= zone.getBottomLeftX()
-                && query.getX() <= zone.getTopRightX()
-                && query.getY() >= zone.getBottomLeftY()
-                && query.getY() <= zone.getTopRightY();
+        return query.getX() >= zone.getBottomLeft().getX()
+                && query.getX() <= zone.getTopRight().getX()
+                && query.getY() >= zone.getBottomLeft().getY()
+                && query.getY() <= zone.getTopRight().getY();
 
     }
 }
