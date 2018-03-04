@@ -72,7 +72,7 @@ public class RoomService {
         if (zone == null) {
             zone = zoneService.createZone(location.getX(), location.getY());
 
-            return zoneFillStrategy.fillZone(zone, location.getX(), location.getY(), location.getZ());
+            return zoneFillStrategy.fillZone(zone, location);
         }
 
         return null;

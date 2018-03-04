@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -36,8 +37,8 @@ public class HalfNewestHalfRandomCellSelectionStrategy implements CellSelectionS
     }
 
     @Override
-    public Cell selectCell(LinkedList<Cell> queue) {
-        Cell selected;
+    public Coordinate selectCell(LinkedList<Coordinate> queue) {
+        Coordinate selected;
 
         if (random.nextBoolean()) {
             selected = queue.getFirst();
