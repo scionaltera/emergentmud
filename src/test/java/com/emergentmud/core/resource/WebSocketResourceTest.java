@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.session.Session;
@@ -162,7 +161,7 @@ public class WebSocketResourceTest {
         when(httpSession.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(sessionRepository.findById(eq(httpSessionId))).thenReturn(httpSession);
         when(entityRepository.findOne(eq(ENTITY_ID))).thenReturn(entity);
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
+        when(entityRepository.findByLocation(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 

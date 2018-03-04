@@ -59,7 +59,7 @@ public class QuitCommand extends BaseCommand {
 
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
+        entityService.sendMessageToRoom(entity, enterMessage);
 
         LOGGER.info("{} has left the game", entity.getName());
 

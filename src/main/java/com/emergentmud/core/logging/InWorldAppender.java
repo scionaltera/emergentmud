@@ -52,7 +52,7 @@ public class InWorldAppender<T> extends AppenderBase<T> {
 
         GameOutput logMessage = new GameOutput(String.format("[dmagenta]%s[dmagenta]", eventObject));
 
-        List<Entity> contents = entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()
+        List<Entity> contents = entityRepository.findByLocationIsNotNull()
                 .stream()
                 .filter(e -> e.isCapable(capabilityRepository.findByName(CommandRole.LOG.name())))
                 .collect(Collectors.toList());

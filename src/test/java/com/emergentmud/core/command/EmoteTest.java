@@ -111,7 +111,7 @@ public class EmoteTest {
         entities.add(target);
         entities.add(observer);
 
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(entities);
+        when(entityRepository.findByLocation(eq(0L), eq(0L), eq(0L))).thenReturn(entities);
 
         emote = new Emote(entityRepository, entityService);
     }

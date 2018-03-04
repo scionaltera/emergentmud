@@ -76,8 +76,8 @@ public class EntityServiceTest {
 
         contents = generateContents();
 
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
-        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(stu);
+        when(entityRepository.findByLocation(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(stu);
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getX()).thenReturn(0L);
@@ -169,7 +169,7 @@ public class EntityServiceTest {
 
     @Test
     public void testEntitySearchInWorldDifferentRoom() throws Exception {
-        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
 
         Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Stu");
 
@@ -178,8 +178,8 @@ public class EntityServiceTest {
 
     @Test
     public void testEntitySearchInWorldNotInWorld() throws Exception {
-        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
-        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Fred"))).thenReturn(null);
+        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Fred"))).thenReturn(null);
 
         Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Fred");
 
@@ -195,7 +195,7 @@ public class EntityServiceTest {
 
     @Test
     public void testEntitySearchGlobalDifferentRoom() throws Exception {
-        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
 
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
 
@@ -204,8 +204,8 @@ public class EntityServiceTest {
 
     @Test
     public void testEntitySearchGlobalOffline() throws Exception {
-        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
-        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(null);
+        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(null);
 
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
 
@@ -214,8 +214,8 @@ public class EntityServiceTest {
 
     @Test
     public void testEntitySearchGlobalNoSuchEntity() throws Exception {
-        when(entityRepository.findByXAndYAndZ(0L, 0L, 0L)).thenReturn(Collections.emptyList());
-        when(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(eq("Stu"))).thenReturn(null);
+        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+        when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(null);
         when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(null);
 
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");

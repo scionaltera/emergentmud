@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommand;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
@@ -48,7 +49,7 @@ public class LookCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+        if (entity.getLocation() == null) {
             output.append("[black]You are floating in a formless void.");
 
             return output;
@@ -56,7 +57,7 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomService.fetchRoom(entity.getX(), entity.getY(), entity.getZ());
+        Room room = roomService.fetchRoom(entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ());
 
         if (room == null) {
             output.append("[black]You are floating in a formless void.");
@@ -70,7 +71,7 @@ public class LookCommand extends BaseCommand {
         if (room.getZone() != null) {
             if (room.getZone().getBiome() != null) {
                 roomName = room.getZone().getBiome().getName();
-                roomDescription = room.getZone().getBiome().getDescription(entity.getX(), entity.getY(), entity.getZ());
+                roomDescription = room.getZone().getBiome().getDescription(entity.getLocation());
             }
         }
 
@@ -84,9 +85,9 @@ public class LookCommand extends BaseCommand {
         StringBuilder exits = new StringBuilder("[dcyan]Exits:");
 
         Direction.DIRECTIONS.forEach(d -> {
-            long x = entity.getX() + d.getX();
-            long y = entity.getY() + d.getY();
-            long z = entity.getZ() + d.getZ();
+            long x = entity.getLocation().getX() + d.getX();
+            long y = entity.getLocation().getY() + d.getY();
+            long z = entity.getLocation().getZ() + d.getZ();
 
             Room neighbor = roomService.fetchRoom(x, y, z);
 
@@ -103,7 +104,7 @@ public class LookCommand extends BaseCommand {
 
         output.append(exits.toString());
 
-        List<Entity> contents = entityRepository.findByXAndYAndZ(room.getX(), room.getY(), room.getZ());
+        List<Entity> contents = entityRepository.findByLocation(new Coordinate(room.getX(), room.getY(), room.getZ()));
 
         contents.stream()
                 .filter(content -> !content.getId().equals(entity.getId()))

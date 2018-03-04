@@ -50,23 +50,23 @@ public class MapCommand extends BaseCommand {
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         List<Room> rooms = roomService.fetchRooms(
-                entity.getX() - MAP_EXTENT_X, entity.getX() + MAP_EXTENT_X,
-                entity.getY() - MAP_EXTENT_Y, entity.getY() + MAP_EXTENT_Y,
-                entity.getZ(), entity.getZ()
+                entity.getLocation().getX() - MAP_EXTENT_X, entity.getLocation().getX() + MAP_EXTENT_X,
+                entity.getLocation().getY() - MAP_EXTENT_Y, entity.getLocation().getY() + MAP_EXTENT_Y,
+                entity.getLocation().getZ(), entity.getLocation().getZ()
         );
 
         Map<Coordinate, Room> roomsByLocation = new HashMap<>();
 
         rooms.forEach(room -> roomsByLocation.put(new Coordinate(room.getX(), room.getY(), room.getZ()), room));
 
-        for (long y = entity.getY() + MAP_EXTENT_Y, i = 0; y >= entity.getY() - MAP_EXTENT_Y; y--, i++) {
+        for (long y = entity.getLocation().getY() + MAP_EXTENT_Y, i = 0; y >= entity.getLocation().getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();
 
-            for (long x = entity.getX() - MAP_EXTENT_X; x <= entity.getX() + MAP_EXTENT_X; x++) {
-                if (x == entity.getX() && y == entity.getY()) {
+            for (long x = entity.getLocation().getX() - MAP_EXTENT_X; x <= entity.getLocation().getX() + MAP_EXTENT_X; x++) {
+                if (x == entity.getLocation().getX() && y == entity.getLocation().getY()) {
                     line.append("[cyan][]</span>");
                 } else {
-                    Room room = roomsByLocation.get(new Coordinate(x, y, entity.getZ()));
+                    Room room = roomsByLocation.get(new Coordinate(x, y, entity.getLocation().getZ()));
 
                     if (room != null) {
                         if (room.getZone() != null) {
@@ -94,7 +94,7 @@ public class MapCommand extends BaseCommand {
         StringBuilder line = new StringBuilder("[yellow]");
         int offset = 0;
 
-        for (long x = entity.getX() - MAP_EXTENT_X, i = 0; x <= entity.getX() + MAP_EXTENT_X; x++, i++) {
+        for (long x = entity.getLocation().getX() - MAP_EXTENT_X, i = 0; x <= entity.getLocation().getX() + MAP_EXTENT_X; x++, i++) {
             if (i % 10 == 0) {
                 line.append(x + offset);
 

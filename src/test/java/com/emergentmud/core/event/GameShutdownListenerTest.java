@@ -67,7 +67,7 @@ public class GameShutdownListenerTest {
             everyone.add(entity);
         }
 
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(everyone);
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(everyone);
 
         gameShutdownListener = new GameShutdownListener(entityRepository, entityService);
     }
@@ -76,7 +76,7 @@ public class GameShutdownListenerTest {
     public void testContextClosed() throws Exception {
         gameShutdownListener.onApplicationEvent(contextClosedEvent);
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(entityService).sendMessageToListeners(eq(everyone), any(GameOutput.class));
     }
 
@@ -84,7 +84,7 @@ public class GameShutdownListenerTest {
     public void testContextStopped() throws Exception {
         gameShutdownListener.onApplicationEvent(contextStoppedEvent);
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(entityService).sendMessageToListeners(eq(everyone), any(GameOutput.class));
     }
 

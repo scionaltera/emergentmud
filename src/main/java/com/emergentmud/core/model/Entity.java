@@ -22,6 +22,7 @@ package com.emergentmud.core.model;
 
 import org.hibernate.annotations.Type;
 
+import javax.persistence.Embedded;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -52,9 +53,8 @@ public class Entity implements Capable {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Capability> capabilities = new HashSet<>();
 
-    private Long x;
-    private Long y;
-    private Long z;
+    @Embedded
+    private Coordinate location;
 
     private Long creationDate;
     private Long lastLoginDate;
@@ -95,28 +95,12 @@ public class Entity implements Capable {
         this.gender = gender;
     }
 
-    public Long getX() {
-        return x;
+    public Coordinate getLocation() {
+        return location;
     }
 
-    public void setX(Long x) {
-        this.x = x;
-    }
-
-    public Long getY() {
-        return y;
-    }
-
-    public void setY(Long y) {
-        this.y = y;
-    }
-
-    public Long getZ() {
-        return z;
-    }
-
-    public void setZ(Long z) {
-        this.z = z;
+    public void setLocation(Coordinate location) {
+        this.location = location;
     }
 
     public Long getCreationDate() {

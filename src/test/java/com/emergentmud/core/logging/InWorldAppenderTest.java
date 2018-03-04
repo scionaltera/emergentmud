@@ -90,7 +90,7 @@ public class InWorldAppenderTest {
         when(player.getX()).thenReturn(0L);
         when(player.getY()).thenReturn(0L);
         when(player.getZ()).thenReturn(0L);
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(Arrays.asList(admin, player));
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(Arrays.asList(admin, player));
 
         inWorldAppender = new InWorldAppender<>();
     }
@@ -133,7 +133,7 @@ public class InWorldAppenderTest {
 
         inWorldAppender.append(eventObject);
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(entityService).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
         verify(admin).isCapable(eq(capability));
         verify(player).isCapable(eq(capability));

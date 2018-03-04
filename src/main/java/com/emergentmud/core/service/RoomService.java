@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
@@ -77,9 +78,9 @@ public class RoomService {
         return null;
     }
 
-    public boolean isWithinDistance(Entity origin, Long x, Long y, Long z, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - x, 2)
-                + Math.pow(origin.getY() - y, 2)
-                + Math.pow(origin.getZ() - z, 2)) <= distance;
+    public boolean isWithinDistance(Entity origin, Coordinate distant, double distance) {
+        return Math.sqrt(Math.pow(origin.getLocation().getX() - distant.getX(), 2)
+                + Math.pow(origin.getLocation().getY() - distant.getY(), 2)
+                + Math.pow(origin.getLocation().getZ() - distant.getZ(), 2)) <= distance;
     }
 }

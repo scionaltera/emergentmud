@@ -117,7 +117,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
             }
         }
 
-        when(entityRepository.findByXBetweenAndYBetweenAndZBetween(
+        when(entityRepository.findByLocationBetween(
                 eq(-7L),
                 eq(7L),
                 eq(-7L),

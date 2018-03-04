@@ -57,28 +57,29 @@ public class MoveCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        if (entity.getX() == null || entity.getY() == null || entity.getZ() == null) {
+        if (entity.getLocation() == null) {
             output.append("[black]You are floating in a formless void. It is impossible to tell whether or not you are moving.");
 
             return output;
         }
 
         long[] location = new long[] {
-                entity.getX(),
-                entity.getY(),
-                entity.getZ()
+                entity.getLocation().getX(),
+                entity.getLocation().getY(),
+                entity.getLocation().getZ()
         };
 
-        LOGGER.trace("Location before: ({}, {}, {})", location[0], location[1], location[2]);
+        LOGGER.trace("Location before: {}", entity.getLocation());
 
         location[0] += direction.getX();
         location[1] += direction.getY();
         location[2] += direction.getZ();
 
-        Coordinate original = new Coordinate(entity.getX(), entity.getY(), entity.getZ());
+        Coordinate original = entity.getLocation();
+        Coordinate destination = new Coordinate(location[0], location[1], location[2]);
 
         try {
-            entity = movementService.put(entity, location[0], location[1], location[2]);
+            entity = movementService.put(entity, destination);
         } catch (NoSuchRoomException ex) {
             output.append(ex.getMessage());
 
@@ -87,13 +88,13 @@ public class MoveCommand extends BaseCommand {
 
         GameOutput exitMessage = new GameOutput(String.format("%s walks %s.", entity.getName(), direction.getName()));
 
-        entityService.sendMessageToRoom(original.getX(), original.getY(), original.getZ(), entity, exitMessage);
+        entityService.sendMessageToRoom(original, entity, exitMessage);
 
-        LOGGER.trace("Location after: ({}, {}, {})", location[0], location[1], location[2]);
+        LOGGER.trace("Location after: {}", destination);
 
         GameOutput enterMessage = new GameOutput(String.format("%s walks in from the %s.", entity.getName(), direction.getOpposite()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
+        entityService.sendMessageToRoom(entity, enterMessage);
 
         Command look = (Command)applicationContext.getBean("lookCommand");
         look.execute(output, entity, "look", new String[0], "");

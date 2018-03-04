@@ -72,11 +72,11 @@ public class WhoCommandTest {
     public void testAlone() throws Exception {
         List<Entity> online = Collections.singletonList(self);
 
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(online);
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(online);
 
         GameOutput response = command.execute(output, self, cmd, new String[] {}, "");
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(self).getName();
 
         assertTrue(response.getOutput().get(2).startsWith("1 player"));
@@ -86,11 +86,11 @@ public class WhoCommandTest {
     public void testCrowd() throws Exception {
         List<Entity> online = Arrays.asList(self, player1, player2);
 
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(online);
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(online);
 
         GameOutput response = command.execute(output, self, cmd, new String[] {}, "");
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(self).getName();
         verify(player1).getName();
         verify(player2).getName();
