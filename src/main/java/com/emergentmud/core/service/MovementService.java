@@ -45,17 +45,17 @@ public class MovementService {
     }
 
     public Entity put(Entity entity, Coordinate location) throws NoSuchRoomException {
-        Room room = roomService.fetchRoom(location.getX(), location.getY(), location.getZ());
+        Room room = roomService.fetchRoom(location);
 
         if (room == null) {
-            room = roomService.createRoom(location.getX(), location.getY(), location.getZ());
+            room = roomService.createRoom(location);
 
             if (room == null) {
                 throw new NoSuchRoomException("Alas, you cannot go that way.");
             }
         }
 
-        entity.setLocation(new Coordinate(room.getX(), room.getY(), room.getZ()));
+        entity.setLocation(room.getLocation());
         entityRepository.save(entity);
 
         LOGGER.trace("Put {} into room {}", entity.getName(), entity.getLocation());

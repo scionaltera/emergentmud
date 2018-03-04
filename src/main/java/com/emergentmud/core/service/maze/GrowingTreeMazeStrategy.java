@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
@@ -95,7 +96,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         carvedRooms.forEach(cell -> {
             Room room = new Room();
 
-            room.setLocation(cell.getX(), cell.getY(), cell.getZ());
+            room.setLocation(new Coordinate(cell.getX(), cell.getY(), cell.getZ()));
             room.setZone(zone);
 
             roomBatch.add(room);
@@ -104,7 +105,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         roomRepository.save(roomBatch);
 
         LOGGER.debug("Generated maze in {} ms", System.currentTimeMillis() - start);
-        return roomRepository.findByXAndYAndZ(x, y, z);
+        return roomRepository.findByLocation(new Coordinate(x, y, z));
     }
 
     private Cell selectValidNeighbor(Cell current, Zone zone, LinkedList<Cell> queue, List<Cell> carvedRooms) {
@@ -137,7 +138,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
                 continue;
             }
 
-            if (roomRepository.findByXAndYAndZ(target.getX(), target.getY(), target.getZ()) != null) {
+            if (roomRepository.findByLocation(new Coordinate(target.getX(), target.getY(), target.getZ())) != null) {
                 LOGGER.debug("Cannot select neighbor: it already exists in another zone");
                 continue;
             }

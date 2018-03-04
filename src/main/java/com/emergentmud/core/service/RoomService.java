@@ -51,28 +51,28 @@ public class RoomService {
         this.zoneFillStrategy = zoneFillStrategy;
     }
 
-    public Room fetchRoom(Long x, Long y, Long z) {
-        return roomRepository.findByXAndYAndZ(x, y, z);
+    public Room fetchRoom(Coordinate location) {
+        return roomRepository.findByLocation(location);
     }
 
-    public List<Room> fetchRooms(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo) {
-        return roomRepository.findByXBetweenAndYBetweenAndZBetween(xFrom, xTo, yFrom, yTo, zFrom, zTo);
+    public List<Room> fetchRooms(Coordinate from, Coordinate to) {
+        return roomRepository.findByLocationBetween(from, to);
     }
 
-    public Room createRoom(Long x, Long y, Long z) {
-        Room room = fetchRoom(x, y, z);
+    public Room createRoom(Coordinate location) {
+        Room room = fetchRoom(location);
 
         if (room != null) {
-            LOGGER.debug("Request to create room that already exists: ({}, {}, {})", x, y, z);
+            LOGGER.debug("Request to create room that already exists: {}", location);
             return room;
         }
 
-        Zone zone = zoneService.fetchZone(x, y);
+        Zone zone = zoneService.fetchZone(location.getX(), location.getY());
 
         if (zone == null) {
-            zone = zoneService.createZone(x, y);
+            zone = zoneService.createZone(location.getX(), location.getY());
 
-            return zoneFillStrategy.fillZone(zone, x, y, z);
+            return zoneFillStrategy.fillZone(zone, location.getX(), location.getY(), location.getZ());
         }
 
         return null;

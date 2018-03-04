@@ -21,7 +21,6 @@
 package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.service.maze.ZoneFillStrategy;
 import org.junit.Before;
@@ -65,7 +64,7 @@ public class RoomServiceTest {
     public void testFetchRoom() throws Exception {
         roomService.fetchRoom(0L, 0L, 0L);
 
-        verify(roomRepository).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
+        verify(roomRepository).findByLocation(eq(0L), eq(0L), eq(0L));
     }
 
     @Test

@@ -540,7 +540,7 @@ public class MainResourceTest {
     public void testPlay() throws Exception {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
-        verify(roomRepository, never()).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
+        verify(roomRepository, never()).findByLocation(eq(0L), eq(0L), eq(0L));
         verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
         verify(movementService).put(eq(entity), anyLong(), anyLong(), eq(0L));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());

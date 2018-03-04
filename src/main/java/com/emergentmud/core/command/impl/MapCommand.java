@@ -50,14 +50,13 @@ public class MapCommand extends BaseCommand {
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
         List<Room> rooms = roomService.fetchRooms(
-                entity.getLocation().getX() - MAP_EXTENT_X, entity.getLocation().getX() + MAP_EXTENT_X,
-                entity.getLocation().getY() - MAP_EXTENT_Y, entity.getLocation().getY() + MAP_EXTENT_Y,
-                entity.getLocation().getZ(), entity.getLocation().getZ()
+                new Coordinate(entity.getLocation().getX() - MAP_EXTENT_X, entity.getLocation().getY() - MAP_EXTENT_Y, entity.getLocation().getZ()),
+                new Coordinate(entity.getLocation().getX() + MAP_EXTENT_X, entity.getLocation().getY() + MAP_EXTENT_Y, entity.getLocation().getZ())
         );
 
         Map<Coordinate, Room> roomsByLocation = new HashMap<>();
 
-        rooms.forEach(room -> roomsByLocation.put(new Coordinate(room.getX(), room.getY(), room.getZ()), room));
+        rooms.forEach(room -> roomsByLocation.put(room.getLocation(), room));
 
         for (long y = entity.getLocation().getY() + MAP_EXTENT_Y, i = 0; y >= entity.getLocation().getY() - MAP_EXTENT_Y; y--, i++) {
             StringBuilder line = new StringBuilder();

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -69,7 +69,7 @@ public class EntityService {
     }
 
     public void sendMessageToRoom(Coordinate location, Entity entity, GameOutput message) {
-        Room room = roomRepository.findByXAndYAndZ(location.getX(), location.getY(), location.getZ());
+        Room room = roomRepository.findByLocation(location);
 
         sendMessageToRoom(room, entity, message);
     }
@@ -77,7 +77,7 @@ public class EntityService {
     public void sendMessageToRoom(Room room, Entity entity, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByLocation(new Coordinate(room.getX(), room.getY(), room.getZ()))
+        entityRepository.findByLocation(room.getLocation())
                 .stream()
                 .filter(e -> !e.equals(entity))
                 .forEach(e -> {
@@ -90,7 +90,7 @@ public class EntityService {
     }
 
     public void sendMessageToRoom(Coordinate location, Collection<Entity> exclude, GameOutput message) {
-        Room room = roomRepository.findByXAndYAndZ(location.getX(), location.getY(), location.getZ());
+        Room room = roomRepository.findByLocation(location);
 
         sendMessageToRoom(room, exclude, message);
     }
@@ -98,7 +98,7 @@ public class EntityService {
     public void sendMessageToRoom(Room room, Collection<Entity> exclude, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByLocation(new Coordinate(room.getX(), room.getY(), room.getZ()))
+        entityRepository.findByLocation(room.getLocation())
                 .stream()
                 .filter(e -> !exclude.contains(e))
                 .forEach(e -> {

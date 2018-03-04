@@ -38,9 +38,7 @@ public class Room {
     @ManyToOne
     private Zone zone;
 
-    private Long x;
-    private Long y;
-    private Long z;
+    private Coordinate location;
 
     public UUID getId() {
         return id;
@@ -58,33 +56,26 @@ public class Room {
         this.zone = zone;
     }
 
-    public void setLocation(Long x, Long y, Long z) {
-        setX(x);
-        setY(y);
-        setZ(z);
+    public Coordinate getLocation() {
+        return location;
     }
 
+    public void setLocation(Coordinate location) {
+        this.location = location;
+    }
+
+    @Deprecated
     public Long getX() {
-        return x;
+        return location.getX();
     }
 
-    public void setX(Long x) {
-        this.x = x;
-    }
-
+    @Deprecated
     public Long getY() {
-        return y;
+        return location.getY();
     }
 
-    public void setY(Long y) {
-        this.y = y;
-    }
-
+    @Deprecated
     public Long getZ() {
-        return z;
-    }
-
-    public void setZ(Long z) {
-        this.z = z;
+        return location.getZ();
     }
 }

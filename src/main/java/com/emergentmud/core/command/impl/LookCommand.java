@@ -57,7 +57,7 @@ public class LookCommand extends BaseCommand {
 
         String roomName;
         String roomDescription;
-        Room room = roomService.fetchRoom(entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ());
+        Room room = roomService.fetchRoom(entity.getLocation());
 
         if (room == null) {
             output.append("[black]You are floating in a formless void.");
@@ -75,11 +75,9 @@ public class LookCommand extends BaseCommand {
             }
         }
 
-        output.append(String.format("[yellow]%s [dyellow](%d, %d, %d)",
+        output.append(String.format("[yellow]%s [dyellow]%s",
                 roomName,
-                room.getX(),
-                room.getY(),
-                room.getZ()));
+                room.getLocation()));
         output.append(String.format("[default]%s", roomDescription));
 
         StringBuilder exits = new StringBuilder("[dcyan]Exits:");
@@ -89,11 +87,11 @@ public class LookCommand extends BaseCommand {
             long y = entity.getLocation().getY() + d.getY();
             long z = entity.getLocation().getZ() + d.getZ();
 
-            Room neighbor = roomService.fetchRoom(x, y, z);
+            Room neighbor = roomService.fetchRoom(new Coordinate(x, y, z));
 
             if (neighbor != null) {
                 exits.append(" [cyan]");
-            } else if (!room.getZone().encompasses(x, y, z)) {
+            } else if (!room.getZone().encompasses(new Coordinate(x, y, z))) {
                 exits.append(" [black]");
             } else {
                 return;
@@ -104,7 +102,7 @@ public class LookCommand extends BaseCommand {
 
         output.append(exits.toString());
 
-        List<Entity> contents = entityRepository.findByLocation(new Coordinate(room.getX(), room.getY(), room.getZ()));
+        List<Entity> contents = entityRepository.findByLocation(room.getLocation());
 
         contents.stream()
                 .filter(content -> !content.getId().equals(entity.getId()))
