@@ -52,24 +52,22 @@ public class ZoneService {
         this.random = random;
     }
 
-    public Zone fetchZone(Long x, Long y) {
-        Coordinate point = new Coordinate(x, y, 0L);
-
-        return zoneRepository.findZoneByTopRightLessThanEqualAndBottomLeftGreaterThanEqual(point, point);
+    public Zone fetchZone(Coordinate point) {
+        return zoneRepository.findZoneAtPoint(point.getX(), point.getY());
     }
 
-    public Zone createZone(Long x, Long y) {
-        Zone zone = fetchZone(x, y);
+    public Zone createZone(Coordinate startLocation) {
+        Zone zone = fetchZone(startLocation);
 
         if (zone != null) {
-            LOGGER.debug("Request to create zone that already exists: ({}, {})", x, y);
+            LOGGER.debug("Request to create zone that already exists at: {}", startLocation);
             return zone;
         }
 
         zone = new Zone();
 
-        zone.setTopRight(new Coordinate(x, y, 0L));
-        zone.setBottomLeft(new Coordinate(x, y, 0L));
+        zone.setTopRight(startLocation);
+        zone.setBottomLeft(startLocation);
 
         expandZoneBorders(zone);
         selectZoneBiome(zone);
@@ -111,9 +109,13 @@ public class ZoneService {
                     break;
             }
 
-            collisions = zoneRepository.findZonesByTopRightLessThanEqualAndBottomLeftGreaterThanEqual(
-                    zone.getTopRight(),
-                    zone.getBottomLeft()
+            LOGGER.debug("Checking for collisions: {} {}", zone.getTopRight(), zone.getBottomLeft());
+
+            collisions = zoneRepository.findZonesWithin(
+                    zone.getTopRight().getX(),
+                    zone.getTopRight().getY(),
+                    zone.getBottomLeft().getX(),
+                    zone.getBottomLeft().getY()
             );
 
             if (!collisions.isEmpty()) {
@@ -141,9 +143,11 @@ public class ZoneService {
     }
 
     private void selectZoneBiome(Zone zone) {
-        List<Zone> neighbors = zoneRepository.findZonesByTopRightLessThanEqualAndBottomLeftGreaterThanEqual(
-                new Coordinate(zone.getTopRight().getX() + 1, zone.getTopRight().getY() + 1, zone.getTopRight().getZ()),
-                new Coordinate(zone.getTopRight().getX() - 1, zone.getTopRight().getY() - 1, zone.getTopRight().getZ())
+        List<Zone> neighbors = zoneRepository.findZonesWithin(
+                zone.getTopRight().getX() + 1,
+                zone.getTopRight().getY() + 1,
+                zone.getBottomLeft().getX() - 1,
+                zone.getBottomLeft().getY() - 1
         );
 
         List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();

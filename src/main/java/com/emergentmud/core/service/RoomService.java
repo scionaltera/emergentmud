@@ -67,10 +67,10 @@ public class RoomService {
             return room;
         }
 
-        Zone zone = zoneService.fetchZone(location.getX(), location.getY());
+        Zone zone = zoneService.fetchZone(location);
 
         if (zone == null) {
-            zone = zoneService.createZone(location.getX(), location.getY());
+            zone = zoneService.createZone(location);
 
             return zoneFillStrategy.fillZone(zone, location);
         }

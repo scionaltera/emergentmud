@@ -96,7 +96,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         carvedRooms.forEach(cell -> {
             Room room = new Room();
 
-            room.setLocation(new Coordinate(cell.getX(), cell.getY(), cell.getZ()));
+            room.setLocation(cell);
             room.setZone(zone);
 
             roomBatch.add(room);
@@ -138,7 +138,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
                 continue;
             }
 
-            if (roomRepository.findByLocation(new Coordinate(target.getX(), target.getY(), target.getZ())) != null) {
+            if (roomRepository.findByLocation(target) != null) {
                 LOGGER.debug("Cannot select neighbor: it already exists in another zone");
                 continue;
             }
