@@ -21,12 +21,12 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.CommandMetadata;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 @Repository
-public interface CommandMetadataRepository extends CrudRepository<CommandMetadata, UUID> {
+public interface CommandMetadataRepository extends PagingAndSortingRepository<CommandMetadata, UUID> {
     CommandMetadata findByName(String name);
 }

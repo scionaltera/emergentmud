@@ -32,6 +32,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class EmoteEditCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(emoteMetadataRepository.findAll()).thenReturn(emotes);
+        when(emoteMetadataRepository.findAll(any(Sort.class))).thenReturn(emotes);
         when(emoteMetadataRepository.findByName(eq("nod"))).thenReturn(emote);
 
         for (int i = 0; i < 3; i++) {
@@ -110,7 +111,7 @@ public class EmoteEditCommandTest {
 
         assertNotNull(result);
         verify(output, atLeast(2)).append(anyString());
-        verify(emoteMetadataRepository).findAll();
+        verify(emoteMetadataRepository).findAll(any(Sort.class));
 
         emotes.forEach(emote -> {
                     verify(emote, atLeastOnce()).getPriority();

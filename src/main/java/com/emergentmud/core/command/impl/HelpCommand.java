@@ -23,6 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.command.TableFormatter;
+import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.Entity;
@@ -30,16 +31,16 @@ import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.CapabilityRepository;
 import com.emergentmud.core.repository.CommandMetadataRepository;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 @Component
 public class HelpCommand extends BaseCommand {
+    private static final Sort SORT_BY_NAME = new Sort(Sort.Direction.ASC, "name");
+
     private ApplicationContext applicationContext;
     private CommandMetadataRepository commandMetadataRepository;
     private CapabilityRepository capabilityRepository;
@@ -67,20 +68,18 @@ public class HelpCommand extends BaseCommand {
                     "Commands"
             );
 
-            List<CommandMetadata> allCommandMetadata = new ArrayList<>();
-            commandMetadataRepository.findAll().forEach(allCommandMetadata::add);
-            allCommandMetadata
-                    .stream()
-                    .sorted(Comparator.comparing(CommandMetadata::getName))
-                    .filter(cm -> entity.isCapable(cm.getCapability()) || entity.isCapable(capabilityRepository.findByName(CommandRole.SUPER.name())))
-                    .forEach(cm -> {
-                        Command bean = (Command)applicationContext.getBean(cm.getBeanName());
+            Capability superCapability = capabilityRepository.findByName(CommandRole.SUPER.name());
 
-                        tableFormatter.addRow(Arrays.asList(
-                                cm.getName().toUpperCase(),
-                                bean.getDescription()
-                        ));
-                    });
+            commandMetadataRepository.findAll(SORT_BY_NAME).forEach(cm -> {
+                if (entity.isCapable(cm.getCapability()) || entity.isCapable(superCapability)) {
+                    Command bean = (Command) applicationContext.getBean(cm.getBeanName());
+
+                    tableFormatter.addRow(Arrays.asList(
+                            cm.getName().toUpperCase(),
+                            bean.getDescription()
+                    ));
+                }
+            });
 
             tableFormatter.toTable(output, "white");
             output.append("[white]Type HELP [dwhite]&lt;[white]command[dwhite]&gt; [white]to get more detailed help for any of these commands.");

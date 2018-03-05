@@ -37,6 +37,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -50,7 +51,6 @@ import org.springframework.stereotype.Controller;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +59,8 @@ import java.util.UUID;
 @Controller
 public class WebSocketResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketResource.class);
+    private static final Sort SORT_BY_NAME = new Sort(Sort.Direction.ASC, "name");
+    private static final Sort SORT_BY_PRIORITY = new Sort(Sort.Direction.ASC, "priority", "name");
 
     private String applicationVersion;
     private Long applicationBootDate;
@@ -176,8 +178,7 @@ public class WebSocketResource {
             String raw = input.getInput().indexOf(' ') == -1 ? "" : input.getInput().substring(input.getInput().indexOf(' ') + 1);
             List<CommandMetadata> commandMetadataList = new ArrayList<>();
 
-            commandMetadataRepository.findAll().forEach(commandMetadataList::add);
-            commandMetadataList.sort(Comparator.comparing(CommandMetadata::getPriority).thenComparing(CommandMetadata::getName));
+            commandMetadataRepository.findAll(SORT_BY_PRIORITY).forEach(commandMetadataList::add);
 
             Optional<CommandMetadata> optionalCommandMetadata = commandMetadataList
                     .stream()
@@ -193,8 +194,7 @@ public class WebSocketResource {
             } else if (entity.isCapable(capabilityRepository.findByName(CommandRole.EMOTE.name()))) {
                 List<EmoteMetadata> emoteMetadataList = new ArrayList<>();
 
-                emoteMetadataRepository.findAll().forEach(emoteMetadataList::add);
-                emoteMetadataList.sort(Comparator.comparing(EmoteMetadata::getName));
+                emoteMetadataRepository.findAll(SORT_BY_NAME).forEach(emoteMetadataList::add);
 
                 Optional<EmoteMetadata> optionalEmoteMetadata = emoteMetadataList
                         .stream()

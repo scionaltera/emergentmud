@@ -23,14 +23,15 @@ package com.emergentmud.core.repository;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface EntityRepository extends JpaRepository<Entity, UUID> {
+public interface EntityRepository extends PagingAndSortingRepository<Entity, UUID> {
     Entity findByAccountAndId(Account account, UUID id);
     Entity findByNameStartingWithIgnoreCase(String name);
     Entity findByNameStartingWithIgnoreCaseAndLocationIsNotNull(String name);
@@ -39,5 +40,5 @@ public interface EntityRepository extends JpaRepository<Entity, UUID> {
     List<Entity> findByLocationIsNotNull();
     List<Entity> findByLocationBetween(Coordinate from, Coordinate to);
     List<Entity> findByAccount(Account account);
-    List<Entity> findByAccountIsNotNull();
+    List<Entity> findByAccountIsNotNull(Sort sort);
 }
