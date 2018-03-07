@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,8 +22,8 @@ var socket = null;
 var stompClient = null;
 var commandHistory = [];
 var commandHistoryIndex = -1;
-var commandHistoryLength = 500;
-var scrollBackLength = 5000;
+var commandHistoryLength = 50;
+var scrollBackLength = 500;
 
 $(document).ready(function() {
     $("#user-input-form").submit(function(event) {
@@ -126,24 +126,7 @@ function showOutput(message) {
 }
 
 function replaceColors(message) {
-    return String(message)
-        .replace(/\[default]/g, "<span class='default'>")
-        .replace(/\[dblack]/g, "<span class='dblack'>")
-        .replace(/\[black]/g, "<span class='black'>")
-        .replace(/\[dwhite]/g, "<span class='dwhite'>")
-        .replace(/\[white]/g, "<span class='white'>")
-        .replace(/\[dred]/g, "<span class='dred'>")
-        .replace(/\[red]/g, "<span class='red'>")
-        .replace(/\[dyellow]/g, "<span class='dyellow'>")
-        .replace(/\[yellow]/g, "<span class='yellow'>")
-        .replace(/\[dgreen]/g, "<span class='dgreen'>")
-        .replace(/\[green]/g, "<span class='green'>")
-        .replace(/\[dcyan]/g, "<span class='dcyan'>")
-        .replace(/\[cyan]/g, "<span class='cyan'>")
-        .replace(/\[dblue]/g, "<span class='dblue'>")
-        .replace(/\[blue]/g, "<span class='blue'>")
-        .replace(/\[dmagenta]/g, "<span class='dmagenta'>")
-        .replace(/\[magenta]/g, "<span class='magenta'>");
+    return String(message).replace(/\[(\w+)]/g, "<span class='$1'>");
 }
 
 function htmlEscape(str) {
