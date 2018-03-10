@@ -58,43 +58,43 @@ public class QuitCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testQuitNoArgs() throws Exception {
+    public void testQuitNoArgs() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         result.getOutput().forEach(line -> assertFalse(line.contains("window.location")));
-        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(movementService, never()).remove(any(Entity.class));
     }
 
     @Test
-    public void testQuitNow() throws Exception {
+    public void testQuitNow() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"now"}, "now");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(movementService).remove(eq(entity));
     }
 
     @Test
-    public void testQuitNowMixedCase() throws Exception {
+    public void testQuitNowMixedCase() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"NoW"}, "NoW");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(movementService).remove(eq(entity));
     }
 
     @Test
-    public void testQuitWrongArg() throws Exception {
+    public void testQuitWrongArg() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {"later"}, "later");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("window.location")));
-        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(movementService, never()).remove(any(Entity.class));
     }
 }

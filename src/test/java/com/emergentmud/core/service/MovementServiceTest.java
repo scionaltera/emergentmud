@@ -63,28 +63,28 @@ public class MovementServiceTest {
 
         when(entity.getLocation()).thenCallRealMethod();
         doCallRealMethod().when(entity).setLocation(any(Coordinate.class));
-        when(entityRepository.findByLocation(eq(2L), eq(1L), eq(3L))).thenReturn(contents);
-        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
+        when(entityRepository.findByLocation(eq(new Coordinate(2L, 1L, 3L)))).thenReturn(contents);
+        when(roomService.createRoom(new Coordinate(2L, 1L, 3L))).thenReturn(room);
 
         entity.setLocation(new Coordinate(0L, 0L, 0L));
 
-        Entity result = movementService.put(entity, 2L, 1L, 3L);
+        Entity result = movementService.put(entity, new Coordinate(2L, 1L, 3L));
 
         assertNotNull(result);
         verify(entityRepository).save(eq(entity));
-        verify(entity).setLocation(eq(new Coordinate(2L, 1L, 3L)));
+        verify(entity, times(2)).setLocation(any(Coordinate.class));
     }
 
     @Test
     public void testPutExistingEntity() throws Exception {
-        when(roomService.createRoom(2L, 1L, 3L)).thenReturn(room);
+        when(roomService.createRoom(new Coordinate(2L, 1L, 3L))).thenReturn(room);
 
         Entity entity = mock(Entity.class);
 
-        movementService.put(entity, 2L, 1L, 3L);
+        movementService.put(entity, new Coordinate(2L, 1L, 3L));
 
         verify(entityRepository).save(eq(entity));
-        verify(entity).setLocation(eq(new Coordinate(2L, 1L, 3L)));
+        verify(entity).setLocation(any(Coordinate.class));
     }
 
     @Test
@@ -102,10 +102,8 @@ public class MovementServiceTest {
         Entity entity = mock(Entity.class);
         List<Entity> contents = new ArrayList<>();
 
-        when(room.getX()).thenReturn(2L);
-        when(room.getY()).thenReturn(1L);
-        when(room.getZ()).thenReturn(3L);
-        when(entityRepository.findByLocation(2L, 1L, 3L)).thenReturn(contents);
+        when(room.getLocation()).thenReturn(new Coordinate(2L, 1L, 3L));
+        when(entityRepository.findByLocation(new Coordinate(2L, 1L, 3L))).thenReturn(contents);
 
         assertFalse(contents.contains(entity));
 

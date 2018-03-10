@@ -31,18 +31,16 @@ public class ZoneTest {
     @Before
     public void setUp() {
         zone = new Zone();
-        zone.setBottomLeftX(0L);
-        zone.setBottomLeftY(0L);
-        zone.setTopRightX(10L);
-        zone.setTopRightY(10L);
+        zone.setBottomLeft(new Coordinate(0L, 0L, 0L));
+        zone.setTopRight(new Coordinate(10L, 10L, 0L));
     }
 
     @Test
     public void testEncompasses() {
-        assertTrue(zone.encompasses(5L, 5L, 0L));
-        assertTrue(zone.encompasses(0L, 0L, 0L));
-        assertTrue(zone.encompasses(5L, 5L, 150L));
-        assertFalse(zone.encompasses(-5L, -5L, 0L));
-        assertFalse(zone.encompasses(15L, 15L, 0L));
+        assertTrue(zone.encompasses(new Coordinate(5L, 5L, 0L)));
+        assertTrue(zone.encompasses(new Coordinate(0L, 0L, 0L)));
+        assertTrue(zone.encompasses(new Coordinate(5L, 5L, 150L)));
+        assertFalse(zone.encompasses(new Coordinate(-5L, -5L, 0L)));
+        assertFalse(zone.encompasses(new Coordinate(15L, 15L, 0L)));
     }
 }

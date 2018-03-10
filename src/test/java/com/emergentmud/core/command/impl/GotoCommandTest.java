@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -57,6 +58,12 @@ public class GotoCommandTest {
     private Entity morgan;
 
     @Mock
+    private Coordinate startLocation;
+
+    @Mock
+    private Coordinate destLocation;
+
+    @Mock
     private Room destination;
 
     @Mock
@@ -70,21 +77,22 @@ public class GotoCommandTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
-        when(morgan.getX()).thenReturn(1000L);
-        when(morgan.getY()).thenReturn(1000L);
-        when(morgan.getZ()).thenReturn(0L);
-        when(destination.getX()).thenReturn(1000L);
-        when(destination.getY()).thenReturn(1000L);
-        when(destination.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(startLocation);
+        when(startLocation.getX()).thenReturn(0L);
+        when(startLocation.getY()).thenReturn(0L);
+        when(startLocation.getZ()).thenReturn(0L);
+        when(morgan.getLocation()).thenReturn(destLocation);
+        when(destLocation.getX()).thenReturn(1000L);
+        when(destLocation.getY()).thenReturn(1000L);
+        when(destLocation.getZ()).thenReturn(0L);
+        when(destination.getLocation()).thenReturn(destLocation);
         when(entityService.entitySearchInWorld(eq(entity), eq("morgan"))).thenReturn(Optional.of(morgan));
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(movementService.put(eq(entity), eq(1000L), eq(1000L), eq(0L))).thenAnswer(invocation -> {
-            when(entity.getX()).thenReturn(1000L);
-            when(entity.getY()).thenReturn(1000L);
-            when(entity.getZ()).thenReturn(0L);
+        when(movementService.put(eq(entity), any(Coordinate.class))).thenAnswer(invocation -> {
+            doReturn(invocation.getArgumentAt(1, Coordinate.class).getX()).when(startLocation).getX();
+            doReturn(invocation.getArgumentAt(1, Coordinate.class).getY()).when(startLocation).getY();
+            doReturn(invocation.getArgumentAt(1, Coordinate.class).getZ()).when(startLocation).getZ();
+
             return entity;
         });
 
@@ -92,18 +100,18 @@ public class GotoCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testSyntax() throws Exception {
+    public void testSyntax() {
         assertTrue(command.getParameters().size() == 3);
         assertTrue(command.getSubCommands().isEmpty());
     }
 
     @Test
-    public void testGotoNoArgs() throws Exception {
+    public void testGotoNoArgs() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
@@ -119,9 +127,8 @@ public class GotoCommandTest {
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, times(2)).sendMessageToRoom(eq(entity), any(GameOutput.class));
+        verify(movementService).put(eq(entity), any(Coordinate.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
@@ -134,26 +141,24 @@ public class GotoCommandTest {
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("no one by that name")));
 
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService, never()).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(startLocation), eq(entity), any(GameOutput.class));
+        verify(movementService, never()).put(eq(entity), eq(destLocation));
+        verify(entityService, never()).sendMessageToRoom(eq(destLocation), eq(entity), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
 
     @Test
     public void testGotoSameRoom() throws Exception {
-        when(entity.getX()).thenReturn(1000L);
-        when(entity.getY()).thenReturn(1000L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(destLocation);
 
         GameOutput result = command.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("already there")));
 
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService, never()).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService, never()).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(startLocation), eq(entity), any(GameOutput.class));
+        verify(movementService, never()).put(eq(entity), eq(destLocation));
+        verify(entityService, never()).sendMessageToRoom(eq(destLocation), eq(entity), any(GameOutput.class));
         verify(applicationContext, never()).getBean(eq("lookCommand"));
         verify(lookCommand, never()).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
@@ -164,9 +169,8 @@ public class GotoCommandTest {
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, times(2)).sendMessageToRoom(eq(entity), any(GameOutput.class));
+        verify(movementService).put(eq(entity), any(Coordinate.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
@@ -177,15 +181,14 @@ public class GotoCommandTest {
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, times(2)).sendMessageToRoom(eq(entity), any(GameOutput.class));
+        verify(movementService).put(eq(entity), any(Coordinate.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }
 
     @Test
-    public void testGotoTwoArgsBad() throws Exception {
+    public void testGotoTwoArgsBad() {
         GameOutput result = command.execute(output, entity, cmd, new String[] { "1000", "bad" }, "1000 bad");
 
         assertTrue(result.getOutput().stream().anyMatch(line -> line.contains("Usage")));
@@ -197,17 +200,15 @@ public class GotoCommandTest {
 
     @Test
     public void testGotoTwoArgsNullOrigin() throws Exception {
-        when(entity.getX()).thenReturn(null);
-        when(entity.getY()).thenReturn(null);
-        when(entity.getZ()).thenReturn(null);
+        when(entity.getLocation()).thenReturn(null);
 
         GameOutput result = command.execute(output, entity, cmd, new String[] {"1000", "1000"}, "1000 1000");
 
         assertFalse(result.getOutput().stream().anyMatch(line -> line.contains("Usage: ")));
 
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(movementService).put(eq(entity), eq(1000L), eq(1000L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(1000L), eq(1000L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(startLocation), eq(entity), any(GameOutput.class));
+        verify(movementService).put(eq(entity), any(Coordinate.class));
+        verify(entityService, times(2)).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(eq(output), eq(entity), eq("look"), any(), eq(""));
     }

@@ -21,6 +21,7 @@
 package com.emergentmud.core.service;
 
 import com.emergentmud.core.model.Biome;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.WhittakerGridLocation;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.WhittakerGridLocationRepository;
@@ -56,7 +57,7 @@ public class ZoneServiceTest {
     @Mock
     private Zone zone;
 
-    List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
+    private List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();
 
     private ZoneService zoneService;
 
@@ -92,27 +93,27 @@ public class ZoneServiceTest {
     }
 
     @Test
-    public void testFetchZone() throws Exception {
-        zoneService.fetchZone(0L, 1L);
+    public void testFetchZone() {
+        zoneService.fetchZone(new Coordinate(0L, 1L, 0L));
 
-        verify(zoneRepository).findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(eq(0L), eq(0L), eq(1L), eq(1L));
+        verify(zoneRepository).findZoneAtPoint(eq(0L), eq(1L));
     }
 
     @Test
-    public void testCreateZoneAlreadyExists() throws Exception {
-        when(zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(eq(0L), eq(0L), eq(0L), eq(0L))).thenReturn(zone);
+    public void testCreateZoneAlreadyExists() {
+        when(zoneRepository.findZoneAtPoint(eq(0L), eq(0L))).thenReturn(zone);
 
-        Zone zoneResult = zoneService.createZone(0L, 0L);
+        Zone zoneResult = zoneService.createZone(new Coordinate(0L, 0L, 0L));
 
         assertEquals(zone, zoneResult);
     }
 
     @Test
-    public void testCreateZone() throws Exception {
+    public void testCreateZone() {
         when(random.nextInt(eq(3))).thenReturn(0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2);
         when(random.nextInt(eq(4))).thenReturn(0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3);
 
-        Zone zoneResult = zoneService.createZone(0L, 0L);
+        Zone zoneResult = zoneService.createZone(new Coordinate(0L, 0L, 0L));
 
         assertNotNull(zoneResult);
     }

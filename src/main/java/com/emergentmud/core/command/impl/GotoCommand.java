@@ -94,7 +94,8 @@ public class GotoCommand extends BaseCommand {
             }
         }
 
-        if (((Long)location[0]).equals(entity.getLocation().getX())
+        if (entity.getLocation() != null
+                && ((Long)location[0]).equals(entity.getLocation().getX())
                 && ((Long)location[1]).equals(entity.getLocation().getY())
                 && ((Long)location[2]).equals(entity.getLocation().getZ())) {
 

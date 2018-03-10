@@ -21,9 +21,12 @@
 package com.emergentmud.core.util;
 
 import com.emergentmud.core.command.PromptBuilder;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.RoomRepository;
 import com.emergentmud.core.service.EntityService;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +52,9 @@ public class EntityServiceTest {
     private EntityRepository entityRepository;
 
     @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
@@ -61,11 +67,15 @@ public class EntityServiceTest {
     private Entity stu;
 
     @Mock
+    private Room room;
+
+    @Mock
     private GameOutput output;
 
     @Captor
     private ArgumentCaptor<MessageHeaders> messageHeadersArgumentCaptor;
 
+    private Coordinate origin = new Coordinate(0, 0, 0);
     private List<Entity> contents;
 
     private EntityService entityService;
@@ -76,21 +86,21 @@ public class EntityServiceTest {
 
         contents = generateContents();
 
-        when(entityRepository.findByLocation(eq(0L), eq(0L), eq(0L))).thenReturn(contents);
+        when(roomRepository.findByLocation(eq(origin))).thenReturn(room);
+        when(room.getLocation()).thenReturn(origin);
+        when(entityRepository.findByLocation(eq(origin))).thenReturn(contents);
         when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(stu);
         when(entity.getId()).thenReturn(UUID.randomUUID());
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(origin);
         when(entity.getStompSessionId()).thenReturn("stompSessionId");
         when(entity.getStompUsername()).thenReturn("stompUsername");
 
-        entityService = new EntityService(entityRepository, simpMessagingTemplate, promptBuilder);
+        entityService = new EntityService(entityRepository, roomRepository, simpMessagingTemplate, promptBuilder);
     }
 
     @Test
-    public void testSendMessageToEntity() throws Exception {
+    public void testSendMessageToEntity() {
         entityService.sendMessageToEntity(entity, output);
 
         verify(simpMessagingTemplate).convertAndSendToUser(
@@ -107,14 +117,14 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testSendMessageToRoom() throws Exception {
-        entityService.sendMessageToRoom(0L, 0L, 0L, entity, output);
+    public void testSendMessageToRoom() {
+        entityService.sendMessageToRoom(origin, entity, output);
 
         verifyContents();
     }
 
     @Test
-    public void testSendMessageToRoomWithExclude() throws Exception {
+    public void testSendMessageToRoomWithExclude() {
         Entity excludeMe = mock(Entity.class);
         List<Entity> exclude = Collections.singletonList(excludeMe);
 
@@ -124,7 +134,7 @@ public class EntityServiceTest {
 
         contents.add(excludeMe);
 
-        entityService.sendMessageToRoom(0L, 0L, 0L, exclude, output);
+        entityService.sendMessageToRoom(origin, exclude, output);
 
         contents.remove(excludeMe);
 
@@ -133,43 +143,43 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testSendMessageToListeners() throws Exception {
+    public void testSendMessageToListeners() {
         entityService.sendMessageToListeners(contents, entity, output);
 
         verifyContents();
     }
 
     @Test
-    public void testSendMessageToListenersNoSender() throws Exception {
+    public void testSendMessageToListenersNoSender() {
         entityService.sendMessageToListeners(contents, output);
 
         verifyContents();
     }
 
     @Test
-    public void testEntitySearchRoom() throws Exception {
+    public void testEntitySearchRoom() {
         Optional<Entity> entityOptional = entityService.entitySearchRoom(entity, "Entity1");
 
         assertTrue(entityOptional.isPresent());
     }
 
     @Test
-    public void testEntitySearchRoomNotFound() throws Exception {
+    public void testEntitySearchRoomNotFound() {
         Optional<Entity> entityOptional = entityService.entitySearchRoom(entity, "Stu");
 
         assertFalse(entityOptional.isPresent());
     }
 
     @Test
-    public void testEntitySearchInWorldSameRoom() throws Exception {
+    public void testEntitySearchInWorldSameRoom() {
         Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Entity1");
 
         assertTrue(entityOptional.isPresent());
     }
 
     @Test
-    public void testEntitySearchInWorldDifferentRoom() throws Exception {
-        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+    public void testEntitySearchInWorldDifferentRoom() {
+        when(entityRepository.findByLocation(origin)).thenReturn(Collections.emptyList());
 
         Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Stu");
 
@@ -177,8 +187,8 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testEntitySearchInWorldNotInWorld() throws Exception {
-        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+    public void testEntitySearchInWorldNotInWorld() {
+        when(entityRepository.findByLocation(origin)).thenReturn(Collections.emptyList());
         when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Fred"))).thenReturn(null);
 
         Optional<Entity> entityOptional = entityService.entitySearchInWorld(entity, "Fred");
@@ -187,15 +197,15 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testEntitySearchGlobalInRoom() throws Exception {
+    public void testEntitySearchGlobalInRoom() {
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
 
         assertTrue(entityOptional.isPresent());
     }
 
     @Test
-    public void testEntitySearchGlobalDifferentRoom() throws Exception {
-        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+    public void testEntitySearchGlobalDifferentRoom() {
+        when(entityRepository.findByLocation(origin)).thenReturn(Collections.emptyList());
 
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
 
@@ -203,8 +213,8 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testEntitySearchGlobalOffline() throws Exception {
-        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+    public void testEntitySearchGlobalOffline() {
+        when(entityRepository.findByLocation(origin)).thenReturn(Collections.emptyList());
         when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(null);
 
         Optional<Entity> entityOptional = entityService.entitySearchGlobal(entity, "Stu");
@@ -213,8 +223,8 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void testEntitySearchGlobalNoSuchEntity() throws Exception {
-        when(entityRepository.findByLocation(0L, 0L, 0L)).thenReturn(Collections.emptyList());
+    public void testEntitySearchGlobalNoSuchEntity() {
+        when(entityRepository.findByLocation(origin)).thenReturn(Collections.emptyList());
         when(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(eq("Stu"))).thenReturn(null);
         when(entityRepository.findByNameStartingWithIgnoreCase(eq("Stu"))).thenReturn(null);
 
