@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -57,7 +57,7 @@ public class GossipCommand extends BaseCommunicationCommand implements Command {
 
         GameOutput toRoom = new GameOutput(String.format("[green]%s gossips '%s[green]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
 
-        List<Entity> contents = entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        List<Entity> contents = entityRepository.findByLocationIsNotNull();
 
         entityService.sendMessageToListeners(contents, entity, toRoom);
 

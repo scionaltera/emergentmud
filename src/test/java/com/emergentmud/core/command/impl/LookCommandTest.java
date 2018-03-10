@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Biome;
 import com.emergentmud.core.model.Room;
@@ -71,15 +72,13 @@ public class LookCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testLookVoid() throws Exception {
-        when(entity.getX()).thenReturn(null);
-        when(entity.getY()).thenReturn(null);
-        when(entity.getZ()).thenReturn(null);
+    public void testLookVoid() {
+        when(entity.getLocation()).thenReturn(null);
 
         GameOutput result = command.execute(output, entity, cmd, tokens, raw);
 
@@ -89,10 +88,10 @@ public class LookCommandTest {
     }
 
     @Test
-    public void testLook() throws Exception {
-        when(zone.encompasses(anyLong(), anyLong(), anyLong())).thenReturn(true, false, true, false);
+    public void testLook() {
+        when(zone.encompasses(any(Coordinate.class))).thenReturn(true, false, true, false);
         when(room.getZone()).thenReturn(zone);
-        when(roomService.fetchRoom(eq(0L), eq(0L), eq(0L))).thenReturn(room);
+        when(roomService.fetchRoom(eq(new Coordinate(0L, 0L, 0L)))).thenReturn(room);
         when(biome.getName()).thenReturn("Blasted Hellscape");
 
 

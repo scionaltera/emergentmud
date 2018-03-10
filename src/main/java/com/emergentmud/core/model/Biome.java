@@ -41,6 +41,9 @@ public class Biome {
     private Integer color;
     private String cellSelectionStrategy;
 
+    // This collection gets populated by Hibernate and is not intended to be changed at runtime.
+    // Maybe at some point in the future there will be a command to edit descriptions from inside the game.
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> description;
 
@@ -66,8 +69,8 @@ public class Biome {
         return name;
     }
 
-    public String getDescription(Long x, Long y, Long z) {
-        return description.get((int) (Math.abs(x + y + z)) % description.size());
+    public String getDescription(Coordinate location) {
+        return description.get((int) Math.abs((location.getX() + location.getY() + location.getZ())) % description.size());
     }
 
     public Integer getColor() {

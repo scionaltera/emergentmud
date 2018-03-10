@@ -21,8 +21,8 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
-import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
 import com.emergentmud.core.service.EntityService;
@@ -46,9 +46,6 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     private GameOutput output;
 
     @Mock
-    private Room room;
-
-    @Mock
     private Entity entity;
 
     @Mock
@@ -69,9 +66,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("stu"))).thenReturn(stu);
         when(entityRepository.findByNameStartingWithIgnoreCase(contains("testy"))).thenReturn(entity);
 
@@ -79,12 +74,12 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testTellNoArgs() throws Exception {
+    public void testTellNoArgs() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { },
                 "");
@@ -94,7 +89,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testTellWithoutMessage() throws Exception {
+    public void testTellWithoutMessage() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu" },
                 "stu");
@@ -105,7 +100,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
 
 
     @Test
-    public void testTellWithNonexistentTarget() throws Exception {
+    public void testTellWithNonexistentTarget() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "frodo", "Feed", "me", "a", "stray", "cat." },
                 "frodo Feed me a stray cat.");
@@ -115,7 +110,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testTellSelf() throws Exception {
+    public void testTellSelf() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "testy", "Feed", "me", "a", "stray", "cat." },
                 "testy Feed me a stray cat.");
@@ -125,7 +120,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testTellWithSingleWordMessage() throws Exception {
+    public void testTellWithSingleWordMessage() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "Ahoy!" },
                 "stu Ahoy!");
@@ -139,7 +134,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testTellSomething() throws Exception {
+    public void testTellSomething() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "Feed", "me", "a", "stray", "cat." },
                 "stu Feed me a stray cat.");
@@ -153,7 +148,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testTellSomethingWithSymbols() throws Exception {
+    public void testTellSomethingWithSymbols() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "stu", "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "stu <script type=\"text/javascript\">var evil = \"stuff\";</script>");
@@ -167,7 +162,7 @@ public class TellCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testSayNothing() throws Exception {
+    public void testSayNothing() {
         GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("Usage: TELL &lt;target&gt; &lt;message&gt;"));

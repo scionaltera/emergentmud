@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoSuchRoomException;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -66,33 +67,35 @@ public class MoveCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(look);
+        when(entity.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
 
         doAnswer(i -> {
             Entity entity = i.getArgumentAt(0, Entity.class);
-            long x = i.getArgumentAt(1, Long.class);
-            long y = i.getArgumentAt(2, Long.class);
-            long z = i.getArgumentAt(3, Long.class);
+            long x = i.getArgumentAt(1, Coordinate.class).getX();
+            long y = i.getArgumentAt(1, Coordinate.class).getY();
+            long z = i.getArgumentAt(1, Coordinate.class).getZ();
 
-            when(entity.getX()).thenReturn(x);
-            when(entity.getY()).thenReturn(y);
-            when(entity.getZ()).thenReturn(z);
+            Coordinate location = mock(Coordinate.class);
+
+            when(location.getX()).thenReturn(x);
+            when(location.getY()).thenReturn(y);
+            when(location.getZ()).thenReturn(z);
+            when(entity.getLocation()).thenReturn(location);
 
             return entity;
-        }).when(movementService).put(any(Entity.class), anyLong(), anyLong(), anyLong());
+        }).when(movementService).put(any(Entity.class), any(Coordinate.class));
 
         command = new MoveCommand(Direction.NORTH, applicationContext, movementService, entityService);
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testMoveInVoid() throws Exception {
-        when(entity.getX()).thenReturn(null);
-        when(entity.getY()).thenReturn(null);
-        when(entity.getZ()).thenReturn(null);
+    public void testMoveInVoid() {
+        when(entity.getLocation()).thenReturn(null);
 
         command.execute(output, entity, cmd, tokens, raw);
 
@@ -103,21 +106,20 @@ public class MoveCommandTest {
     @Test
     public void testExitMessageOnBlockedMovement() {
         try {
-            doThrow(new NoSuchRoomException("Alas!")).when(movementService).put(any(Entity.class), anyLong(), anyLong(), anyLong());
+            doThrow(new NoSuchRoomException("Alas!")).when(movementService).put(any(Entity.class), any(Coordinate.class));
 
             command.execute(output, entity, cmd, tokens, raw);
         } catch (NoSuchRoomException e) {
             fail("Exception should not have bubbled up this far.");
         }
 
-        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(any(Coordinate.class), any(Entity.class), any(GameOutput.class));
     }
 
     @Test
     public void testExitMessageOnMovement() {
         command.execute(output, entity, cmd, tokens, raw);
 
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(1L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(entity), any(GameOutput.class));
     }
 }

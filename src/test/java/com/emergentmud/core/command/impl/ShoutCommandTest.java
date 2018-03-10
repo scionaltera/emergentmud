@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
@@ -73,22 +74,20 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
 
-        when(roomService.isWithinDistance(any(Entity.class), anyLong(), anyLong(), anyLong(), anyDouble())).thenCallRealMethod();
+        when(roomService.isWithinDistance(any(Entity.class), any(Coordinate.class), anyDouble())).thenCallRealMethod();
 
         command = new ShoutCommand(entityRepository, roomService, entityService);
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testShoutSomething() throws Exception {
+    public void testShoutSomething() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
@@ -102,28 +101,22 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testShoutRadius() throws Exception {
+    public void testShoutRadius() {
         List<Entity> entities = new ArrayList<>();
 
         for (long y = -SHOUT_DISTANCE; y < SHOUT_DISTANCE; y++) {
             for (long x = -SHOUT_DISTANCE; x < SHOUT_DISTANCE; x++) {
                 Entity entity = mock(Entity.class);
 
-                when(entity.getX()).thenReturn(x);
-                when(entity.getY()).thenReturn(y);
-                when(entity.getZ()).thenReturn(0L);
+                when(entity.getLocation()).thenReturn(new Coordinate(x, y, 0L));
 
                 entities.add(entity);
             }
         }
 
-        when(entityRepository.findByXBetweenAndYBetweenAndZBetween(
-                eq(-7L),
-                eq(7L),
-                eq(-7L),
-                eq(7L),
-                eq(-7L),
-                eq(7L)
+        when(entityRepository.findByLocationBetween(
+                new Coordinate(-SHOUT_DISTANCE, -SHOUT_DISTANCE, -SHOUT_DISTANCE),
+                new Coordinate(SHOUT_DISTANCE, SHOUT_DISTANCE, SHOUT_DISTANCE)
         )).thenReturn(entities);
 
         doNothing().when(entityService).sendMessageToListeners(
@@ -145,7 +138,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testShoutSomethingWithSymbols() throws Exception {
+    public void testShoutSomethingWithSymbols() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
@@ -159,7 +152,7 @@ public class ShoutCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testShoutNothing() throws Exception {
+    public void testShoutNothing() {
         GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to shout?"));

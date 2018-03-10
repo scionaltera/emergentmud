@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -63,9 +64,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
         when(room.getX()).thenReturn(0L);
         when(room.getY()).thenReturn(0L);
         when(room.getZ()).thenReturn(0L);
@@ -74,18 +73,18 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testEmoteSomething() throws Exception {
+    public void testEmoteSomething() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "dies", "a", "little", "on", "the", "inside." },
                 "dies a little on the inside.");
 
         verify(response).append(eq("Testy dies a little on the inside."));
-        verify(entityService).sendMessageToRoom(eq(0L),eq(0L),eq(0L), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -93,13 +92,13 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testEmoteSomethingWithSymbols() throws Exception {
+    public void testEmoteSomethingWithSymbols() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("Testy &lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;"));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -107,7 +106,7 @@ public class EmoteCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testEmoteNothing() throws Exception {
+    public void testEmoteNothing() {
         GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to emote?"));

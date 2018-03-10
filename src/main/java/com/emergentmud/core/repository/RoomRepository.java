@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.repository;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Room;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -29,7 +30,6 @@ import java.util.UUID;
 
 @Repository
 public interface RoomRepository extends CrudRepository<Room, UUID> {
-    Room findByXAndYAndZ(Long x, Long y, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZ(Long xFrom, Long xTo, Long yFrom, Long yTo, Long z);
-    List<Room> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
+    Room findByLocation(Coordinate location);
+    List<Room> findByLocationBetween(Coordinate from, Coordinate to);
 }

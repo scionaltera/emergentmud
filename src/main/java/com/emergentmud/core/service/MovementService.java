@@ -21,6 +21,7 @@
 package com.emergentmud.core.service;
 
 import com.emergentmud.core.exception.NoSuchRoomException;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.repository.EntityRepository;
@@ -43,37 +44,31 @@ public class MovementService {
         this.roomService = roomService;
     }
 
-    public Entity put(Entity entity, long x, long y, long z) throws NoSuchRoomException {
-        Room room = roomService.fetchRoom(x, y, z);
+    public Entity put(Entity entity, Coordinate location) throws NoSuchRoomException {
+        Room room = roomService.fetchRoom(location);
 
         if (room == null) {
-            room = roomService.createRoom(x, y, z);
+            room = roomService.createRoom(location);
 
             if (room == null) {
                 throw new NoSuchRoomException("Alas, you cannot go that way.");
             }
         }
 
-        entity.setX(x);
-        entity.setY(y);
-        entity.setZ(z);
+        entity.setLocation(room.getLocation());
         entityRepository.save(entity);
 
-        LOGGER.trace("Put {} into room ({}, {}, {})", entity.getName(), x, y, z);
+        LOGGER.trace("Put {} into room {}", entity.getName(), entity.getLocation());
 
         return entity;
     }
 
     public void remove(Entity entity) {
-        LOGGER.trace("Remove {} from room ({}, {}, {})",
+        LOGGER.trace("Remove {} from room {}",
                 entity.getName(),
-                entity.getX(),
-                entity.getY(),
-                entity.getZ());
+                entity.getLocation());
 
-        entity.setX(null);
-        entity.setY(null);
-        entity.setZ(null);
+        entity.setLocation(null);
         entityRepository.save(entity);
     }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,6 +22,7 @@ package com.emergentmud.core.logging;
 
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandRole;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -84,19 +85,15 @@ public class InWorldAppenderTest {
         when(capabilityRepository.findByName(eq(CommandRole.LOG.name()))).thenReturn(capability);
         when(admin.isCapable(eq(capability))).thenReturn(true);
         when(adminOffline.isCapable(eq(capability))).thenReturn(true);
-        when(admin.getX()).thenReturn(0L);
-        when(admin.getY()).thenReturn(0L);
-        when(admin.getZ()).thenReturn(0L);
-        when(player.getX()).thenReturn(0L);
-        when(player.getY()).thenReturn(0L);
-        when(player.getZ()).thenReturn(0L);
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(Arrays.asList(admin, player));
+        when(admin.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
+        when(player.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(Arrays.asList(admin, player));
 
         inWorldAppender = new InWorldAppender<>();
     }
 
     @Test
-    public void testEarlyStartup() throws Exception {
+    public void testEarlyStartup() {
         inWorldAppender.append(eventObject);
 
         verifyZeroInteractions(entityService);
@@ -109,7 +106,7 @@ public class InWorldAppenderTest {
     }
 
     @Test
-    public void testContextInitialized() throws Exception {
+    public void testContextInitialized() {
         singleton.setApplicationContext(applicationContext);
 
         inWorldAppender.append(eventObject);
@@ -124,7 +121,7 @@ public class InWorldAppenderTest {
     }
 
     @Test
-    public void testBeansInitialized() throws Exception {
+    public void testBeansInitialized() {
         singleton.setApplicationContext(applicationContext);
 
         when(applicationContext.getBean("entityService")).thenReturn(entityService);
@@ -133,7 +130,7 @@ public class InWorldAppenderTest {
 
         inWorldAppender.append(eventObject);
 
-        verify(entityRepository).findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        verify(entityRepository).findByLocationIsNotNull();
         verify(entityService).sendMessageToListeners(anyListOf(Entity.class), any(GameOutput.class));
         verify(admin).isCapable(eq(capability));
         verify(player).isCapable(eq(capability));

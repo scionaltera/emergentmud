@@ -61,7 +61,7 @@ public class Emote {
             output.append("Huh?");
         } else {
             if (args.length > 0) {
-                Optional<Entity> optionalTarget = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ())
+                Optional<Entity> optionalTarget = entityRepository.findByLocation(entity.getLocation())
                         .stream()
                         .filter(e -> ("self".equals(args[0]) && e.getName().equals(entity.getName()))
                                 || ("me".equals(args[0]) && e.getName().equals(entity.getName()))
@@ -77,11 +77,11 @@ public class Emote {
             }
 
             if (target == null) {
-                entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, new GameOutput(replaceVariables(metadata.getToRoomUntargeted(), entity, null)));
+                entityService.sendMessageToRoom(entity, new GameOutput(replaceVariables(metadata.getToRoomUntargeted(), entity, null)));
                 output.append(replaceVariables(metadata.getToSelfUntargeted(), entity, null));
             } else if (entity.equals(target)) {
                 if (metadata.getToSelfAsTarget() != null && metadata.getToRoomTargetingSelf() != null) {
-                    List<Entity> others = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+                    List<Entity> others = entityRepository.findByLocation(entity.getLocation());
 
                     others.remove(entity);
                     others.remove(target);
@@ -92,7 +92,7 @@ public class Emote {
                     output.append("Sorry, this emote doesn't support targeting yourself.");
                 }
             } else {
-                List<Entity> others = entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ());
+                List<Entity> others = entityRepository.findByLocation(entity.getLocation());
 
                 others.remove(entity);
                 others.remove(target);

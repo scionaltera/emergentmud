@@ -29,6 +29,7 @@ import com.emergentmud.core.model.CapabilityObject;
 import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandRole;
 import com.emergentmud.core.model.CommandMetadata;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Pronoun;
@@ -320,7 +321,7 @@ public class MainResource {
 
         entity = entityRepository.save(entity);
 
-        if (entity.getX() != null && entity.getY() != null && entity.getZ() != null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
+        if (entity.getLocation() == null && entity.getStompSessionId() != null && entity.getStompUsername() != null) {
             LOGGER.info("Reconnecting: {}@{}", entity.getStompSessionId(), entity.getStompUsername());
 
             GameOutput out = new GameOutput("[red]This session has been reconnected in another browser.");
@@ -328,7 +329,7 @@ public class MainResource {
         }
 
         try {
-            entity = movementService.put(entity, 0L, 0L, 0L);
+            entity = movementService.put(entity, new Coordinate(0L, 0L, 0L));
         } catch (NoSuchRoomException ex) {
             GameOutput errorOut = new GameOutput("[red]No starting room could be found! The administrators have been notified!");
             entityService.sendMessageToEntity(entity, errorOut);
@@ -340,7 +341,7 @@ public class MainResource {
 
         GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has entered the game.", entity.getName()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
+        entityService.sendMessageToRoom(entity, enterMessage);
 
         LOGGER.info("{} has entered the game from {}", entity.getName(), entity.getRemoteAddr());
 

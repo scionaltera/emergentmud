@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -42,7 +42,7 @@ public class WhoCommand extends BaseCommand {
 
     @Override
     public GameOutput execute(GameOutput output, Entity entity, String command, String[] tokens, String raw) {
-        List<Entity> online = entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull();
+        List<Entity> online = entityRepository.findByLocationIsNotNull();
 
         output.append("[dwhite]Who is online:");
         online.forEach(e -> output.append("[dwhite]" + e.getName()));

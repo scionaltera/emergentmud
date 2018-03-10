@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -30,7 +31,7 @@ import java.util.LinkedList;
 @Component
 public class NewestCellSelectionStrategy implements CellSelectionStrategy {
     @Override
-    public Cell selectCell(LinkedList<Cell> queue) {
+    public Coordinate selectCell(LinkedList<Coordinate> queue) {
         return queue.getFirst();
     }
 }

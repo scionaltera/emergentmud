@@ -21,6 +21,7 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -33,11 +34,11 @@ import java.util.UUID;
 public interface EntityRepository extends PagingAndSortingRepository<Entity, UUID> {
     Entity findByAccountAndId(Account account, UUID id);
     Entity findByNameStartingWithIgnoreCase(String name);
-    Entity findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(String name);
+    Entity findByNameStartingWithIgnoreCaseAndLocationIsNotNull(String name);
     Entity findByStompSessionIdAndStompUsername(String stompSessionId, String stompUsername);
-    List<Entity> findByXAndYAndZ(Long x, Long y, Long z);
-    List<Entity> findByXIsNotNullAndYIsNotNullAndZIsNotNull();
-    List<Entity> findByXBetweenAndYBetweenAndZBetween(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo);
+    List<Entity> findByLocation(Coordinate location);
+    List<Entity> findByLocationIsNotNull();
+    List<Entity> findByLocationBetween(Coordinate from, Coordinate to);
     List<Entity> findByAccount(Account account);
     List<Entity> findByAccountIsNotNull(Sort sort);
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Pronoun;
@@ -87,23 +88,19 @@ public class EmoteTest {
         when(metadata.getToSelfAsTarget()).thenReturn("You grin to yourself.");
         when(metadata.getToRoomTargetingSelf()).thenReturn("%self% grins to %himself%.");
 
+        Coordinate origin = new Coordinate(0, 0, 0);
+
         when(entity.getName()).thenReturn("Scion");
         when(entity.getGender()).thenReturn(malePronoun);
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(origin);
 
         when(target.getName()).thenReturn("Bnarg");
         when(target.getGender()).thenReturn(malePronoun);
-        when(target.getX()).thenReturn(0L);
-        when(target.getY()).thenReturn(0L);
-        when(target.getZ()).thenReturn(0L);
+        when(target.getLocation()).thenReturn(origin);
 
         when(observer.getName()).thenReturn("Ghan");
         when(observer.getGender()).thenReturn(malePronoun);
-        when(observer.getX()).thenReturn(0L);
-        when(observer.getY()).thenReturn(0L);
-        when(observer.getZ()).thenReturn(0L);
+        when(observer.getLocation()).thenReturn(origin);
 
         List<Entity> entities = new ArrayList<>();
 
@@ -111,13 +108,13 @@ public class EmoteTest {
         entities.add(target);
         entities.add(observer);
 
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(entities);
+        when(entityRepository.findByLocation(eq(origin))).thenReturn(entities);
 
         emote = new Emote(entityRepository, entityService);
     }
 
     @Test
-    public void testMissingRequiredFields() throws Exception {
+    public void testMissingRequiredFields() {
         when(metadata.getToRoomUntargeted()).thenReturn(null);
         when(metadata.getToSelfWithTarget()).thenReturn(null);
         when(metadata.getToTarget()).thenReturn(null);
@@ -131,11 +128,11 @@ public class EmoteTest {
     }
 
     @Test
-    public void testEmote() throws Exception {
+    public void testEmote() {
         emote.execute(output, metadata, entity, new String[0]);
 
         verify(output).append("You grin.");
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(entity), outputCaptor.capture());
 
         GameOutput observerOutput = outputCaptor.getValue();
 
@@ -143,14 +140,14 @@ public class EmoteTest {
     }
 
     @Test
-    public void testTargetNotFound() throws Exception {
+    public void testTargetNotFound() {
         emote.execute(output, metadata, entity, new String[] {"Xander"});
 
         verify(output).append("You do not see anyone by that name here.");
     }
 
     @Test
-    public void testTargetedEmote() throws Exception {
+    public void testTargetedEmote() {
         emote.execute(output, metadata, entity, new String[]{"Bnarg"});
 
         verify(output).append("You grin at Bnarg.");
@@ -166,7 +163,7 @@ public class EmoteTest {
     }
 
     @Test
-    public void testMe() throws Exception {
+    public void testMe() {
         emote.execute(output, metadata, entity, new String[] {"me"});
 
         verify(output).append("You grin to yourself.");
@@ -178,7 +175,7 @@ public class EmoteTest {
     }
 
     @Test
-    public void testSelf() throws Exception {
+    public void testSelf() {
         emote.execute(output, metadata, entity, new String[] {"self"});
 
         verify(output).append("You grin to yourself.");
@@ -190,7 +187,7 @@ public class EmoteTest {
     }
 
     @Test
-    public void testSelfUnsupported() throws Exception {
+    public void testSelfUnsupported() {
         when(metadata.getToSelfAsTarget()).thenReturn(null);
         when(metadata.getToRoomTargetingSelf()).thenReturn(null);
 

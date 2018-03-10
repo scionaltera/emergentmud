@@ -29,6 +29,7 @@ import com.emergentmud.core.model.CapabilityObject;
 import com.emergentmud.core.model.CapabilityScope;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Pronoun;
@@ -149,9 +150,6 @@ public class MainResourceTest {
     @Mock
     private Pronoun malePronoun;
 
-    @Mock
-    private Pronoun femalePronoun;
-
     @Captor
     private ArgumentCaptor<Map<String, String>> mapCaptor;
 
@@ -210,7 +208,7 @@ public class MainResourceTest {
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ACCOUNT), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminAccountCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.PLAYER))).thenReturn(Collections.singletonList(normalCapability));
         when(capabilityRepository.findByObjectAndScope(eq(CapabilityObject.ENTITY), eq(CapabilityScope.ADMINISTRATOR))).thenReturn(Collections.singletonList(adminCapability));
-        when(movementService.put(eq(entity), anyLong(), anyLong(), anyLong())).thenReturn(entity);
+        when(movementService.put(eq(entity), any(Coordinate.class))).thenReturn(entity);
 
         mainResource = new MainResource(
                 applicationContext,
@@ -229,7 +227,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testIndexNotAuthenticated() throws Exception {
+    public void testIndexNotAuthenticated() {
         String view = mainResource.index(httpSession, null, model);
 
         verify(model).addAttribute(eq("networks"), eq(socialNetworks));
@@ -238,7 +236,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testIndexNewAccount() throws Exception {
+    public void testIndexNewAccount() {
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
 
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
@@ -261,7 +259,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testIndexNewAccountAdmin() throws Exception {
+    public void testIndexNewAccountAdmin() {
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
 
         when(accountRepository.count()).thenReturn(0L);
@@ -284,7 +282,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testIndexExistingAccount() throws Exception {
+    public void testIndexExistingAccount() {
         String view = mainResource.index(httpSession, principal, model);
 
         verify(model).addAttribute(eq("networks"), eq(socialNetworks));
@@ -297,7 +295,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSocial() throws Exception {
+    public void testSocial() {
         String view = mainResource.social(NETWORK_ID, httpSession);
 
         verify(httpSession).setAttribute(eq("social"), eq(NETWORK_ID));
@@ -306,7 +304,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testNewEntity() throws Exception {
+    public void testNewEntity() {
         String view = mainResource.newEntity(model);
 
         verify(model).addAttribute(eq("genders"), anyCollectionOf(Pronoun.class));
@@ -315,7 +313,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveFirstNewEntity() throws Exception {
+    public void testSaveFirstNewEntity() {
         when(entityRepository.count()).thenReturn(0L);
 
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
@@ -332,7 +330,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntity() throws Exception {
+    public void testSaveNewEntity() {
         when(entityRepository.count()).thenReturn(100L);
 
         String view = mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
@@ -349,7 +347,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNotAllowed() throws Exception {
+    public void testSaveNewEntityNotAllowed() {
         when(entityRepository.count()).thenReturn(100L);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(null);
 
@@ -363,7 +361,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameTooShort() throws Exception {
+    public void testSaveNewEntityNameTooShort() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("A");
 
@@ -377,7 +375,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameTooLong() throws Exception {
+    public void testSaveNewEntityNameTooLong() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Supercalifragilisticexpealadocious");
 
@@ -391,7 +389,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameNotCapitalized() throws Exception {
+    public void testSaveNewEntityNameNotCapitalized() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("abraham");
 
@@ -405,7 +403,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameInvalidCharacters() throws Exception {
+    public void testSaveNewEntityNameInvalidCharacters() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Abra!ham");
 
@@ -418,7 +416,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameStartsWithHyphen() throws Exception {
+    public void testSaveNewEntityNameStartsWithHyphen() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("-Abraham");
 
@@ -432,7 +430,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameStartsWithApostrophe() throws Exception {
+    public void testSaveNewEntityNameStartsWithApostrophe() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("'Abraham");
 
@@ -446,7 +444,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameEndsWithHyphen() throws Exception {
+    public void testSaveNewEntityNameEndsWithHyphen() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Abraham-");
 
@@ -460,7 +458,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameEndsWithApostrophe() throws Exception {
+    public void testSaveNewEntityNameEndsWithApostrophe() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Abraham'");
 
@@ -474,7 +472,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameMultipleSymbols1() throws Exception {
+    public void testSaveNewEntityNameMultipleSymbols1() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Abra--ham");
 
@@ -488,7 +486,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testSaveNewEntityNameMultipleSymbols2() throws Exception {
+    public void testSaveNewEntityNameMultipleSymbols2() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getName()).thenReturn("Ab-ra-ham");
 
@@ -502,7 +500,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testUnknownGender() throws Exception {
+    public void testUnknownGender() {
         when(entityRepository.count()).thenReturn(100L);
         when(entityCreateRequest.getGender()).thenReturn("martian");
 
@@ -516,14 +514,14 @@ public class MainResourceTest {
     }
 
     @Test(expected = NoAccountException.class)
-    public void testSaveNewEssenceMissingAccount() throws Exception {
+    public void testSaveNewEssenceMissingAccount() {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
         mainResource.saveNewEntity(httpSession, principal, entityCreateRequest, model);
     }
 
     @Test
-    public void testPlayGet() throws Exception {
+    public void testPlayGet() {
         UUID entityId = UUID.randomUUID();
 
         when(httpSession.getAttribute(eq("entityId"))).thenReturn(entityId);
@@ -540,9 +538,9 @@ public class MainResourceTest {
     public void testPlay() throws Exception {
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
-        verify(roomRepository, never()).findByXAndYAndZ(eq(0L), eq(0L), eq(0L));
-        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), outputCaptor.capture());
-        verify(movementService).put(eq(entity), anyLong(), anyLong(), eq(0L));
+        verify(roomRepository, never()).findByLocation(eq(new Coordinate(0L, 0L, 0L)));
+        verify(entityService).sendMessageToRoom(any(Entity.class), outputCaptor.capture());
+        verify(movementService).put(eq(entity), any(Coordinate.class));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         verify(entity).setLastLoginDate(anyLong());
@@ -561,7 +559,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayNoId() throws Exception {
+    public void testPlayNoId() {
         when(playRequest.getEntityId()).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
@@ -572,7 +570,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayNoAccount() throws Exception {
+    public void testPlayNoAccount() {
         when(accountRepository.findBySocialNetworkAndSocialNetworkId(eq(NETWORK_ID), eq(NETWORK_USER))).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
@@ -584,7 +582,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayNotAllowed() throws Exception {
+    public void testPlayNotAllowed() {
         when(account.isCapable(eq(playCapability))).thenReturn(false);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
@@ -596,7 +594,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testPlayNoEntity() throws Exception {
+    public void testPlayNoEntity() {
         when(entityRepository.findByAccountAndId(any(Account.class), any(UUID.class))).thenReturn(null);
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
@@ -611,16 +609,14 @@ public class MainResourceTest {
     public void testPlayReconnect() throws Exception {
         Entity entity0 = entity;
 
-        when(entity0.getX()).thenReturn(0L);
-        when(entity0.getY()).thenReturn(0L);
-        when(entity0.getZ()).thenReturn(0L);
+        when(entity0.getLocation()).thenReturn(null);
         when(entity0.getStompSessionId()).thenReturn("stompSessionId");
         when(entity0.getStompUsername()).thenReturn("stompUsername");
 
         String view = mainResource.play(playRequest, httpSession, httpServletRequest, principal, model);
 
         verify(entityService).sendMessageToEntity(any(Entity.class), outputCaptor.capture());
-        verify(movementService).put(any(Entity.class), anyLong(), anyLong(), eq(0L));
+        verify(movementService).put(any(Entity.class), any(Coordinate.class));
         verify(httpSession).setAttribute(anyString(), mapCaptor.capture());
         verify(model).addAttribute(eq("breadcrumb"), anyString());
         assertEquals("play", view);
@@ -631,7 +627,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testCommandsNotAuthenticated() throws Exception {
+    public void testCommandsNotAuthenticated() {
         List<CommandMetadata> metadata = generateCommandMetadata(false);
 
         when(commandMetadataRepository.findAll()).thenReturn(metadata);
@@ -648,7 +644,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testCommandsAuthenticatedNoAdmins() throws Exception {
+    public void testCommandsAuthenticatedNoAdmins() {
         List<CommandMetadata> metadata = generateCommandMetadata(false);
 
         when(commandMetadataRepository.findAll()).thenReturn(metadata);
@@ -670,7 +666,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testCommandsAuthenticatedWithAdmins() throws Exception {
+    public void testCommandsAuthenticatedWithAdmins() {
         List<CommandMetadata> metadata = generateCommandMetadata(true);
 
         when(commandMetadataRepository.findAll()).thenReturn(metadata);
@@ -694,7 +690,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testEmotesNotAuthenticated() throws Exception {
+    public void testEmotesNotAuthenticated() {
         when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
 
         String view = mainResource.emotes(model, null, httpSession);
@@ -715,7 +711,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testEmotesAuthenticatedNoEssences() throws Exception {
+    public void testEmotesAuthenticatedNoEssences() {
         when(emoteMetadataRepository.findAll()).thenReturn(emoteMetadata);
         when(httpSession.getAttribute(eq("social"))).thenReturn("social");
         when(principal.getName()).thenReturn("principal");
@@ -741,7 +737,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testEmotesAuthenticatedOneEssence() throws Exception {
+    public void testEmotesAuthenticatedOneEssence() {
         ArrayList<Entity> oneEntity = new ArrayList<>();
 
         oneEntity.add(entities.get(0));
@@ -771,7 +767,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testEmotesAuthenticatedTwoEssences() throws Exception {
+    public void testEmotesAuthenticatedTwoEssences() {
         ArrayList<Entity> twoEntities = new ArrayList<>();
 
         twoEntities.add(entities.get(0));
@@ -802,7 +798,7 @@ public class MainResourceTest {
     }
 
     @Test
-    public void testLogout() throws Exception {
+    public void testLogout() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
 

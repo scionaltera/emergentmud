@@ -37,7 +37,7 @@ public class RoomTest {
     }
 
     @Test
-    public void testId() throws Exception {
+    public void testId() {
         UUID uuid = UUID.randomUUID();
 
         room.setId(uuid);
@@ -46,23 +46,9 @@ public class RoomTest {
     }
 
     @Test
-    public void testX() throws Exception {
-        room.setX(99L);
+    public void testLocation() {
+        room.setLocation(new Coordinate(0L, 0L, 0L));
 
-        assertEquals(99L, (long)room.getX());
-    }
-
-    @Test
-    public void testY() throws Exception {
-        room.setY(98L);
-
-        assertEquals(98L, (long)room.getY());
-    }
-
-    @Test
-    public void testZ() throws Exception {
-        room.setZ(97L);
-
-        assertEquals(97L, (long)room.getZ());
+        assertEquals(new Coordinate(0L, 0L, 0L), room.getLocation());
     }
 }

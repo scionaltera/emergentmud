@@ -23,6 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoSuchRoomException;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.MovementService;
@@ -71,9 +72,9 @@ public class GotoCommand extends BaseCommand {
             if (targetOptional.isPresent()) {
                 Entity target = targetOptional.get();
 
-                location[0] = target.getX();
-                location[1] = target.getY();
-                location[2] = target.getZ();
+                location[0] = target.getLocation().getX();
+                location[1] = target.getLocation().getY();
+                location[2] = target.getLocation().getZ();
             } else {
                 output.append("[yellow]There is no one by that name to go to.");
                 return output;
@@ -93,32 +94,33 @@ public class GotoCommand extends BaseCommand {
             }
         }
 
-        if (((Long)location[0]).equals(entity.getX())
-                && ((Long)location[1]).equals(entity.getY())
-                && ((Long)location[2]).equals(entity.getZ())) {
+        if (entity.getLocation() != null
+                && ((Long)location[0]).equals(entity.getLocation().getX())
+                && ((Long)location[1]).equals(entity.getLocation().getY())
+                && ((Long)location[2]).equals(entity.getLocation().getZ())) {
 
             output.append("[yellow]You're already there.");
             return output;
         }
 
-        LOGGER.trace("Location before: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location before: {}", entity.getLocation());
 
         GameOutput exitMessage = new GameOutput(String.format("%s disappears in a puff of smoke!", entity.getName()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, exitMessage);
+        entityService.sendMessageToRoom(entity, exitMessage);
 
         try {
-            entity = movementService.put(entity, location[0], location[1], location[2]);
+            entity = movementService.put(entity, new Coordinate(location[0], location[1], location[2]));
         } catch (NoSuchRoomException ex) {
             output.append(ex.getMessage());
             return output;
         }
 
-        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location after: {}", entity.getLocation());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", entity.getName()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
+        entityService.sendMessageToRoom(entity, enterMessage);
 
         Command look = (Command) applicationContext.getBean("lookCommand");
         look.execute(output, entity, "look", new String[0], "");

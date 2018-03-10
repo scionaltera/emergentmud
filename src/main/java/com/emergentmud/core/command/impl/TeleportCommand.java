@@ -23,6 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.command.BaseCommand;
 import com.emergentmud.core.command.Command;
 import com.emergentmud.core.exception.NoSuchRoomException;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.MovementService;
@@ -90,7 +91,7 @@ public class TeleportCommand extends BaseCommand {
             if (tokens.length == 4) {
                 location[2] = Long.parseLong(tokens[3]);
             } else {
-                location[2] = entity.getZ() != null ? entity.getZ() : 0L;
+                location[2] = entity.getLocation() != null ? entity.getLocation().getZ() : 0L;
             }
         } catch (NumberFormatException e) {
             Optional<Entity> destOptional = entityService.entitySearchInWorld(entity, tokens[1]);
@@ -102,45 +103,45 @@ public class TeleportCommand extends BaseCommand {
 
             Entity dest = destOptional.get();
 
-            location[0] = dest.getX();
-            location[1] = dest.getY();
-            location[2] = dest.getZ();
+            location[0] = dest.getLocation().getX();
+            location[1] = dest.getLocation().getY();
+            location[2] = dest.getLocation().getZ();
         } catch (ArrayIndexOutOfBoundsException e) {
             usage(output, command);
 
             return output;
         }
 
-        if (entity.getX() == location[0]
-                && entity.getY() == location[1]
-                && entity.getZ() == location[2]) {
+        if (entity.getLocation().getX() == location[0]
+                && entity.getLocation().getY() == location[1]
+                && entity.getLocation().getZ() == location[2]) {
 
             output.append("[yellow]You're already there.");
             return output;
         }
 
-        LOGGER.trace("Location before: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location before: {}", entity.getLocation());
 
         String exitMessage = String.format("%s disappears in a puff of smoke!", target.getName());
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), Arrays.asList(entity, target), new GameOutput(exitMessage));
+        entityService.sendMessageToRoom(entity.getLocation(), Arrays.asList(entity, target), new GameOutput(exitMessage));
 
         output
                 .append(String.format("[yellow]You teleport %s.", target.getName()))
                 .append(exitMessage);
 
         try {
-            entity = movementService.put(target, location[0], location[1], location[2]);
+            entity = movementService.put(target, new Coordinate(location[0], location[1], location[2]));
         } catch (NoSuchRoomException ex) {
             output.append(ex.getMessage());
             return output;
         }
 
-        LOGGER.trace("Location after: ({}, {}, {})", entity.getX(), entity.getY(), entity.getZ());
+        LOGGER.trace("Location after: ({}, {}, {})", entity.getLocation());
 
         GameOutput enterMessage = new GameOutput(String.format("%s appears in a puff of smoke!", target.getName()));
 
-        entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), target, enterMessage);
+        entityService.sendMessageToRoom(entity.getLocation(), target, enterMessage);
 
         Command look = (Command) applicationContext.getBean("lookCommand");
         GameOutput lookOutput = new GameOutput();
