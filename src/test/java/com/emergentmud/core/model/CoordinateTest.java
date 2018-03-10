@@ -35,17 +35,6 @@ public class CoordinateTest {
     }
 
     @Test
-    public void testMutation() {
-        coordinate.setX(1L);
-        coordinate.setY(2L);
-        coordinate.setZ(3L);
-
-        assertEquals(1L, coordinate.getX());
-        assertEquals(2L, coordinate.getY());
-        assertEquals(3L, coordinate.getZ());
-    }
-
-    @Test
     public void testEquality() {
         Coordinate equal = new Coordinate(0L, 0L, 0L);
         Coordinate unequal = new Coordinate(1L, 0L, 0L);

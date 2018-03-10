@@ -26,6 +26,7 @@ import com.emergentmud.core.command.PromptBuilder;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandMetadata;
 import com.emergentmud.core.model.CommandRole;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.EmoteMetadata;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -162,7 +163,7 @@ public class WebSocketResourceTest {
         when(httpSession.getAttribute(eq(breadcrumb))).thenReturn(sessionMap);
         when(sessionRepository.findById(eq(httpSessionId))).thenReturn(httpSession);
         when(entityRepository.findOne(eq(ENTITY_ID))).thenReturn(entity);
-        when(entityRepository.findByXAndYAndZ(eq(0L), eq(0L), eq(0L))).thenReturn(roomContents);
+        when(entityRepository.findByLocation(eq(new Coordinate(0, 0, 0)))).thenReturn(roomContents);
         when(entityRepository.save(any(Entity.class))).thenAnswer(invocation -> {
             Entity entity = (Entity)invocation.getArguments()[0];
 

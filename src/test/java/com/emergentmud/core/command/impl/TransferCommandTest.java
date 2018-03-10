@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.command.impl;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.service.MovementService;
@@ -69,12 +70,14 @@ public class TransferCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(applicationContext.getBean(eq("lookCommand"))).thenReturn(lookCommand);
-        when(movementService.put(any(Entity.class), anyLong(), anyLong(), anyLong())).thenAnswer(invocation -> {
-            Entity entity = (Entity)invocation.getArguments()[0];
+        when(movementService.put(any(Entity.class), any(Coordinate.class))).thenAnswer(invocation -> {
+            Entity entity = invocation.getArgumentAt(0, Entity.class);
 
-            when(entity.getX()).thenReturn((Long)invocation.getArguments()[1]);
-            when(entity.getY()).thenReturn((Long)invocation.getArguments()[2]);
-            when(entity.getZ()).thenReturn((Long)invocation.getArguments()[3]);
+            when(entity.getLocation()).thenReturn(new Coordinate(
+                    invocation.getArgumentAt(1, Coordinate.class).getX(),
+                    invocation.getArgumentAt(1, Coordinate.class).getY(),
+                    invocation.getArgumentAt(1, Coordinate.class).getZ()
+            ));
 
             return entity;
         });
@@ -84,31 +87,27 @@ public class TransferCommandTest {
         when(entityService.entitySearchInWorld(eq(scion), eq("morgan"))).thenReturn(Optional.empty());
         when(entityService.entitySearchInWorld(eq(scion), eq("1"))).thenReturn(Optional.empty());
         when(scion.getName()).thenReturn("Scion");
-        when(scion.getX()).thenReturn(0L);
-        when(scion.getY()).thenReturn(0L);
-        when(scion.getZ()).thenReturn(0L);
+        when(scion.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
         when(spook.getName()).thenReturn("Spook");
-        when(spook.getX()).thenReturn(1L);
-        when(spook.getY()).thenReturn(1L);
-        when(spook.getZ()).thenReturn(0L);
+        when(spook.getLocation()).thenReturn(new Coordinate(1L, 1L, 0L));
         when(gameOutput.append(anyString())).thenReturn(gameOutput);
 
         transferCommand = new TransferCommand(applicationContext, movementService, entityService);
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", transferCommand.getDescription());
     }
 
     @Test
-    public void testParameters() throws Exception {
+    public void testParameters() {
         assertEquals(1, transferCommand.getParameters().size());
         assertEquals(0, transferCommand.getSubCommands().size());
     }
 
     @Test
-    public void testTooFewArgs() throws Exception {
+    public void testTooFewArgs() {
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] {}, "");
 
         assertNotNull(output);
@@ -117,7 +116,7 @@ public class TransferCommandTest {
     }
 
     @Test
-    public void testTooManyArgs() throws Exception {
+    public void testTooManyArgs() {
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] { "spook", "morgan" }, "spook morgan");
 
         assertNotNull(output);
@@ -126,7 +125,7 @@ public class TransferCommandTest {
     }
 
     @Test
-    public void testTransferMissingTarget() throws Exception {
+    public void testTransferMissingTarget() {
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] { "morgan" }, "morgan");
 
         assertNotNull(output);
@@ -137,7 +136,7 @@ public class TransferCommandTest {
     }
 
     @Test
-    public void testTransferSelf() throws Exception {
+    public void testTransferSelf() {
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] { "scion" }, "scion");
 
         assertNotNull(output);
@@ -148,10 +147,8 @@ public class TransferCommandTest {
     }
 
     @Test
-    public void testTransferToSameRoom() throws Exception {
-        when(spook.getX()).thenReturn(0L);
-        when(spook.getY()).thenReturn(0L);
-        when(spook.getZ()).thenReturn(0L);
+    public void testTransferToSameRoom() {
+        when(spook.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
 
         GameOutput output = transferCommand.execute(gameOutput, scion, command, new String[] { "spook" }, "spook");
 
@@ -169,9 +166,9 @@ public class TransferCommandTest {
         assertNotNull(output);
 
         verify(entityService).entitySearchInWorld(eq(scion), eq("spook"));
-        verify(entityService).sendMessageToRoom(eq(1L), eq(1L), eq(0L), eq(spook), any(GameOutput.class));
-        verify(movementService).put(eq(spook), eq(0L), eq(0L), eq(0L));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(spook), any(GameOutput.class));
+        verify(movementService).put(eq(spook), eq(new Coordinate(0L, 0L, 0L)));
+        verify(entityService).sendMessageToRoom(eq(new Coordinate(0L, 0L, 0L)), Mockito.anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(applicationContext).getBean(eq("lookCommand"));
         verify(lookCommand).execute(any(GameOutput.class), eq(spook), eq("look"), any(String[].class), eq(""));
         verify(entityService).sendMessageToEntity(eq(spook), any(GameOutput.class));

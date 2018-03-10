@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Direction;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
@@ -59,12 +60,12 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
     }
 
     @Override
-    public Room fillZone(Zone zone, Long x, Long y, Long z) {
+    public Room fillZone(Zone zone, Coordinate startLocation) {
         long start = System.currentTimeMillis();
-        LinkedList<Cell> queue = new LinkedList<>();
-        List<Cell> carvedRooms = new ArrayList<>();
+        LinkedList<Coordinate> queue = new LinkedList<>();
+        List<Coordinate> carvedRooms = new ArrayList<>();
         CellSelectionStrategy selectionStrategy = cellSelectionStrategies.get(zone.getBiome().getCellSelectionStrategy());
-        Cell current = new Cell(x, y, z);
+        Coordinate current = startLocation;
 
         // queue the first room
         queue.addFirst(current);
@@ -74,7 +75,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
             current = selectionStrategy.selectCell(queue);
             LOGGER.debug("Selected cell from queue: {}", current);
 
-            Cell neighbor = selectValidNeighbor(current, zone, queue, carvedRooms);
+            Coordinate neighbor = selectValidNeighbor(current, zone, queue, carvedRooms);
 
             if (neighbor == null) {
                 carvedRooms.add(current);
@@ -95,7 +96,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         carvedRooms.forEach(cell -> {
             Room room = new Room();
 
-            room.setLocation(cell.getX(), cell.getY(), cell.getZ());
+            room.setLocation(cell);
             room.setZone(zone);
 
             roomBatch.add(room);
@@ -104,14 +105,14 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         roomRepository.save(roomBatch);
 
         LOGGER.debug("Generated maze in {} ms", System.currentTimeMillis() - start);
-        return roomRepository.findByXAndYAndZ(x, y, z);
+        return roomRepository.findByLocation(startLocation);
     }
 
-    private Cell selectValidNeighbor(Cell current, Zone zone, LinkedList<Cell> queue, List<Cell> carvedRooms) {
+    private Coordinate selectValidNeighbor(Coordinate current, Zone zone, LinkedList<Coordinate> queue, List<Coordinate> carvedRooms) {
         Collections.shuffle(DIRECTIONS);
 
         for (Direction direction : DIRECTIONS) {
-            Cell target = new Cell(
+            Coordinate target = new Coordinate(
                     current.getX() + direction.getX(),
                     current.getY() + direction.getY(),
                     current.getZ() + direction.getZ()
@@ -137,7 +138,7 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
                 continue;
             }
 
-            if (roomRepository.findByXAndYAndZ(target.getX(), target.getY(), target.getZ()) != null) {
+            if (roomRepository.findByLocation(target) != null) {
                 LOGGER.debug("Cannot select neighbor: it already exists in another zone");
                 continue;
             }
@@ -150,11 +151,11 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         return null;
     }
 
-    private int countNeighbors(Cell query, Zone zone, LinkedList<Cell> queue, List<Cell> carvedRooms) {
+    private int countNeighbors(Coordinate query, Zone zone, LinkedList<Coordinate> queue, List<Coordinate> carvedRooms) {
         int neighbors = 0;
 
         for (Direction direction : Direction.DIRECTIONS) {
-            Cell search = new Cell(
+            Coordinate search = new Coordinate(
                     query.getX() + direction.getX(),
                     query.getY() + direction.getY(),
                     query.getZ() + direction.getZ()
@@ -170,11 +171,11 @@ public class GrowingTreeMazeStrategy implements ZoneFillStrategy {
         return neighbors;
     }
 
-    private boolean isWithinZone(Cell query, Zone zone) {
-        return query.getX() >= zone.getBottomLeftX()
-                && query.getX() <= zone.getTopRightX()
-                && query.getY() >= zone.getBottomLeftY()
-                && query.getY() <= zone.getTopRightY();
+    private boolean isWithinZone(Coordinate query, Zone zone) {
+        return query.getX() >= zone.getBottomLeft().getX()
+                && query.getX() <= zone.getTopRight().getX()
+                && query.getY() >= zone.getBottomLeft().getY()
+                && query.getY() <= zone.getTopRight().getY();
 
     }
 }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -22,6 +22,7 @@ package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommand;
 import com.emergentmud.core.command.Command;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
@@ -64,14 +65,13 @@ public class ShoutCommand extends BaseCommunicationCommand implements Command {
         output.append(String.format("[dyellow]You shout '%s[dyellow]'", HtmlUtils.htmlEscape(raw)));
 
         GameOutput toZone = new GameOutput(String.format("[dyellow]%s shouts '%s[dyellow]'", entity.getName(), HtmlUtils.htmlEscape(raw)));
-        List<Entity> contents = entityRepository.findByXBetweenAndYBetweenAndZBetween(
-                entity.getX() - SHOUT_DISTANCE, entity.getX() + SHOUT_DISTANCE,
-                entity.getY() - SHOUT_DISTANCE, entity.getY() + SHOUT_DISTANCE,
-                entity.getZ() - SHOUT_DISTANCE, entity.getZ() + SHOUT_DISTANCE
+        List<Entity> contents = entityRepository.findByLocationBetween(
+                new Coordinate(entity.getLocation().getX() - SHOUT_DISTANCE, entity.getLocation().getY() - SHOUT_DISTANCE, entity.getLocation().getZ() - SHOUT_DISTANCE),
+                new Coordinate(entity.getLocation().getX() + SHOUT_DISTANCE, entity.getLocation().getY() + SHOUT_DISTANCE, entity.getLocation().getZ() + SHOUT_DISTANCE)
         );
 
         contents = contents.stream()
-                .filter(r -> roomService.isWithinDistance(entity, r.getX(), r.getY(), r.getZ(), SHOUT_DISTANCE))
+                .filter(r -> roomService.isWithinDistance(entity, r.getLocation(), SHOUT_DISTANCE))
                 .collect(Collectors.toList());
 
         entityService.sendMessageToListeners(contents, entity, toZone);

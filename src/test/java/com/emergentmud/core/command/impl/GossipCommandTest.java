@@ -66,7 +66,7 @@ public class GossipCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
-        when(entityRepository.findByXIsNotNullAndYIsNotNullAndZIsNotNull()).thenReturn(worldContents);
+        when(entityRepository.findByLocationIsNotNull()).thenReturn(worldContents);
 
         command = new GossipCommand(entityRepository, entityService);
     }

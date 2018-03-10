@@ -29,7 +29,7 @@ public class Coordinate implements Serializable {
     private long y;
     private long z;
 
-    public Coordinate() {
+    private Coordinate() {
         // this method intentionally left blank
     }
 
@@ -43,24 +43,12 @@ public class Coordinate implements Serializable {
         return x;
     }
 
-    public void setX(long x) {
-        this.x = x;
-    }
-
     public long getY() {
         return y;
     }
 
-    public void setY(long y) {
-        this.y = y;
-    }
-
     public long getZ() {
         return z;
-    }
-
-    public void setZ(long z) {
-        this.z = z;
     }
 
     @Override
@@ -76,5 +64,10 @@ public class Coordinate implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(getX(), getY(), getZ());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%d, %d, %d)", getX(), getY(), getZ());
     }
 }

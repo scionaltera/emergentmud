@@ -20,8 +20,10 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
+
 import java.util.LinkedList;
 
 public interface CellSelectionStrategy {
-    Cell selectCell(LinkedList<Cell> queue);
+    Coordinate selectCell(LinkedList<Coordinate> queue);
 }

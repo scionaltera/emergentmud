@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.WhittakerGridLocation;
 import com.emergentmud.core.model.Zone;
 import com.emergentmud.core.repository.WhittakerGridLocationRepository;
@@ -51,36 +52,32 @@ public class ZoneService {
         this.random = random;
     }
 
-    public Zone fetchZone(Long x, Long y) {
-        return zoneRepository.findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(x, x, y, y);
+    public Zone fetchZone(Coordinate point) {
+        return zoneRepository.findZoneAtPoint(point.getX(), point.getY());
     }
 
-    public Zone createZone(Long x, Long y) {
-        Zone zone = fetchZone(x, y);
+    public Zone createZone(Coordinate startLocation) {
+        Zone zone = fetchZone(startLocation);
 
         if (zone != null) {
-            LOGGER.debug("Request to create zone that already exists: ({}, {})", x, y);
+            LOGGER.debug("Request to create zone that already exists at: {}", startLocation);
             return zone;
         }
 
         zone = new Zone();
 
-        zone.setTopRightX(x);
-        zone.setTopRightY(y);
-        zone.setBottomLeftX(x);
-        zone.setBottomLeftY(y);
+        zone.setTopRight(startLocation);
+        zone.setBottomLeft(startLocation);
 
         expandZoneBorders(zone);
         selectZoneBiome(zone);
 
         zone = zoneRepository.save(zone);
 
-        LOGGER.info("Saving new zone: {} ({}, {}) ({}, {})",
+        LOGGER.info("Saving new zone: {} {} {}",
                 zone.getBiome().getName(),
-                zone.getBottomLeftX(),
-                zone.getBottomLeftY(),
-                zone.getTopRightX(),
-                zone.getTopRightY());
+                zone.getBottomLeft(),
+                zone.getTopRight());
 
         return zone;
     }
@@ -95,28 +92,30 @@ public class ZoneService {
 
             switch (direction) {
                 case 0:
-                    zone.setTopRightX(zone.getTopRightX() + value);
-                    LOGGER.debug("Expanding right edge to {}", zone.getTopRightX());
+                    zone.setTopRight(new Coordinate(zone.getTopRight().getX() + value, zone.getTopRight().getY(), zone.getTopRight().getZ()));
+                    LOGGER.debug("Expanding right edge to {}", zone.getTopRight().getX());
                     break;
                 case 1:
-                    zone.setTopRightY(zone.getTopRightY() + value);
-                    LOGGER.debug("Expanding top edge to {}", zone.getTopRightY());
+                    zone.setTopRight(new Coordinate(zone.getTopRight().getX(), zone.getTopRight().getY() + value, zone.getTopRight().getZ()));
+                    LOGGER.debug("Expanding top edge to {}", zone.getTopRight().getY());
                     break;
                 case 2:
-                    zone.setBottomLeftX(zone.getBottomLeftX() - value);
-                    LOGGER.debug("Expanding left edge to {}", zone.getBottomLeftX());
+                    zone.setBottomLeft(new Coordinate(zone.getBottomLeft().getX() - value, zone.getBottomLeft().getY(), zone.getBottomLeft().getZ()));
+                    LOGGER.debug("Expanding left edge to {}", zone.getBottomLeft().getX());
                     break;
                 case 3:
-                    zone.setBottomLeftY(zone.getBottomLeftY() - value);
-                    LOGGER.debug("Expanding bottom edge to {}", zone.getBottomLeftY());
+                    zone.setBottomLeft(new Coordinate(zone.getBottomLeft().getX(), zone.getBottomLeft().getY() - value, zone.getBottomLeft().getZ()));
+                    LOGGER.debug("Expanding bottom edge to {}", zone.getBottomLeft().getY());
                     break;
             }
 
-            collisions = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
-                    zone.getTopRightX(),
-                    zone.getBottomLeftX(),
-                    zone.getTopRightY(),
-                    zone.getBottomLeftY()
+            LOGGER.debug("Checking for collisions: {} {}", zone.getTopRight(), zone.getBottomLeft());
+
+            collisions = zoneRepository.findZonesWithin(
+                    zone.getTopRight().getX(),
+                    zone.getTopRight().getY(),
+                    zone.getBottomLeft().getX(),
+                    zone.getBottomLeft().getY()
             );
 
             if (!collisions.isEmpty()) {
@@ -124,31 +123,31 @@ public class ZoneService {
 
                 switch (direction) {
                     case 0:
-                        zone.setTopRightX(zone.getTopRightX() - value);
+                        zone.setTopRight(new Coordinate(zone.getTopRight().getX() - value, zone.getTopRight().getY(), zone.getTopRight().getZ()));
                         break;
                     case 1:
-                        zone.setTopRightY(zone.getTopRightY() - value);
+                        zone.setTopRight(new Coordinate(zone.getTopRight().getX(), zone.getTopRight().getY() - value, zone.getTopRight().getZ()));
                         break;
                     case 2:
-                        zone.setBottomLeftX(zone.getBottomLeftX() + value);
+                        zone.setBottomLeft(new Coordinate(zone.getBottomLeft().getX() + value, zone.getBottomLeft().getY(), zone.getBottomLeft().getZ()));
                         break;
                     case 3:
-                        zone.setBottomLeftY(zone.getBottomLeftY() + value);
+                        zone.setBottomLeft(new Coordinate(zone.getBottomLeft().getX(), zone.getBottomLeft().getY() + value, zone.getBottomLeft().getZ()));
                         break;
                 }
             }
 
             tries++;
         }
-        while ((zone.getTopRightX() - zone.getBottomLeftX() < 10 || zone.getTopRightY() - zone.getBottomLeftY() < 10) && tries < 25);
+        while ((zone.getTopRight().getX() - zone.getBottomLeft().getX() < 10 || zone.getTopRight().getY() - zone.getBottomLeft().getY() < 10) && tries < 25);
     }
 
     private void selectZoneBiome(Zone zone) {
-        List<Zone> neighbors = zoneRepository.findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(
-                zone.getTopRightX() + 1,
-                zone.getBottomLeftX() - 1,
-                zone.getTopRightY() + 1,
-                zone.getBottomLeftY() - 1
+        List<Zone> neighbors = zoneRepository.findZonesWithin(
+                zone.getTopRight().getX() + 1,
+                zone.getTopRight().getY() + 1,
+                zone.getBottomLeft().getX() - 1,
+                zone.getBottomLeft().getY() - 1
         );
 
         List<WhittakerGridLocation> allWhittakerGridLocations = new ArrayList<>();

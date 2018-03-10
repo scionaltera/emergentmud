@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.event;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -64,9 +65,7 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         )).thenReturn(entity);
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(new Coordinate(0, 0, 0));
 
         stompDisconnectListener = new StompDisconnectListener(
                 entityRepository,
@@ -76,22 +75,20 @@ public class StompDisconnectListenerTest {
     }
 
     @Test
-    public void applicationEventTest() throws Exception {
+    public void applicationEventTest() {
         stompDisconnectListener.onApplicationEvent(event);
 
         verify(entityRepository).findByStompSessionIdAndStompUsername(
                 eq(simpSessionId),
                 eq(socialUserName)
         );
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), eq(entity), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(entity), any(GameOutput.class));
         verify(movementService).remove(eq(entity));
     }
 
     @Test
-    public void applicationEventNoRoom() throws Exception {
-        when(entity.getX()).thenReturn(null);
-        when(entity.getY()).thenReturn(null);
-        when(entity.getZ()).thenReturn(null);
+    public void applicationEventNoRoom() {
+        when(entity.getLocation()).thenReturn(null);
 
         stompDisconnectListener.onApplicationEvent(event);
 
@@ -99,12 +96,12 @@ public class StompDisconnectListenerTest {
                 eq(simpSessionId),
                 eq(socialUserName)
         );
-        verify(entityService, never()).sendMessageToRoom(anyLong(), anyLong(), anyLong(), any(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(any(Coordinate.class), any(Entity.class), any(GameOutput.class));
         verify(movementService).remove(eq(entity));
     }
 
     @Test
-    public void applicationEventNoEntity() throws Exception {
+    public void applicationEventNoEntity() {
         when(entityRepository.findByStompSessionIdAndStompUsername(anyString(), anyString())).thenReturn(null);
 
         stompDisconnectListener.onApplicationEvent(event);

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.model.Account;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Pronoun;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -54,6 +55,7 @@ public class InfoCommandTest {
     @Mock
     private EntityService entityService;
 
+    private Coordinate origin = new Coordinate(0, 0, 0);
     private String cmd = "info";
 
     private InfoCommand command;
@@ -63,14 +65,13 @@ public class InfoCommandTest {
         MockitoAnnotations.initMocks(this);
 
         when(gender.toString()).thenReturn("Test/Test");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(origin);
         when(entity.getName()).thenReturn("Scion");
         when(entity.getGender()).thenReturn(gender);
         when(entity.getAccount()).thenReturn(account);
         when(target.getName()).thenReturn("Bnarg");
         when(target.getGender()).thenReturn(gender);
+        when(target.getLocation()).thenReturn(origin);
         when(entityService.entitySearchGlobal(eq(entity), eq("bnarg"))).thenReturn(Optional.of(target));
         when(entityService.entitySearchGlobal(eq(entity), eq("morgan"))).thenReturn(Optional.empty());
 
@@ -78,17 +79,17 @@ public class InfoCommandTest {
     }
 
     @Test
-    public void testParameter() throws Exception {
+    public void testParameter() {
         assertTrue(command.getParameters().stream().anyMatch(p -> "target".equals(p.getName())));
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testTooManyArgs() throws Exception {
+    public void testTooManyArgs(){
         GameOutput result = command.execute(output, entity, cmd, new String[] { "unexpected", "args" }, "unexpected args");
 
         assertNotNull(result);
@@ -96,14 +97,12 @@ public class InfoCommandTest {
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecute() {
         GameOutput result = command.execute(output, entity, cmd, new String[] {}, "");
 
         assertNotNull(result);
         verifyZeroInteractions(target);
-        verify(entity, atLeastOnce()).getX();
-        verify(entity, atLeastOnce()).getY();
-        verify(entity, atLeastOnce()).getZ();
+        verify(entity, atLeastOnce()).getLocation();
         verify(entity).getId();
         verify(entity).getName();
         verify(entity).getGender();
@@ -119,16 +118,14 @@ public class InfoCommandTest {
     }
 
     @Test
-    public void testExecuteTarget() throws Exception {
+    public void testExecuteTarget() {
         GameOutput result = command.execute(output, entity, cmd, new String[] { "bnarg" }, "bnarg");
 
         assertNotNull(result);
         verify(entityService).entitySearchGlobal(eq(entity), eq("bnarg"));
         verifyNoMoreInteractions(entity);
         verifyZeroInteractions(account);
-        verify(target, atLeastOnce()).getX();
-        verify(target, atLeastOnce()).getY();
-        verify(target, atLeastOnce()).getZ();
+        verify(target, atLeastOnce()).getLocation();
         verify(target).getId();
         verify(target).getName();
         verify(target).getGender();
@@ -138,7 +135,7 @@ public class InfoCommandTest {
     }
 
     @Test
-    public void testExecuteInvalidTarget() throws Exception {
+    public void testExecuteInvalidTarget() {
         GameOutput result = command.execute(output, entity, cmd, new String[] { "morgan" }, "morgan");
 
         assertNotNull(result);

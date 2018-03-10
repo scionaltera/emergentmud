@@ -20,9 +20,10 @@
 
 package com.emergentmud.core.service.maze;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
 
 public interface ZoneFillStrategy {
-    Room fillZone(Zone zone, Long x, Long y, Long z);
+    Room fillZone(Zone zone, Coordinate start);
 }

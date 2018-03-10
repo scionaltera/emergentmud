@@ -55,10 +55,10 @@ public class StompDisconnectListener implements ApplicationListener<SessionDisco
         Entity entity = entityRepository.findByStompSessionIdAndStompUsername(event.getSessionId(), event.getUser().getName());
 
         if (entity != null) {
-            if (entity.getX() != null || entity.getY() != null || entity.getZ() != null) {
+            if (entity.getLocation() != null) {
                 GameOutput enterMessage = new GameOutput(String.format("[yellow]%s has left the game.", entity.getName()));
 
-                entityService.sendMessageToRoom(entity.getX(), entity.getY(), entity.getZ(), entity, enterMessage);
+                entityService.sendMessageToRoom(entity, enterMessage);
 
                 LOGGER.info("{} has disconnected from the game", entity.getName());
             }

@@ -1,6 +1,6 @@
 /*
  * EmergentMUD - A modern MUD with a procedurally generated world.
- * Copyright (C) 2016-2017 Peter Keeler
+ * Copyright (C) 2016-2018 Peter Keeler
  *
  * This file is part of EmergentMUD.
  *
@@ -21,9 +21,12 @@
 package com.emergentmud.core.service;
 
 import com.emergentmud.core.command.PromptBuilder;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
+import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.EntityRepository;
+import com.emergentmud.core.repository.RoomRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -36,14 +39,17 @@ import java.util.Optional;
 @Component
 public class EntityService {
     private EntityRepository entityRepository;
+    private RoomRepository roomRepository;
     private SimpMessagingTemplate simpMessagingTemplate;
     private PromptBuilder promptBuilder;
 
     @Inject
     public EntityService(EntityRepository entityRepository,
+                         RoomRepository roomRepository,
                          SimpMessagingTemplate simpMessagingTemplate,
                          PromptBuilder promptBuilder) {
         this.entityRepository = entityRepository;
+        this.roomRepository = roomRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.promptBuilder = promptBuilder;
     }
@@ -58,10 +64,20 @@ public class EntityService {
         simpMessagingTemplate.convertAndSendToUser(entity.getStompUsername(), "/queue/output", message, headerAccessor.getMessageHeaders());
     }
 
-    public void sendMessageToRoom(Long x, Long y, Long z, Entity entity, GameOutput message) {
+    public void sendMessageToRoom(Entity entity, GameOutput message) {
+        sendMessageToRoom(entity.getLocation(), entity, message);
+    }
+
+    public void sendMessageToRoom(Coordinate location, Entity entity, GameOutput message) {
+        Room room = roomRepository.findByLocation(location);
+
+        sendMessageToRoom(room, entity, message);
+    }
+
+    public void sendMessageToRoom(Room room, Entity entity, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByXAndYAndZ(x, y, z)
+        entityRepository.findByLocation(room.getLocation())
                 .stream()
                 .filter(e -> !e.equals(entity))
                 .forEach(e -> {
@@ -73,10 +89,16 @@ public class EntityService {
                 });
     }
 
-    public void sendMessageToRoom(Long x, Long y, Long z, Collection<Entity> exclude, GameOutput message) {
+    public void sendMessageToRoom(Coordinate location, Collection<Entity> exclude, GameOutput message) {
+        Room room = roomRepository.findByLocation(location);
+
+        sendMessageToRoom(room, exclude, message);
+    }
+
+    public void sendMessageToRoom(Room room, Collection<Entity> exclude, GameOutput message) {
         promptBuilder.appendPrompt(message);
 
-        entityRepository.findByXAndYAndZ(x, y, z)
+        entityRepository.findByLocation(room.getLocation())
                 .stream()
                 .filter(e -> !exclude.contains(e))
                 .forEach(e -> {
@@ -116,7 +138,7 @@ public class EntityService {
     }
 
     public Optional<Entity> entitySearchRoom(Entity entity, String name) {
-        return entityRepository.findByXAndYAndZ(entity.getX(), entity.getY(), entity.getZ())
+        return entityRepository.findByLocation(entity.getLocation())
                 .stream()
                 .filter(t -> t.getName().toLowerCase().startsWith(name.toLowerCase()))
                 .findFirst();
@@ -129,7 +151,7 @@ public class EntityService {
             return entityOptional;
         }
 
-        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCaseAndXIsNotNullAndYIsNotNullAndZIsNotNull(name));
+        return Optional.ofNullable(entityRepository.findByNameStartingWithIgnoreCaseAndLocationIsNotNull(name));
     }
 
     public Optional<Entity> entitySearchGlobal(Entity entity, String name) {

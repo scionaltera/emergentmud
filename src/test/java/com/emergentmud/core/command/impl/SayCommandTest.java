@@ -21,6 +21,7 @@
 package com.emergentmud.core.command.impl;
 
 import com.emergentmud.core.command.BaseCommunicationCommandTest;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.stomp.GameOutput;
@@ -63,26 +64,24 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
 
         when(entity.getId()).thenReturn(UUID.randomUUID());
         when(entity.getName()).thenReturn("Testy");
-        when(entity.getX()).thenReturn(0L);
-        when(entity.getY()).thenReturn(0L);
-        when(entity.getZ()).thenReturn(0L);
+        when(entity.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
 
         command = new SayCommand(entityService);
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testSaySomething() throws Exception {
+    public void testSaySomething() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "Feed", "me", "a", "stray", "cat." },
                 "Feed me a stray cat.");
 
         verify(response).append(eq("[cyan]You say 'Feed me a stray cat.[cyan]'"));
-        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -90,13 +89,13 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testSaySomethingWithSymbols() throws Exception {
+    public void testSaySomethingWithSymbols() {
         GameOutput response = command.execute(output, entity, cmd,
                 new String[] { "<script", "type=\"text/javascript\">var", "evil", "=", "\"stuff\";</script>" },
                 "<script type=\"text/javascript\">var evil = \"stuff\";</script>");
 
         verify(response).append(eq("[cyan]You say '&lt;script type=&quot;text/javascript&quot;&gt;var evil = &quot;stuff&quot;;&lt;/script&gt;[cyan]'"));
-        verify(entityService).sendMessageToRoom(anyLong(), anyLong(), anyLong(), eq(entity), outputCaptor.capture());
+        verify(entityService).sendMessageToRoom(eq(entity), outputCaptor.capture());
 
         GameOutput output = outputCaptor.getValue();
 
@@ -104,7 +103,7 @@ public class SayCommandTest extends BaseCommunicationCommandTest {
     }
 
     @Test
-    public void testSayNothing() throws Exception {
+    public void testSayNothing() {
         GameOutput response = command.execute(output, entity, cmd, new String[] {}, "");
 
         verify(response).append(eq("What would you like to say?"));

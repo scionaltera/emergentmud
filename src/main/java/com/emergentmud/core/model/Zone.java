@@ -22,6 +22,9 @@ package com.emergentmud.core.model;
 
 import org.hibernate.annotations.Type;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -36,11 +39,19 @@ public class Zone {
     @Type(type = "pg-uuid")
     private UUID id;
 
-    private Long topRightX;
-    private Long topRightY;
+    @AttributeOverrides({
+            @AttributeOverride(name = "x", column = @Column(name = "top_right_x")),
+            @AttributeOverride(name = "y", column = @Column(name = "top_right_y")),
+            @AttributeOverride(name = "z", column = @Column(name = "top_right_z"))
+    })
+    private Coordinate topRight;
 
-    private Long bottomLeftX;
-    private Long bottomLeftY;
+    @AttributeOverrides({
+            @AttributeOverride(name = "x", column = @Column(name = "bottom_left_x")),
+            @AttributeOverride(name = "y", column = @Column(name = "bottom_left_y")),
+            @AttributeOverride(name = "z", column = @Column(name = "bottom_left_z"))
+    })
+    private Coordinate bottomLeft;
 
     private Integer elevation;
     private Integer moisture;
@@ -56,36 +67,20 @@ public class Zone {
         this.id = id;
     }
 
-    public Long getTopRightX() {
-        return topRightX;
+    public Coordinate getTopRight() {
+        return topRight;
     }
 
-    public void setTopRightX(Long topRightX) {
-        this.topRightX = topRightX;
+    public void setTopRight(Coordinate topRight) {
+        this.topRight = topRight;
     }
 
-    public Long getTopRightY() {
-        return topRightY;
+    public Coordinate getBottomLeft() {
+        return bottomLeft;
     }
 
-    public void setTopRightY(Long topRightY) {
-        this.topRightY = topRightY;
-    }
-
-    public Long getBottomLeftX() {
-        return bottomLeftX;
-    }
-
-    public void setBottomLeftX(Long bottomLeftX) {
-        this.bottomLeftX = bottomLeftX;
-    }
-
-    public Long getBottomLeftY() {
-        return bottomLeftY;
-    }
-
-    public void setBottomLeftY(Long bottomLeftY) {
-        this.bottomLeftY = bottomLeftY;
+    public void setBottomLeft(Coordinate bottomLeft) {
+        this.bottomLeft = bottomLeft;
     }
 
     public Integer getElevation() {
@@ -112,8 +107,8 @@ public class Zone {
         this.biome = biome;
     }
 
-    public boolean encompasses(long x, long y, long z) {
-        return x >= getBottomLeftX() && x <= getTopRightX() && y >= getBottomLeftY() && y <= getTopRightY();
+    public boolean encompasses(Coordinate location) {
+        return location.getX() >= getBottomLeft().getX() && location.getX() <= getTopRight().getX() && location.getY() >= getBottomLeft().getY() && location.getY() <= getTopRight().getY();
     }
 
     @Override

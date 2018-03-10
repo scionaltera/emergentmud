@@ -21,7 +21,9 @@
 package com.emergentmud.core.repository;
 
 import com.emergentmud.core.model.Zone;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +31,13 @@ import java.util.UUID;
 
 @Repository
 public interface ZoneRepository extends CrudRepository<Zone, UUID> {
-    Zone findZoneByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
-    List<Zone> findZonesByBottomLeftXLessThanEqualAndTopRightXGreaterThanEqualAndBottomLeftYLessThanEqualAndTopRightYGreaterThanEqual(Long x1, Long x2, Long y1, Long y2);
+    @Query("select zone from Zone zone where zone.topRight.x >= :x and zone.topRight.y >= :y and zone.bottomLeft.x <= :x and zone.bottomLeft.y <= :y")
+    Zone findZoneAtPoint(@Param("x") Long x, @Param("y") Long y);
+
+    @Query("select zone from Zone zone where zone.bottomLeft.x <= :topRightX and zone.topRight.x >= :bottomLeftX and zone.topRight.y >= :bottomLeftY and zone.bottomLeft.y <= :topRightY")
+    List<Zone> findZonesWithin(
+            @Param("topRightX") Long topRightX,
+            @Param("topRightY") Long topRightY,
+            @Param("bottomLeftX") Long bottomLeftX,
+            @Param("bottomLeftY") Long bottomLeftY);
 }

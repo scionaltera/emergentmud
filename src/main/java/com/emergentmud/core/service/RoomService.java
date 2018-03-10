@@ -20,6 +20,7 @@
 
 package com.emergentmud.core.service;
 
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.Room;
 import com.emergentmud.core.model.Zone;
@@ -50,36 +51,36 @@ public class RoomService {
         this.zoneFillStrategy = zoneFillStrategy;
     }
 
-    public Room fetchRoom(Long x, Long y, Long z) {
-        return roomRepository.findByXAndYAndZ(x, y, z);
+    public Room fetchRoom(Coordinate location) {
+        return roomRepository.findByLocation(location);
     }
 
-    public List<Room> fetchRooms(Long xFrom, Long xTo, Long yFrom, Long yTo, Long zFrom, Long zTo) {
-        return roomRepository.findByXBetweenAndYBetweenAndZBetween(xFrom, xTo, yFrom, yTo, zFrom, zTo);
+    public List<Room> fetchRooms(Coordinate from, Coordinate to) {
+        return roomRepository.findByLocationBetween(from, to);
     }
 
-    public Room createRoom(Long x, Long y, Long z) {
-        Room room = fetchRoom(x, y, z);
+    public Room createRoom(Coordinate location) {
+        Room room = fetchRoom(location);
 
         if (room != null) {
-            LOGGER.debug("Request to create room that already exists: ({}, {}, {})", x, y, z);
+            LOGGER.debug("Request to create room that already exists: {}", location);
             return room;
         }
 
-        Zone zone = zoneService.fetchZone(x, y);
+        Zone zone = zoneService.fetchZone(location);
 
         if (zone == null) {
-            zone = zoneService.createZone(x, y);
+            zone = zoneService.createZone(location);
 
-            return zoneFillStrategy.fillZone(zone, x, y, z);
+            return zoneFillStrategy.fillZone(zone, location);
         }
 
         return null;
     }
 
-    public boolean isWithinDistance(Entity origin, Long x, Long y, Long z, double distance) {
-        return Math.sqrt(Math.pow(origin.getX() - x, 2)
-                + Math.pow(origin.getY() - y, 2)
-                + Math.pow(origin.getZ() - z, 2)) <= distance;
+    public boolean isWithinDistance(Entity origin, Coordinate distant, double distance) {
+        return Math.sqrt(Math.pow(origin.getLocation().getX() - distant.getX(), 2)
+                + Math.pow(origin.getLocation().getY() - distant.getY(), 2)
+                + Math.pow(origin.getLocation().getZ() - distant.getZ(), 2)) <= distance;
     }
 }

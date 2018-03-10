@@ -23,6 +23,7 @@ package com.emergentmud.core.command.impl;
 import com.emergentmud.core.model.Account;
 import com.emergentmud.core.model.Capability;
 import com.emergentmud.core.model.CommandRole;
+import com.emergentmud.core.model.Coordinate;
 import com.emergentmud.core.model.Entity;
 import com.emergentmud.core.model.stomp.GameOutput;
 import com.emergentmud.core.repository.AccountRepository;
@@ -82,9 +83,7 @@ public class ExileCommandTest {
         when(output.append(anyString())).thenReturn(output);
         when(entity.getName()).thenReturn("Admin");
         when(victim.getAccount()).thenReturn(account);
-        when(victim.getX()).thenReturn(0L);
-        when(victim.getY()).thenReturn(0L);
-        when(victim.getZ()).thenReturn(0L);
+        when(victim.getLocation()).thenReturn(new Coordinate(0L, 0L, 0L));
         when(victim.getName()).thenReturn("Victim");
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_PLAY.name()))).thenReturn(playCapability);
         when(capabilityRepository.findByName(eq(CommandRole.CHAR_NEW.name()))).thenReturn(newCharCapability);
@@ -94,18 +93,18 @@ public class ExileCommandTest {
     }
 
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() {
         assertNotEquals("No description.", command.getDescription());
     }
 
     @Test
-    public void testSyntax() throws Exception {
+    public void testSyntax() {
         assertTrue(command.getParameters().size() == 2);
         assertTrue(command.getSubCommands().isEmpty());
     }
 
     @Test
-    public void testTooFewArgs() throws Exception {
+    public void testTooFewArgs() {
         GameOutput result = command.execute(output, entity, "exile", new String[] { "victim" }, "victim");
 
         assertNotNull(result);
@@ -114,7 +113,7 @@ public class ExileCommandTest {
     }
 
     @Test
-    public void testTooManyArgs() throws Exception {
+    public void testTooManyArgs() {
         GameOutput result = command.execute(output, entity, "exile", new String[] { "add victim now" }, "add victim now");
 
         assertNotNull(result);
@@ -123,7 +122,7 @@ public class ExileCommandTest {
     }
 
     @Test
-    public void testWrongOperation() throws Exception {
+    public void testWrongOperation() {
         GameOutput result = command.execute(output, entity, "exile", new String[] { "kick", "victim" }, "kick victim");
 
         assertNotNull(result);
@@ -136,7 +135,7 @@ public class ExileCommandTest {
     }
 
     @Test
-    public void testVictimNotFound() throws Exception {
+    public void testVictimNotFound() {
         when(entityService.entitySearchGlobal(eq(entity), eq("victim"))).thenReturn(Optional.empty());
 
         GameOutput result = command.execute(output, entity, "exile", new String[] { "add", "victim" }, "add victim");
@@ -148,12 +147,12 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("victim"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(new Coordinate(0L, 0L, 0L)), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(movementService, never()).remove(victim);
     }
 
     @Test
-    public void testVictimIsSelf() throws Exception {
+    public void testVictimIsSelf() {
         when(entityService.entitySearchGlobal(eq(entity), eq("admin"))).thenReturn(Optional.of(entity));
 
         GameOutput result = command.execute(output, entity, "exile", new String[] { "add", "admin" }, "add admin");
@@ -165,12 +164,12 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("admin"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(new Coordinate(0L, 0L, 0L)), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(movementService, never()).remove(victim);
     }
 
     @Test
-    public void testAddExile() throws Exception {
+    public void testAddExile() {
         when(account.isCapable(eq(playCapability))).thenReturn(true);
         when(account.isCapable(eq(newCharCapability))).thenReturn(true);
 
@@ -184,12 +183,12 @@ public class ExileCommandTest {
         verify(account).removeCapabilities(playCapability, newCharCapability);
         verify(accountRepository).save(eq(account));
         verify(entityService).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService).sendMessageToRoom(eq(new Coordinate(0L, 0L, 0L)), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(movementService).remove(victim);
     }
 
     @Test
-    public void testAddAlreadyExiled() throws Exception {
+    public void testAddAlreadyExiled() {
         when(account.isCapable(eq(playCapability))).thenReturn(false);
         when(account.isCapable(eq(newCharCapability))).thenReturn(false);
 
@@ -202,12 +201,12 @@ public class ExileCommandTest {
         verify(entityService).entitySearchGlobal(eq(entity), eq("victim"));
         verify(accountRepository, never()).save(eq(account));
         verify(entityService, never()).sendMessageToEntity(eq(victim), any(GameOutput.class));
-        verify(entityService, never()).sendMessageToRoom(eq(0L), eq(0L), eq(0L), anyCollectionOf(Entity.class), any(GameOutput.class));
+        verify(entityService, never()).sendMessageToRoom(eq(new Coordinate(0L, 0L, 0)), anyCollectionOf(Entity.class), any(GameOutput.class));
         verify(movementService, never()).remove(victim);
     }
 
     @Test
-    public void testRemoveExile() throws Exception {
+    public void testRemoveExile() {
         when(account.isCapable(eq(playCapability))).thenReturn(false);
         when(account.isCapable(eq(newCharCapability))).thenReturn(false);
 
@@ -223,7 +222,7 @@ public class ExileCommandTest {
     }
 
     @Test
-    public void testAlreadyRemovedExile() throws Exception {
+    public void testAlreadyRemovedExile() {
         when(account.isCapable(eq(playCapability))).thenReturn(true);
         when(account.isCapable(eq(newCharCapability))).thenReturn(true);
 
