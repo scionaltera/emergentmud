@@ -19,4 +19,4 @@
 emergentmud:
   build:
     image: scionaltera/emergentmud
-    dockerfile: Dockerfile.codeship
+    dockerfile: src/main/docker/codeship/Dockerfile
