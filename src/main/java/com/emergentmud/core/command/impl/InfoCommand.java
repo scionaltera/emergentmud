@@ -73,14 +73,20 @@ public class InfoCommand extends BaseCommand {
                 "Attributes"
         );
 
-        String location = String.format("[d%s]([%s]%d[d%s], [%s]%d[d%s], [%s]%d[d%s])",
-                COLOR, COLOR,
-                target.getLocation().getX(),
-                COLOR, COLOR,
-                target.getLocation().getY(),
-                COLOR, COLOR,
-                target.getLocation().getZ(),
-                COLOR);
+        String location;
+
+        if (target.getLocation() == null) {
+            location = String.format("[d%s]([%s]Void[d%s])", COLOR, COLOR, COLOR);
+        } else {
+            location = String.format("[d%s]([%s]%d[d%s], [%s]%d[d%s], [%s]%d[d%s])",
+                    COLOR, COLOR,
+                    target.getLocation().getX(),
+                    COLOR, COLOR,
+                    target.getLocation().getY(),
+                    COLOR, COLOR,
+                    target.getLocation().getZ(),
+                    COLOR);
+        }
 
         tableFormatter.addRow(Arrays.asList("Name", target.getName()));
         tableFormatter.addRow(Arrays.asList("Gender", target.getGender().toString()));
